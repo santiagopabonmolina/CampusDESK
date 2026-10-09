@@ -4,11 +4,22 @@ import com.spring.modules.comment.Comment;
 import com.spring.modules.ticketHistory.TicketHistory;
 import jakarta.persistence.*;
 import com.spring.modules.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Entity
+@Table(name = "ticket")
+@NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
 public class Ticket {
 
     @Id
