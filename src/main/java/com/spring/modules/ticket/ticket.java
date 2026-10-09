@@ -1,5 +1,4 @@
 package com.spring.modules.ticket;
 
-public class ticket {
+public class Ticket {
 }
-// pendiente por completar
