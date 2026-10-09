@@ -1,4 +1,4 @@
 package com.spring.modules.ticketHistory;
 
-public class ticketHistory {
+public class TicketHistory {
 }
