@@ -4,18 +4,18 @@ import com.spring.modules.ticket.ticketStatus; // ASSUMPTION
 
 import java.time.LocalDateTime;
 
-public record ticketHistoryResponse(
+public record TicketHistoryResponse(
         Long id,
         Long ticketId,
-        ticketStatus previousStatus,
-        ticketStatus newStatus,
+        TicketStatus previousStatus,
+        TicketStatus newStatus,
         Long changedById,
         String changedByEmail,
         LocalDateTime changedAt
 ) {
 
-    public static ticketHistoryResponse from(ticketHistory entry) {
-        return new ticketHistoryResponse(
+    public static TicketHistoryResponse from(TicketHistory entry) {
+        return new TicketHistoryResponse(
                 entry.getId(),
                 entry.getTicket().getId(),
                 entry.getPreviousStatus(),

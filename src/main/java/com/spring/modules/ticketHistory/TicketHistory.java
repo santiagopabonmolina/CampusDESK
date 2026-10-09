@@ -1,7 +1,7 @@
-package com.spring.modules.ticketHistory;
+package com.spring.modules.TicketHistory;
 
-import com.spring.modules.ticket.ticket;
-import com.spring.modules.ticket.ticketStatus; // ASSUMPTION: enum in the ticket module
+import com.spring.modules.Ticket.Ticket;
+import com.spring.modules.Ticket.TicketStatus; // ASSUMPTION: enum in the Ticket module
 import com.spring.modules.user.User;           // ASSUMPTION: user entity is named User
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,30 +20,30 @@ import org.hibernate.annotations.Immutable;
 import java.time.LocalDateTime;
 
 /**
- * Immutable audit record of a ticket status change.
+ * Immutable audit record of a Ticket status change.
  * Hibernate never issues UPDATE statements for this entity.
  */
 @Entity
 @Immutable
-@Table(name = "ticket_history")
-public class ticketHistory {
+@Table(name = "Ticket_history")
+public class TicketHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "ticket_id", nullable = false, updatable = false)
-    private ticket ticket;
+    @JoinColumn(name = "Ticket_id", nullable = false, updatable = false)
+    private Ticket Ticket;
 
-    // Null only for the initial record created together with the ticket.
+    // Null only for the initial record created together with the Ticket.
     @Enumerated(EnumType.STRING)
     @Column(name = "previous_status", length = 30, updatable = false)
-    private ticketStatus previousStatus;
+    private TicketStatus previousStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "new_status", nullable = false, length = 30, updatable = false)
-    private ticketStatus newStatus;
+    private TicketStatus newStatus;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "changed_by", nullable = false, updatable = false)
@@ -52,12 +52,12 @@ public class ticketHistory {
     @Column(name = "changed_at", nullable = false, updatable = false)
     private LocalDateTime changedAt;
 
-    protected ticketHistory() {
+    protected TicketHistory() {
         // Required by JPA
     }
 
-    public ticketHistory(ticket ticket, ticketStatus previousStatus, ticketStatus newStatus, User changedBy) {
-        this.ticket = ticket;
+    public TicketHistory(Ticket Ticket, TicketStatus previousStatus, TicketStatus newStatus, User changedBy) {
+        this.Ticket = Ticket;
         this.previousStatus = previousStatus;
         this.newStatus = newStatus;
         this.changedBy = changedBy;
@@ -74,15 +74,15 @@ public class ticketHistory {
         return id;
     }
 
-    public ticket getTicket() {
-        return ticket;
+    public Ticket getTicket() {
+        return Ticket;
     }
 
-    public ticketStatus getPreviousStatus() {
+    public TicketStatus getPreviousStatus() {
         return previousStatus;
     }
 
-    public ticketStatus getNewStatus() {
+    public TicketStatus getNewStatus() {
         return newStatus;
     }
 

@@ -1,8 +1,8 @@
-package com.spring.modules.ticketHistory;
+package com.spring.modules.TicketHistory;
 
-import com.spring.modules.ticket.ticket;
-import com.spring.modules.ticket.ticketRepository; // ASSUMPTION: exists with findById
-import com.spring.modules.ticket.ticketStatus;     // ASSUMPTION
+import com.spring.modules.Ticket.Ticket;
+import com.spring.modules.Ticket.TicketRepository; // ASSUMPTION: exists with findById
+import com.spring.modules.Ticket.TicketStatus;     // ASSUMPTION
 import com.spring.modules.user.User;               // ASSUMPTION
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -16,31 +16,31 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class ticketHistoryService {
+public class TicketHistoryService {
 
     private static final String ROLE_ADMIN = "ROLE_ADMIN";             // ASSUMPTION: authority names
     private static final String ROLE_TECHNICIAN = "ROLE_TECHNICIAN";
 
-    private final ticketHistoryRepository ticketHistoryRepository;
-    private final ticketRepository ticketRepository;
+    private final TicketHistoryRepository TicketHistoryRepository;
+    private final TicketRepository TicketRepository;
 
-    public ticketHistoryService(ticketHistoryRepository ticketHistoryRepository,
-                                ticketRepository ticketRepository) {
-        this.ticketHistoryRepository = ticketHistoryRepository;
-        this.ticketRepository = ticketRepository;
+    public TicketHistoryService(TicketHistoryRepository TicketHistoryRepository,
+                                TicketRepository TicketRepository) {
+        this.TicketHistoryRepository = TicketHistoryRepository;
+        this.TicketRepository = TicketRepository;
     }
 
     /**
-     * Records a status change. To be called by the ticket service in the SAME transaction
-     * that updates the ticket status. MANDATORY fails fast if no transaction is active,
+     * Records a status change. To be called by the Ticket service in the SAME transaction
+     * that updates the Ticket status. MANDATORY fails fast if no transaction is active,
      * guaranteeing that status update and history entry are committed together.
      */
     @Transactional(propagation = Propagation.MANDATORY)
-    public ticketHistoryResponse recordChange(ticket ticket,
-                                              ticketStatus previousStatus,
-                                              ticketStatus newStatus,
+    public TicketHistoryResponse recordChange(Ticket Ticket,
+                                              TicketStatus previousStatus,
+                                              TicketStatus newStatus,
                                               User changedBy) {
-        Objects.requireNonNull(ticket, "ticket must not be null");
+        Objects.requireNonNull(Ticket, "Ticket must not be null");
         Objects.requireNonNull(newStatus, "newStatus must not be null");
         Objects.requireNonNull(changedBy, "changedBy must not be null");
 
@@ -49,10 +49,10 @@ public class ticketHistoryService {
         }
 
         // Avoid duplicated entries when the same transition is registered twice in a row.
-        // Skipped for new tickets that do not have an id yet.
-        if (ticket.getId() != null) {
-            boolean duplicated = ticketHistoryRepository
-                    .findFirstByTicketIdOrderByChangedAtDescIdDesc(ticket.getId())
+        // Skipped for new Tickets that do not have an id yet.
+        if (Ticket.getId() != null) {
+            boolean duplicated = TicketHistoryRepository
+                    .findFirstByTicketIdOrderByChangedAtDescIdDesc(Ticket.getId())
                     .map(last -> last.getNewStatus() == newStatus && last.getPreviousStatus() == previousStatus)
                     .orElse(false);
             if (duplicated) {
@@ -60,38 +60,38 @@ public class ticketHistoryService {
             }
         }
 
-        ticketHistory saved = ticketHistoryRepository.save(
-                new ticketHistory(ticket, previousStatus, newStatus, changedBy));
-        return ticketHistoryResponse.from(saved);
+        TicketHistory saved = TicketHistoryRepository.save(
+                new TicketHistory(Ticket, previousStatus, newStatus, changedBy));
+        return TicketHistoryResponse.from(saved);
     }
 
-    /** Returns the ticket history in chronological order, enforcing ticket visibility rules. */
+    /** Returns the Ticket history in chronological order, enforcing Ticket visibility rules. */
     @Transactional(readOnly = true)
-    public List<ticketHistoryResponse> getHistoryByTicket(Long ticketId, Authentication authentication) {
-        ticket ticket = ticketRepository.findById(ticketId)
+    public List<TicketHistoryResponse> getHistoryByTicket(Long TicketId, Authentication authentication) {
+        Ticket Ticket = TicketRepository.findById(TicketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
 
-        if (!canViewHistory(ticket, authentication)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to view this ticket history");
+        if (!canViewHistory(Ticket, authentication)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to view this Ticket history");
         }
 
-        return ticketHistoryRepository.findByTicketIdOrderByChangedAtAscIdAsc(ticketId)
+        return TicketHistoryRepository.findByTicketIdOrderByChangedAtAscIdAsc(TicketId)
                 .stream()
-                .map(ticketHistoryResponse::from)
+                .map(TicketHistoryResponse::from)
                 .toList();
     }
 
-    private boolean canViewHistory(ticket ticket, Authentication authentication) {
+    private boolean canViewHistory(Ticket Ticket, Authentication authentication) {
         if (hasAuthority(authentication, ROLE_ADMIN)) {
             return true;
         }
         String email = authentication.getName(); // ASSUMPTION: JWT subject is the user email
 
         if (hasAuthority(authentication, ROLE_TECHNICIAN)) {
-            User technician = ticket.getAssignedTechnician(); // ASSUMPTION: field name
+            User technician = Ticket.getAssignedTechnician(); // ASSUMPTION: field name
             return technician != null && email.equalsIgnoreCase(technician.getEmail());
         }
-        User requester = ticket.getRequester(); // ASSUMPTION: field name
+        User requester = Ticket.getRequester(); // ASSUMPTION: field name
         return requester != null && email.equalsIgnoreCase(requester.getEmail());
     }
 
