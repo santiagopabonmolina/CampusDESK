@@ -1,9 +1,12 @@
 package com.spring.service;
 
-import com.spring.modules.Ticket.Ticket;
-import com.spring.modules.Ticket.TicketRepository; // ASSUMPTION: exists with findById
-import com.spring.modules.Ticket.TicketStatus;     // ASSUMPTION
-import com.spring.modules.user.User;               // ASSUMPTION
+import com.spring.entity.Ticket;
+import com.spring.repository.TicketRepository;
+import com.spring.entity.enums.TicketState;
+import com.spring.entity.User;
+import com.spring.entity.TicketHistory;
+import com.spring.repository.TicketHistoryRepository;
+import com.spring.dto.response.TicketHistoryResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,16 +21,16 @@ import java.util.Objects;
 @Service
 public class TicketHistoryService {
 
-    private static final String ROLE_ADMIN = "ROLE_ADMIN";             // ASSUMPTION: authority names
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
     private static final String ROLE_TECHNICIAN = "ROLE_TECHNICIAN";
 
-    private final TicketHistoryRepository TicketHistoryRepository;
-    private final TicketRepository TicketRepository;
+    private final TicketHistoryRepository ticketHistoryRepository;
+    private final TicketRepository ticketRepository;
 
-    public TicketHistoryService(TicketHistoryRepository TicketHistoryRepository,
-                                TicketRepository TicketRepository) {
-        this.TicketHistoryRepository = TicketHistoryRepository;
-        this.TicketRepository = TicketRepository;
+    public TicketHistoryService(TicketHistoryRepository ticketHistoryRepository,
+                                TicketRepository ticketRepository) {
+        this.ticketHistoryRepository = ticketHistoryRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     /**
@@ -36,11 +39,11 @@ public class TicketHistoryService {
      * guaranteeing that status update and history entry are committed together.
      */
     @Transactional(propagation = Propagation.MANDATORY)
-    public TicketHistoryResponse recordChange(Ticket Ticket,
-                                              TicketStatus previousStatus,
-                                              TicketStatus newStatus,
+    public TicketHistoryResponse recordChange(Ticket ticket,
+                                              TicketState previousStatus,
+                                              TicketState newStatus,
                                               User changedBy) {
-        Objects.requireNonNull(Ticket, "Ticket must not be null");
+        Objects.requireNonNull(ticket, "ticket must not be null");
         Objects.requireNonNull(newStatus, "newStatus must not be null");
         Objects.requireNonNull(changedBy, "changedBy must not be null");
 
@@ -50,9 +53,9 @@ public class TicketHistoryService {
 
         // Avoid duplicated entries when the same transition is registered twice in a row.
         // Skipped for new Tickets that do not have an id yet.
-        if (Ticket.getId() != null) {
-            boolean duplicated = TicketHistoryRepository
-                    .findFirstByTicketIdOrderByChangedAtDescIdDesc(Ticket.getId())
+        if (ticket.getId() != null) {
+            boolean duplicated = ticketHistoryRepository
+                    .findFirstByTicketIdOrderByChangedAtDescIdDesc(ticket.getId())
                     .map(last -> last.getNewStatus() == newStatus && last.getPreviousStatus() == previousStatus)
                     .orElse(false);
             if (duplicated) {
@@ -60,38 +63,38 @@ public class TicketHistoryService {
             }
         }
 
-        TicketHistory saved = TicketHistoryRepository.save(
-                new TicketHistory(Ticket, previousStatus, newStatus, changedBy));
+        TicketHistory saved = ticketHistoryRepository.save(
+                new TicketHistory(ticket, previousStatus, newStatus, changedBy));
         return TicketHistoryResponse.from(saved);
     }
 
     /** Returns the Ticket history in chronological order, enforcing Ticket visibility rules. */
     @Transactional(readOnly = true)
-    public List<TicketHistoryResponse> getHistoryByTicket(Long TicketId, Authentication authentication) {
-        Ticket Ticket = TicketRepository.findById(TicketId)
+    public List<TicketHistoryResponse> getHistoryByTicket(Long ticketId, Authentication authentication) {
+        Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
 
-        if (!canViewHistory(Ticket, authentication)) {
+        if (!canViewHistory(ticket, authentication)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to view this Ticket history");
         }
 
-        return TicketHistoryRepository.findByTicketIdOrderByChangedAtAscIdAsc(TicketId)
+        return ticketHistoryRepository.findByTicketIdOrderByChangedAtAscIdAsc(ticketId)
                 .stream()
                 .map(TicketHistoryResponse::from)
                 .toList();
     }
 
-    private boolean canViewHistory(Ticket Ticket, Authentication authentication) {
+    private boolean canViewHistory(Ticket ticket, Authentication authentication) {
         if (hasAuthority(authentication, ROLE_ADMIN)) {
             return true;
         }
-        String email = authentication.getName(); // ASSUMPTION: JWT subject is the user email
+        String email = authentication.getName();
 
         if (hasAuthority(authentication, ROLE_TECHNICIAN)) {
-            User technician = Ticket.getAssignedTechnician(); // ASSUMPTION: field name
+            User technician = ticket.getTechnicianAssigned();
             return technician != null && email.equalsIgnoreCase(technician.getEmail());
         }
-        User requester = Ticket.getRequester(); // ASSUMPTION: field name
+        User requester = ticket.getRequester();
         return requester != null && email.equalsIgnoreCase(requester.getEmail());
     }
 

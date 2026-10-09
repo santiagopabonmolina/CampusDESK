@@ -1,14 +1,15 @@
 package com.spring.dto.response;
 
-import com.spring.Ticket.TicketStatus; // ASSUMPTION
+import com.spring.entity.enums.TicketState;
+import com.spring.entity.TicketHistory;
 
 import java.time.LocalDateTime;
 
 public record TicketHistoryResponse(
         Long id,
         Long ticketId,
-        TicketStatus previousStatus,
-        TicketStatus newStatus,
+        TicketState previousStatus,
+        TicketState newStatus,
         Long changedById,
         String changedByEmail,
         LocalDateTime changedAt
@@ -21,7 +22,7 @@ public record TicketHistoryResponse(
                 entry.getPreviousStatus(),
                 entry.getNewStatus(),
                 entry.getChangedBy().getId(),
-                entry.getChangedBy().getEmail(), // ASSUMPTION: User#getEmail()
+                entry.getChangedBy().getEmail(),
                 entry.getChangedAt()
         );
     }

@@ -33,7 +33,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    @Builder.Default`n    private Boolean active = true;
 
     @Column(name = "register_date", updatable = false)
     private LocalDateTime registerDate;
@@ -44,7 +44,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles = new HashSet<>();
+    @Builder.Default`n    private Set<Role> roles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

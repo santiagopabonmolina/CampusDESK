@@ -59,10 +59,10 @@ public class Ticket {
     private LocalDateTime closeDate;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    @Builder.Default`n    private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TicketHistory> history = new ArrayList<>();
+    @Builder.Default`n    private List<TicketHistory> history = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

@@ -1,5 +1,6 @@
 package com.spring.repository;
 
+import com.spring.entity.TicketHistory;
 import org.springframework.data.repository.Repository;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface TicketHistoryRepository extends Repository<TicketHistory, Long>
 
     TicketHistory save(TicketHistory entry);
 
-    List<TicketHistory> findByTicketIdOrderByChangedAtAscIdAsc(Long TicketId);
+    List<TicketHistory> findByTicketIdOrderByChangedAtAscIdAsc(Long ticketId);
 
-    Optional<TicketHistory> findFirstByTicketIdOrderByChangedAtDescIdDesc(Long TicketId);
+    Optional<TicketHistory> findFirstByTicketIdOrderByChangedAtDescIdDesc(Long ticketId);
 }

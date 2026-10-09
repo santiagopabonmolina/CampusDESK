@@ -1,8 +1,8 @@
 package com.spring.entity;
 
-import com.spring.modules.Ticket.Ticket;
-import com.spring.modules.Ticket.TicketStatus; // ASSUMPTION: enum in the Ticket module
-import com.spring.modules.user.User;           // ASSUMPTION: user entity is named User
+import com.spring.entity.Ticket;
+import com.spring.entity.enums.TicketState;
+import com.spring.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Immutable
-@Table(name = "Ticket_history")
+@Table(name = "ticket_history")
 public class TicketHistory {
 
     @Id
@@ -33,17 +33,17 @@ public class TicketHistory {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "Ticket_id", nullable = false, updatable = false)
-    private Ticket Ticket;
+    @JoinColumn(name = "ticket_id", nullable = false, updatable = false)
+    private Ticket ticket;
 
     // Null only for the initial record created together with the Ticket.
     @Enumerated(EnumType.STRING)
     @Column(name = "previous_status", length = 30, updatable = false)
-    private TicketStatus previousStatus;
+    private TicketState previousStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "new_status", nullable = false, length = 30, updatable = false)
-    private TicketStatus newStatus;
+    private TicketState newStatus;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "changed_by", nullable = false, updatable = false)
@@ -56,8 +56,8 @@ public class TicketHistory {
         // Required by JPA
     }
 
-    public TicketHistory(Ticket Ticket, TicketStatus previousStatus, TicketStatus newStatus, User changedBy) {
-        this.Ticket = Ticket;
+    public TicketHistory(Ticket ticket, TicketState previousStatus, TicketState newStatus, User changedBy) {
+        this.ticket = ticket;
         this.previousStatus = previousStatus;
         this.newStatus = newStatus;
         this.changedBy = changedBy;
@@ -75,14 +75,14 @@ public class TicketHistory {
     }
 
     public Ticket getTicket() {
-        return Ticket;
+        return ticket;
     }
 
-    public TicketStatus getPreviousStatus() {
+    public TicketState getPreviousStatus() {
         return previousStatus;
     }
 
-    public TicketStatus getNewStatus() {
+    public TicketState getNewStatus() {
         return newStatus;
     }
 
