@@ -14,17 +14,17 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/tickets/{ticketId}/history")
-public class ticketHistoryController {
+public class TicketHistoryController {
 
-    private final ticketHistoryService ticketHistoryService;
+    private final TicketHistoryService TicketHistoryService;
 
-    public ticketHistoryController(ticketHistoryService ticketHistoryService) {
-        this.ticketHistoryService = ticketHistoryService;
+    public TicketHistoryController(TicketHistoryService TicketHistoryService) {
+        this.TicketHistoryService = TicketHistoryService;
     }
 
     @GetMapping
-    public List<ticketHistoryResponse> getHistory(@PathVariable Long ticketId,
+    public List<TicketHistoryResponse> getHistory(@PathVariable Long TicketId,
                                                   Authentication authentication) {
-        return ticketHistoryService.getHistoryByTicket(ticketId, authentication);
+        return TicketHistoryService.getHistoryByTicket(ticketId, authentication);
     }
 }

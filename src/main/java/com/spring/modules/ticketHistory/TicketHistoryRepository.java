@@ -9,11 +9,11 @@ import java.util.Optional;
  * Extends the marker Repository (not JpaRepository) on purpose, so that
  * delete and update operations are not exposed for historical records.
  */
-public interface ticketHistoryRepository extends Repository<ticketHistory, Long> {
+public interface TicketHistoryRepository extends Repository<TicketHistory, Long> {
 
-    ticketHistory save(ticketHistory entry);
+    TicketHistory save(TicketHistory entry);
 
-    List<ticketHistory> findByTicketIdOrderByChangedAtAscIdAsc(Long ticketId);
+    List<TicketHistory> findByTicketIdOrderByChangedAtAscIdAsc(Long TicketId);
 
-    Optional<ticketHistory> findFirstByTicketIdOrderByChangedAtDescIdDesc(Long ticketId);
+    Optional<TicketHistory> findFirstByTicketIdOrderByChangedAtDescIdDesc(Long TicketId);
 }
