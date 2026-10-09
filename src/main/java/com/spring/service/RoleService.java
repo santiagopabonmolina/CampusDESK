@@ -1,5 +1,10 @@
 package com.spring.modules.role;
 
+import com.spring.dto.request.RoleRequest;
+import com.spring.dto.response.RoleResponse;
+import com.spring.entity.Role;
+import com.spring.entity.enums.RoleName;
+import com.spring.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +21,7 @@ public class RoleService {
     @Transactional
     public RoleResponse createRole(RoleRequest request) {
         RoleName roleName = RoleName.valueOf(request.getName().toUpperCase());
-        
+
         if (roleRepository.findByName(roleName).isPresent()) {
             throw new IllegalArgumentException("Role already exists: " + roleName);
         }

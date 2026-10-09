@@ -1,4 +1,4 @@
-package com.spring.modules.comment;
+package com.spring.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

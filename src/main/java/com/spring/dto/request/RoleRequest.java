@@ -1,4 +1,4 @@
-package com.spring.modules.role;
+package com.spring.dto.request;
 
 import lombok.Data;
 
