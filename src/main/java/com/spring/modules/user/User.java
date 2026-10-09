@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.management.relation.Role;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -41,7 +43,7 @@ public class User {
             joinColumns = @JoinColumn(name = "id"),
             inverseJoinColumns = @JoinColumn(name = "id")
     )
-    private Set<Rol> roles = new HashSet<>(); //
+    private Set<Role> roles = new HashSet<>(); //
 
     @PrePersist
     protected void onCreate() {
