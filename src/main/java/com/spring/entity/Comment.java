@@ -1,7 +1,7 @@
 package com.spring.entity;
 
-import com.spring.entity.ticket.Ticket;
-import com.spring.entity.user.User;
+
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
