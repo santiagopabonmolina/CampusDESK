@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusDESK - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <div class="purple-orb orb-1"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="brand-text">CampusDESK</div>
+            </div>
+
+            <a href="tickets.html?action=new" class="btn-new-ticket">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuevo Ticket
+            </a>
+
+            <div class="nav-section">
+                <div class="nav-label">General</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="dashboard.html" class="nav-item active">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tickets.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Tickets
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section admin-only hidden" id="admin-menu">
+                <div class="nav-label">Administración</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="admin.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Gestión de Personal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-card">
+                <div class="user-info">
+                    <div class="avatar" id="sidebar-user-avatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="sidebar-user-name">Usuario</span>
+                        <span class="user-role" id="sidebar-user-role">Role</span>
+                    </div>
+                </div>
+                <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-title">
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="location.reload()" style="padding: 8px; border-radius: 50%;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div id="loading-indicator" class="text-center" style="padding: 3rem;">
+                    <span class="spinner" style="width: 40px; height: 40px;"></span>
+                    <p class="mt-2 text-muted">Cargando métricas...</p>
+                </div>
+
+                <div id="dashboard-content" class="hidden">
+                    <div class="stats-grid">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon total">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="stat-total">0</h3>
+                                <p>Total de Tickets</p>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon opened">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="stat-opened">0</h3>
+                                <p>Abiertos</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon in-process">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="stat-inprocess">0</h3>
+                                <p>En Proceso</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon resolved">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="stat-resolved">0</h3>
+                                <p>Resueltos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3 class="mb-4">Distribución por Estado</h3>
+                        <div class="chart-container" id="states-chart">
+                            <!-- JS injected bars -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { API } from './js/api.js';
+        import { hasRole, CONFIG } from './js/auth.js';
+        import { showToast, setupModal } from './js/ui.js';
+
+        setupModal();
+
+        // Show admin menu if admin
+        if (hasRole(CONFIG.ROLES.ADMIN)) {
+            document.getElementById('admin-menu').classList.remove('hidden');
+        }
+
+        async function loadDashboard() {
+            try {
+                // If ADMIN, use the real summary endpoint
+                // If USER/TECH, the backend /reports/summary might not exist or be forbidden (assuming standard RBAC)
+                // BUT wait, looking at DashboardController, there's no specific role restriction, but let's see what it returns.
+                // It just returns global counts. If a user shouldn't see global counts, we'd have to filter.
+                // For simplicity, since the prompt says "El ADMIN ve estadísticas generales; los demás roles solo las de sus tickets permitidos",
+                // we'll fetch the tickets manually for non-admins to calculate their own stats.
+                
+                let stats = { totalTickets: 0, opened: 0, assigned: 0, inProcess: 0, resolved: 0, closed: 0 };
+
+                if (hasRole(CONFIG.ROLES.ADMIN)) {
+                    stats = await API.getSummary();
+                } else {
+                    const tickets = await API.getTickets();
+                    stats.totalTickets = tickets.length;
+                    tickets.forEach(t => {
+                        if (t.state === 'OPENED') stats.opened++;
+                        if (t.state === 'ASSIGNED') stats.assigned++;
+                        if (t.state === 'IN_PROCESS') stats.inProcess++;
+                        if (t.state === 'RESOLVED') stats.resolved++;
+                        if (t.state === 'CLOSED') stats.closed++;
+                    });
+                }
+
+                // Update UI
+                document.getElementById('stat-total').textContent = stats.totalTickets;
+                document.getElementById('stat-opened').textContent = stats.opened;
+                document.getElementById('stat-inprocess').textContent = stats.inProcess + stats.assigned; // Group for simplicity
+                document.getElementById('stat-resolved').textContent = stats.resolved;
+
+                renderChart(stats);
+
+                document.getElementById('loading-indicator').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function renderChart(stats) {
+            const chart = document.getElementById('states-chart');
+            const max = Math.max(stats.opened, stats.assigned, stats.inProcess, stats.resolved, stats.closed, 1);
+            
+            const bars = [
+                { label: 'Abierta', value: stats.opened, color: 'var(--color-opened)' },
+                { label: 'Asignada', value: stats.assigned, color: 'var(--color-assigned)' },
+                { label: 'Proceso', value: stats.inProcess, color: 'var(--color-in_process)' },
+                { label: 'Resuelta', value: stats.resolved, color: 'var(--color-resolved)' },
+                { label: 'Cerrada', value: stats.closed, color: 'var(--color-closed)' }
+            ];
+
+            chart.innerHTML = bars.map(b => {
+                const height = (b.value / max) * 200; // max 200px height
+                return `
+                    <div class="bar-wrap">
+                        <span style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;">${b.value}</span>
+                        <div class="bar" style="height: ${height}px; background: ${b.color};"></div>
+                        <span class="bar-label">${b.label}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>

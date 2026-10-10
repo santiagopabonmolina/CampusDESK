@@ -1,0 +1,43 @@
+:root {
+  /* Fondo general */
+  --bg-page: #4a3358;
+  --bg-page-gradient: linear-gradient(135deg, #4a3358 0%, #6b4a7d 100%);
+  
+  /* Layout */
+  --bg-sidebar: #050505;
+  --bg-main: linear-gradient(135deg, #120a18 0%, #2a1635 100%);
+  --bg-card: rgba(10, 8, 14, 0.85);
+  
+  /* Acentos y brillos */
+  --accent: #9b30ff;
+  --accent-hover: #a855f7;
+  --accent-gradient: linear-gradient(90deg, #9b30ff 0%, #c026d3 100%);
+  --accent-glow: 0 0 20px rgba(155, 48, 255, 0.4);
+  
+  /* Textos */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  
+  /* Bordes */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(155, 48, 255, 0.5);
+  
+  /* Estados (Tickets) */
+  --color-opened: #3b82f6;      /* Azul */
+  --color-assigned: #8b5cf6;    /* Violeta */
+  --color-in_process: #f59e0b;  /* Ambar */
+  --color-resolved: #10b981;    /* Verde */
+  --color-closed: #6b7280;      /* Gris */
+  
+  /* Prioridades */
+  --color-low: #10b981;         /* Verde */
+  --color-medium: #f59e0b;      /* Ambar */
+  --color-high: #f97316;        /* Naranja */
+  --color-critic: #ef4444;      /* Rojo */
+  
+  /* Tipografía */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+}

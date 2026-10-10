@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusDESK - Administración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <div class="purple-orb orb-1"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="brand-text">CampusDESK</div>
+            </div>
+
+            <a href="tickets.html?action=new" class="btn-new-ticket">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuevo Ticket
+            </a>
+
+            <div class="nav-section">
+                <div class="nav-label">General</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="dashboard.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tickets.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Tickets
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-label">Administración</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="admin.html" class="nav-item active">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Gestión de Personal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-card">
+                <div class="user-info">
+                    <div class="avatar" id="sidebar-user-avatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="sidebar-user-name">Usuario</span>
+                        <span class="user-role" id="sidebar-user-role">Role</span>
+                    </div>
+                </div>
+                <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-title">
+                    <h2>Directorio de Personal</h2>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div class="glass-card" style="padding: 0;">
+                    <div class="tickets-table-container">
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Correo Electrónico</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <!-- JS injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="loading-indicator" class="text-center" style="padding: 3rem;">
+                        <span class="spinner" style="width: 30px; height: 30px;"></span>
+                    </div>
+
+                    <div id="empty-state" class="empty-state hidden">
+                        <p class="text-muted">No se encontraron usuarios técnicos.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { API } from './js/api.js';
+        import { checkAdminAccess } from './js/auth.js';
+        import { showToast, setupModal, escapeHTML } from './js/ui.js';
+
+        // Protected route
+        checkAdminAccess();
+        setupModal();
+
+        async function loadUsers() {
+            const tbody = document.getElementById('users-tbody');
+            const loading = document.getElementById('loading-indicator');
+            const empty = document.getElementById('empty-state');
+
+            try {
+                // Fetching only technicians for now, as that's the only endpoint guaranteed to exist
+                // If getAllUsers existed, we could list everyone.
+                const techs = await API.getTechnicians();
+                
+                if (techs.length === 0) {
+                    empty.classList.remove('hidden');
+                } else {
+                    techs.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-weight: 500;">#${u.id}</td>
+                            <td>${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)} <span class="badge" style="background:rgba(139, 92, 246, 0.2); color:#a78bfa; margin-left:8px;">Técnico</span></td>
+                            <td>${escapeHTML(u.email)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+                empty.classList.remove('hidden');
+                empty.innerHTML = `<p class="text-muted" style="color:#ef4444;">${error.message}</p>`;
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

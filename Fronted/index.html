@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusDESK - Acceso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+    
+    <div class="auth-page">
+        <div class="glass-card auth-container">
+            <div class="auth-header">
+                <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                    <div class="brand-icon" style="width: 48px; height: 48px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+                <h1>CampusDESK</h1>
+                <p class="text-muted">Gestión de incidencias tecnológicas</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-login">Iniciar Sesión</button>
+                <button class="auth-tab" id="tab-register">Registrarse</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="nombre@campusdesk.com" required>
+                    <span class="form-error" id="login-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                    <span class="form-error" id="login-password-error"></span>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-login">
+                    Acceder
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="hidden">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="reg-firstname">Nombre</label>
+                        <input type="text" id="reg-firstname" class="form-control" placeholder="Juan" required>
+                        <span class="form-error" id="reg-firstname-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-lastname">Apellido</label>
+                        <input type="text" id="reg-lastname" class="form-control" placeholder="Pérez" required>
+                        <span class="form-error" id="reg-lastname-error"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-email">Correo Electrónico</label>
+                    <input type="email" id="reg-email" class="form-control" placeholder="nombre@campusdesk.com" required>
+                    <span class="form-error" id="reg-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required minlength="6">
+                    <span class="form-error" id="reg-password-error"></span>
+                    <small class="text-muted" style="display:block; margin-top:4px; font-size:0.75rem;">Mínimo 6 caracteres</small>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-register">
+                    Crear Cuenta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { API } from './js/api.js';
+        import { setSession, isLoggedIn } from './js/auth.js';
+        import { showToast, setButtonLoading } from './js/ui.js';
+
+        // Redirect if already logged in
+        if (isLoggedIn()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Tabs logic
+        const tabLogin = document.getElementById('tab-login');
+        const tabRegister = document.getElementById('tab-register');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+
+        tabLogin.addEventListener('click', () => {
+            tabLogin.classList.add('active');
+            tabRegister.classList.remove('active');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        });
+
+        tabRegister.addEventListener('click', () => {
+            tabRegister.classList.add('active');
+            tabLogin.classList.remove('active');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+
+        // Login Submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('btn-login');
+
+            try {
+                setButtonLoading(btn, true, 'Acceder');
+                const data = await API.login({ email, password });
+                
+                if (data && data.token) {
+                    setSession(data);
+                    showToast('Bienvenido a CampusDESK', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                setButtonLoading(btn, false, 'Acceder');
+            }
+        });
+
+        // Register Submit
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+            
+            const fristName = document.getElementById('reg-firstname').value; // Usando fristName por el typo en backend
+            const lastName = document.getElementById('reg-lastname').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const btn = document.getElementById('btn-register');
+
+            if (password.length < 6) {
+                document.getElementById('reg-password-error').textContent = 'La contraseña debe tener al menos 6 caracteres';
+                return;
+            }
+
+            try {
+                setButtonLoading(btn, true, 'Crear Cuenta');
+                await API.register({ fristName, lastName, email, password });
+                
+                showToast('Cuenta creada exitosamente. Ahora puedes iniciar sesión.', 'success');
+                registerForm.reset();
+                tabLogin.click(); // Switch to login tab
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                setButtonLoading(btn, false, 'Crear Cuenta');
+            }
+        });
+    </script>
+</body>
+</html>
