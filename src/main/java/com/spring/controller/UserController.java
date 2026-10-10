@@ -13,10 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-
     private final UserService userService;
 
     // GET /api/users/technicians
+    // NOTA: Listo para migrar a UserResponse cuando se cree el DTO correspondiente
     @GetMapping("/technicians")
     public ResponseEntity<List<User>> getTechnicians() {
         return ResponseEntity.ok(userService.getAvailableTechnicians());

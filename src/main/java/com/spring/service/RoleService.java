@@ -1,4 +1,4 @@
-package com.spring.modules.role;
+package com.spring.service;
 
 import com.spring.dto.request.RoleRequest;
 import com.spring.dto.response.RoleResponse;

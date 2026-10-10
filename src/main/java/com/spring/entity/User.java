@@ -1,5 +1,6 @@
 package com.spring.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,15 +30,19 @@ public class User {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    // WRITE_ONLY evita la fuga de datos en respuestas JSON (contraseña nunca expuesta)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 
     @Column(name = "register_date", updatable = false)
     private LocalDateTime registerDate;
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

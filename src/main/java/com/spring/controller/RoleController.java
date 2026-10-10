@@ -2,11 +2,11 @@ package com.spring.controller;
 
 import com.spring.dto.request.RoleRequest;
 import com.spring.dto.response.RoleResponse;
+import com.spring.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.spring.modules.role.RoleService;
 
 import java.util.List;
 

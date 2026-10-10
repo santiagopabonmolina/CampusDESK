@@ -58,9 +58,11 @@ public class Ticket {
     @Column(name = "close_date")
     private LocalDateTime closeDate;
 
+    @Builder.Default
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicketHistory> history = new ArrayList<>();
 

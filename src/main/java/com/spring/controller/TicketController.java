@@ -2,7 +2,6 @@ package com.spring.controller;
 
 import com.spring.dto.request.TicketRequest;
 import com.spring.dto.response.TicketResponse;
-import com.spring.entity.TicketHistory;
 import com.spring.entity.enums.TicketState;
 import com.spring.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -60,12 +59,6 @@ public class TicketController {
             @PathVariable Long id,
             @RequestParam TicketState status) {
         return ResponseEntity.ok(ticketService.updateState(id, status));
-    }
-
-    // 7. GET /api/tickets/{id}/history -> Consultar historial
-    @GetMapping("/{id}/history")
-    public ResponseEntity<List<TicketHistory>> getTicketHistory(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.getTicketHistory(id));
     }
 
     // Rutas auxiliares de conveniencia
