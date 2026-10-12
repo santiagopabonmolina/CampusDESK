@@ -17,4 +17,8 @@ public class UserService {
     public List<User> getAvailableTechnicians() {
         return userRepository.findByRoleNameAndActiveTrue(RoleName.TECHNICIAN);
     }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

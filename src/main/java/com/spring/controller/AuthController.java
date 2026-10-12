@@ -9,6 +9,10 @@ import com.spring.entity.enums.RoleName;
 import com.spring.repository.RoleRepository;
 import com.spring.repository.UserRepository;
 import com.spring.security.jwt.JwtTokenProvider;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 import java.util.Set;
 
+@Tag(name = "1. Autenticación y Cuentas", description = "Registro de nuevos colaboradores e inicio de sesión con emisión de tokens JWT")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -37,6 +42,12 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Operation(summary = "Registrar nuevo usuario", description = "Crea una cuenta en la plataforma. Por política de seguridad empresarial, todo registro público recibe automáticamente el rol USER.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o incompletos"),
+            @ApiResponse(responseCode = "409", description = "El correo electrónico ya se encuentra registrado")
+    })
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -48,7 +59,7 @@ public class AuthController {
                 .orElseGet(() -> roleRepository.save(Role.builder().name(RoleName.USER).build()));
 
         User user = User.builder()
-                .firstName(request.getFristName())
+                .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -61,6 +72,12 @@ public class AuthController {
                 .body(Map.of("message", "Usuario registrado exitosamente"));
     }
 
+    @Operation(summary = "Iniciar sesión", description = "Autentica credenciales en PostgreSQL contra hash BCrypt y genera el token de acceso JWT con los roles del usuario.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Autenticación exitosa, retorna token JWT y datos de sesión"),
+            @ApiResponse(responseCode = "400", description = "Formato de petición inválido"),
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas (correo o contraseña inválidos)")
+    })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -71,7 +88,10 @@ public class AuthController {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
                 
-        String roleStr = user.getRoles().stream().findFirst().get().getName().name();
+        boolean hasAdmin = user.getRoles().stream().anyMatch(r -> r.getName() == RoleName.ADMIN);
+        boolean hasTech = user.getRoles().stream().anyMatch(r -> r.getName() == RoleName.TECHNICIAN);
+        String roleStr = hasAdmin ? "ADMIN" : (hasTech ? "TECHNICIAN" : "USER");
+
         String jwt = jwtTokenProvider.generateToken(authentication, user.getId(), user.getFirstName(), user.getLastName());
 
         return ResponseEntity.ok(JwtResponse.builder()

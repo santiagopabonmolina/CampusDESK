@@ -111,48 +111,6 @@
         </main>
     </div>
 
-    <script type="module">
-        import { API } from './js/api.js';
-        import { checkAdminAccess } from './js/auth.js';
-        import { showToast, setupModal, escapeHTML } from './js/ui.js';
-
-        // Protected route
-        checkAdminAccess();
-        setupModal();
-
-        async function loadUsers() {
-            const tbody = document.getElementById('users-tbody');
-            const loading = document.getElementById('loading-indicator');
-            const empty = document.getElementById('empty-state');
-
-            try {
-                // Fetching only technicians for now, as that's the only endpoint guaranteed to exist
-                // If getAllUsers existed, we could list everyone.
-                const techs = await API.getTechnicians();
-                
-                if (techs.length === 0) {
-                    empty.classList.remove('hidden');
-                } else {
-                    techs.forEach(u => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td style="font-weight: 500;">#${u.id}</td>
-                            <td>${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)} <span class="badge" style="background:rgba(139, 92, 246, 0.2); color:#a78bfa; margin-left:8px;">Técnico</span></td>
-                            <td>${escapeHTML(u.email)}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            } catch (error) {
-                showToast(error.message, 'error');
-                empty.classList.remove('hidden');
-                empty.innerHTML = `<p class="text-muted" style="color:#ef4444;">${error.message}</p>`;
-            } finally {
-                loading.classList.add('hidden');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', loadUsers);
-    </script>
+    <script type="module" src="js/admin.js"></script>
 </body>
 </html>

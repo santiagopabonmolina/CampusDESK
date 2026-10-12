@@ -14,9 +14,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     // Tickets creados por un usuario solicitante
     List<Ticket> findByRequesterId(Long requesterId);
+    List<Ticket> findByRequesterIdAndState(Long requesterId, TicketState state);
 
     // Tickets asignados a un técnico
     List<Ticket> findByTechnicianAssignedId(Long technicianId);
+    List<Ticket> findByTechnicianAssignedIdAndState(Long technicianId, TicketState state);
 
     // Filtrar por estado (OPENED, ASSIGNED, IN_PROCESS, etc.)
     List<Ticket> findByState(TicketState state);

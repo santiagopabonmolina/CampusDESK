@@ -26,10 +26,11 @@ public class JwtTokenProvider {
     public String generateToken(Authentication authentication, Long userId, String firstName, String lastName) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
-        String role = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_USER");
+        
+        // Priorizar el rol con mayor privilegio
+        boolean hasAdmin = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean hasTech = userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICIAN"));
+        String role = hasAdmin ? "ROLE_ADMIN" : (hasTech ? "ROLE_TECHNICIAN" : "ROLE_USER");
 
         long now = System.currentTimeMillis();
         long exp = now + jwtExpiration;

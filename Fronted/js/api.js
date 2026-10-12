@@ -90,10 +90,11 @@ export const API = {
   updateTicket: (id, data) => fetchApi(`/tickets/${id}`, { method: 'PUT', body: data }),
   assignTechnician: (id, technicianId) => fetchApi(`/tickets/${id}/assign?technicianId=${technicianId}`, { method: 'PATCH' }),
   changeStatus: (id, status) => fetchApi(`/tickets/${id}/status?status=${status}`, { method: 'PATCH' }),
+  deleteTicket: (id) => fetchApi(`/tickets/${id}`, { method: 'DELETE' }),
   
-  // Comments
-  getComments: (ticketId) => fetchApi(`/comments/ticket/${ticketId}`),
-  addComment: (data) => fetchApi('/comments', { method: 'POST', body: data }),
+  // Comments (Conforme al contrato: /api/tickets/{id}/comments)
+  getComments: (ticketId) => fetchApi(`/tickets/${ticketId}/comments`),
+  addComment: (data) => fetchApi(`/tickets/${data.ticketId}/comments`, { method: 'POST', body: data }),
   
   // History
   getHistory: (ticketId) => fetchApi(`/tickets/${ticketId}/history`),
