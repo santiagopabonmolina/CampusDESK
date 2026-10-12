@@ -1,441 +1,203 @@
-# CampusDESK - Guía de Arquitectura, Carpetas y Archivos
+# 🏢 CampusDESK — Guía de Arquitectura, Carpetas y Archivos
 
-Este documento detalla la responsabilidad de cada carpeta y de cada archivo en el proyecto **CampusDESK** (excluyendo los que ya están previamente desarrollados: `User`, `Ticket`, los Enums y `Application`), junto con la guía completa de código para implementar:
-* `UserRepository`
-* `TicketRepository`
-* `TicketRequest`
-* `TicketResponse`
-* `TicketController` (con soporte para `TicketService`)
+> **Documento Técnico de Referencia — TechNova Solutions**  
+> **Desarrolladores:** Diego Parra, Carlos Lindarte, Santiago Pabón.
 
 ---
 
-## 1. Estructura General de Carpetas y Responsabilidades
+## 1. Visión General de la Arquitectura
 
-El proyecto está diseñado bajo una arquitectura limpia en capas con **Spring Boot**:
+El backend de **CampusDESK** está construido sobre una arquitectura limpia por capas (**Layered Architecture**) en **Spring Boot**, aplicando principios de programación orientada a objetos, inyección de dependencias (`@RequiredArgsConstructor`, `@Autowired`), inversión de control e interfaces desacopladas.
 
 ```
 src/main/java/com/spring/
-├── Application.java               # Punto de entrada de la aplicación Spring Boot (HECHO)
-├── controller/                    # Capa de controladores REST (expone endpoints HTTP)
-├── dto/
-│   ├── request/                   # DTOs de entrada (cuerpos JSON de peticiones)
-│   └── response/                  # DTOs de salida (respuestas JSON hacia los clientes)
-├── entity/                        # Entidades JPA mapeadas a PostgreSQL
-│   └── enums/                     # Enumeraciones de dominio (RoleName, TicketState, etc.) (HECHO)
-├── exception/                     # Manejo global y centralizado de excepciones
-├── repository/                    # Interfaces Spring Data JPA para acceso a base de datos
-├── security/
+├── Application.java               # Entrada principal de Spring Boot
+├── config/                        # Configuraciones generales (Swagger / OpenAPI)
+├── controller/                    # Capa Controladores REST (HTTP / JSON)
+├── dto/                           # Data Transfer Objects
+│   ├── request/                   # DTOs de entrada (Payloads JSON recibidos)
+│   └── response/                  # DTOs de salida (Respuestas JSON enviadas)
+├── entity/                        # Entidades JPA (Mapeo a tablas PostgreSQL)
+│   └── enums/                     # Constantes de dominio fuertemente tipadas
+├── exception/                     # Manejo global y centralizado de errores
+├── repository/                    # Acceso a datos con Spring Data JPA
+├── security/                      # Seguridad, autenticación y autorización
 │   ├── config/                    # Configuración de Spring Security, filtros y CORS
-│   └── jwt/                       # Proveedor y filtros de tokens JWT
-└── service/                       # Capa de lógica de negocio y transacciones
+│   └── jwt/                       # Utilidades criptográficas y filtros JWT
+└── service/                       # Capa de lógica y reglas del negocio
 ```
 
-### Tabla de Responsabilidades por Carpeta
+---
 
-| Carpeta / Paquete | Responsabilidad Principal |
+## 2. Responsabilidad de Cada Carpeta
+
+| Carpeta / Paquete | Responsabilidad en la Arquitectura |
 | :--- | :--- |
-| `com.spring.entity` | Modelos de persistencia mapeados a tablas de PostgreSQL con JPA/Hibernate. Representan el estado y relaciones (`User`, `Ticket`, `Role`, `Comment`, `TicketHistory`). |
-| `com.spring.entity.enums` | Valores constantes fuertemente tipados (`RoleName`, `TicketPriority`, `TicketCategory`, `TicketState`). |
-| `com.spring.repository` | Interfaces que extienden `JpaRepository`. Proveen operaciones CRUD y consultas derivadas automáticas sin necesidad de escribir SQL manual. |
-| `com.spring.service` | Orquesta la lógica del negocio, validaciones de reglas, transaccionalidad (`@Transactional`) y transforma datos entre entidades y DTOs. |
-| `com.spring.controller` | Endpoints REST HTTP. Recibe peticiones HTTP, deserializa JSON a DTOs Request, invoca la capa de servicio y devuelve DTOs Response con códigos de estado HTTP semánticos (200, 201, 204, 404, etc.). |
-| `com.spring.dto.request` | Clases Java que reciben la información que el cliente envía en peticiones `POST`/`PUT`/`PATCH`. Aíslan la entidad de la entrada del usuario. |
-| `com.spring.dto.response` | Clases Java devueltas al cliente en formato JSON. Evitan bucles de serialización infinita (`LazyInitialization` o referencias bidireccionales) y ocultan datos sensibles (como contraseñas). |
-| `com.spring.security.config` | Configuración de seguridad con `SecurityFilterChain`: control de accesos por roles, políticas de sesiones sin estado (Stateless), protección CSRF y CORS. |
-| `com.spring.security.jwt` | Lógica de generación, firma, verificación de expiración y extracción de credenciales desde tokens JWT en las cabeceras HTTP. |
-| `com.spring.exception` | Interceptores con `@RestControllerAdvice` para capturar errores como `EntityNotFoundException` o validaciones y retornar respuestas JSON estructuradas con formato amigable. |
+| **`com.spring`** | Raíz del proyecto. Contiene la clase principal que arranca el contexto de Spring. |
+| **`com.spring.config`** | Configuración de componentes y bibliotecas externas (OpenAPI 3 / Swagger con JWT BearerAuth). |
+| **`com.spring.controller`** | Expone la API REST. Recibe solicitudes HTTP, valida entradas con `@Valid`, delega la lógica a los servicios y retorna códigos HTTP semánticos (200, 201, 403, 404, 409). |
+| **`com.spring.dto.request`** | Modelos de entrada para deserializar los JSONs de clientes en operaciones `POST`, `PUT` y `PATCH`. Aíslan la entidad de la entrada del usuario. |
+| **`com.spring.dto.response`** | Modelos de salida devueltos como JSON. Evitan bucles de serialización infinita (`LazyInitializationException`), aplanan relaciones y protegen datos sensibles como contraseñas. |
+| **`com.spring.entity`** | Entidades mapeadas con Jakarta Persistence (JPA/Hibernate) hacia las tablas de PostgreSQL (`users`, `role`, `tickets`, `comments`, `ticket_history`). |
+| **`com.spring.entity.enums`** | Enums Java que restringen los valores válidos de roles, categorías, prioridades y estados. |
+| **`com.spring.exception`** | Manejador global (`@RestControllerAdvice`) que intercepta excepciones en cualquier capa y devuelve respuestas JSON limpias y homogéneas. |
+| **`com.spring.repository`** | Interfaces que extienden `JpaRepository`. Generan consultas SQL optimizadas automáticamente mediante Spring Data JPA. |
+| **`com.spring.security.config`** | Configuración de la cadena de filtros de seguridad (`SecurityFilterChain`), codificador BCrypt, reglas CORS y carga de usuarios para Spring Security. |
+| **`com.spring.security.jwt`** | Filtro de intercepción (`OncePerRequestFilter`) y utilidades para generar, firmar y validar tokens JWT. |
+| **`com.spring.service`** | Núcleo del negocio. Implementa las reglas de transición del ciclo de vida, transaccionalidad atómica (`@Transactional`) y control de acceso a recursos. |
+| **`Fronted/`** | Cliente web modular desarrollado exclusivamente en HTML5, CSS3 y Vanilla JavaScript (ES Modules). |
 
 ---
 
-## 2. Detalle de Archivos Pendientes (Qué va en cada uno)
+## 3. Detalle Archivo por Archivo (Backend Java)
 
-### 2.1. Entidades (`com.spring.entity`)
+### 3.1. Punto de Entrada
+* **`Application.java`**:
+  * Clase principal anotada con `@SpringBootApplication`.
+  * Arranca el servidor embebido Tomcat en el puerto `8080`, escanea componentes y habilita la configuración automática de Spring.
 
+---
+
+### 3.2. Configuración (`com.spring.config`)
+* **`OpenApiConfig.java`**:
+  * Define el Bean `OpenAPI` para Swagger UI (`/swagger-ui.html`).
+  * Configura el esquema de seguridad `BearerAuth` para permitir autenticación por JWT interactiva con el botón **Authorize**.
+
+---
+
+### 3.3. Controladores REST (`com.spring.controller`)
+* **`AuthController.java`**:
+  * Gestiona `/api/auth/register` (crea usuarios y asigna automáticamente rol `USER`) y `/api/auth/login` (autentica credenciales con BCrypt y retorna el token JWT).
+* **`TicketController.java`**:
+  * Controlador central del sistema (`/api/tickets`).
+  * Endpoints para crear ticket, listar tickets filtrados por rol y estado, ver detalle, editar tickets abiertos, asignar técnico (`@PreAuthorize("hasRole('ADMIN')")`), cambiar estado y gestionar comentarios (`/{id}/comments`).
+* **`UserController.java`**:
+  * Expone `/api/users/technicians` (para listar técnicos asignables) y `/api/users` (listado completo de personal exclusivo para `ADMIN`).
+* **`DashboardController.java`**:
+  * Endpoint `/api/reports/summary`. Devuelve conteos consolidados de tickets por estado para el panel de métricas.
+* **`TicketHistoryController.java`**:
+  * Endpoint de solo lectura `/api/tickets/{ticketId}/history`. Retorna la línea de tiempo de auditoría de un ticket específico.
+* **`CommentController.java`**:
+  * Controlador complementario para gestión de comentarios directos en `/api/comments`.
+* **`RoleController.java`**:
+  * Endpoints administrativos protegidos (`/api/roles`) para consultar y registrar roles.
+
+---
+
+### 3.4. DTOs de Entrada (`com.spring.dto.request`)
+* **`RegisterRequest.java`**:
+  * Payload de registro: `firstName`, `lastName`, `email`, `password` (validado con `@Size(min = 6, max = 150)`).
+* **`LoginRequest.java`**:
+  * Payload de inicio de sesión: `email` y `password`.
+* **`TicketRequest.java`**:
+  * Payload para crear o modificar incidencias: `title`, `description`, `category`, `priority`, `requesterId`, `technicianId`.
+* **`CommentRequest.java`**:
+  * Payload para agregar notas: `content`, `ticketId`, `authorId`.
+* **`RoleRequest.java`**:
+  * Payload para crear roles: `name`.
+
+---
+
+### 3.5. DTOs de Salida (`com.spring.dto.response`)
+* **`JwtResponse.java`**:
+  * Respuesta de autenticación con `token`, `type = "Bearer"`, `userId`, `email`, `firstName`, `lastName` y `role`.
+* **`TicketResponse.java`**:
+  * Salida aplanada del ticket con datos del solicitante y técnico asignado, sin exponer contraseñas ni entidades crudas.
+* **`CommentResponse.java`**:
+  * Datos formateados del comentario (`id`, `content`, `authorId`, `ticketId`, `createdAt`).
+* **`TicketHistoryResponse.java`**:
+  * Registro inmutable de cambio de estado (`previousStatus`, `newStatus`, `changedByEmail`, `changedAt`).
+* **`DashboardResponse.java`**:
+  * Objeto con contadores totales (`totalTickets`, `opened`, `assigned`, `inProcess`, `resolved`, `closed`).
+* **`RoleResponse.java`**:
+  * Representación simple de un rol registrado (`id`, `name`).
+
+---
+
+### 3.6. Entidades Persistentes (`com.spring.entity`)
+* **`User.java`**:
+  * Mapeada a la tabla `users`. Contiene datos personales, estado activo, fecha de registro y relación `@ManyToMany` con roles. La contraseña tiene `@JsonProperty(access = WRITE_ONLY)` para evitar filtraciones en JSON.
+* **`Ticket.java`**:
+  * Mapeada a la tabla `tickets`. Representa la incidencia con título, descripción, categoría, prioridad, estado y relaciones `@ManyToOne` con solicitante (`requester`) y técnico (`technicianAssigned`).
 * **`Role.java`**:
-  * Representa los roles disponibles (`ADMIN`, `TECHNICIAN`, `USER`).
-  * Debe contener `@Id`, `@GeneratedValue` y el campo `name` mapeado al enum `RoleName` con `@Enumerated(EnumType.STRING)`.
+  * Mapeada a la tabla `role`. Almacena los roles disponibles (`ADMIN`, `TECHNICIAN`, `USER`).
 * **`Comment.java`**:
-  * Comentarios y notas realizados sobre un ticket.
-  * Debe contener `id`, `content` (TEXT), relación `@ManyToOne` con `Ticket`, relación `@ManyToOne` con `User` (el autor) y `createDate`.
+  * Mapeada a la tabla `comments`. Almacena observaciones y notas cronológicas con referencias a su autor y ticket.
 * **`TicketHistory.java`**:
-  * Registro de auditoría y trazabilidad de cada cambio en un ticket.
-  * Debe contener `id`, relación con `Ticket`, usuario que ejecutó la acción, `action` (ej: "ASIGNADO", "CAMBIO_ESTADO"), estados anterior y posterior (`TicketState`), y `timestamp`.
+  * Mapeada a la tabla `ticket_history`. Registro inmutable de transiciones de estado para auditoría obligatoria.
 
 ---
 
-### 2.2. Repositorios (`com.spring.repository`)
-
-* **`UserRepository.java`**: Consultas para autenticación y usuarios (`findByEmail`, `existsByEmail`).
-* **`TicketRepository.java`**: Consultas filtradas por solicitante, técnico, estado, prioridad y conteos para métricas.
-* **`RoleRepository.java`**: `findByName(RoleName name)` para vincular roles al crear usuarios.
-* **`CommentRepository.java`**: `findByTicketIdOrderByCreateDateAsc(Long ticketId)` para listar comentarios en orden temporal.
-* **`TicketHistoryRepository.java`**: `findByTicketIdOrderByTimestampDesc(Long ticketId)` para ver la auditoría del ticket.
+### 3.7. Enumeraciones (`com.spring.entity.enums`)
+* **`RoleName.java`**: `ADMIN`, `TECHNICIAN`, `USER`.
+* **`TicketState.java`**: `OPENED`, `ASSIGNED`, `IN_PROCESS`, `RESOLVED`, `CLOSED`.
+* **`TicketPriority.java`**: `LOW`, `MEDIUM`, `HIGH`, `CRITIC`.
+* **`TicketCategory.java`**: `HARDWARE`, `SOFTWARE`, `NETWORK`, `ACCESS`, `OTHER`.
 
 ---
 
-### 2.3. Capa de Servicios (`com.spring.service`)
-
-* **`UserService.java`**: Registro de usuarios, consulta de perfil, listado de técnicos activos, cambio de estado activo/inactivo.
-* **`TicketService.java`**: Flujo de vida del ticket:
-  * Crear ticket (asignando estado inicial `OPENED`).
-  * Asignar técnico al ticket (cambia a `ASSIGNED`).
-  * Cambiar de estado (`IN_PROCESS`, `RESOLVED`, `CLOSED`).
-  * Consultar tickets con filtros (por solicitante, técnico o estado).
-* **`CommentService.java`**: Agregar comentarios a un ticket validando permisos del autor.
-* **`DashboardService.java`**: Calcular contadores totales (tickets abiertos, resueltos, cerrados, distribución por prioridad y categoría).
+### 3.8. Manejo de Errores (`com.spring.exception`)
+* **`GlobalExceptionHandler.java`**:
+  * Captura errores de validación (`MethodArgumentNotValidException`), conflictos de negocio y excepciones de servidor, retornando respuestas estructuradas con formato JSON y código HTTP apropiado.
 
 ---
 
-### 2.4. Data Transfer Objects (DTOs)
-
-* **`dto/request/TicketRequest.java`**: Payload para crear o modificar un ticket (`title`, `description`, `category`, `priority`, `requesterId`).
-* **`dto/request/CommentRequest.java`**: Payload para agregar comentario (`ticketId`, `content`).
-* **`dto/request/LoginRequest.java`**: Credenciales de inicio de sesión (`email`, `password`).
-* **`dto/request/RegisterRequest.java`**: Datos para registrar un nuevo usuario (`firstName`, `lastName`, `email`, `password`, `roles`).
-* **`dto/response/TicketResponse.java`**: Salida detallada y plana del ticket sin exponer entidades completas ni relaciones circulares.
-* **`dto/response/JwtResponse.java`**: Devuelve token JWT, tipo Bearer y datos básicos del usuario autenticado.
-* **`dto/response/DashboardResponse.java`**: Estadísticas numéricas para la pantalla de inicio del administrador.
+### 3.9. Capa de Repositorios (`com.spring.repository`)
+* **`UserRepository.java`**: Búsquedas por correo (`findByEmail`, `existsByEmail`) y filtrado de técnicos activos.
+* **`TicketRepository.java`**: Consultas por solicitante, técnico, estado, prioridad y conteos para el Dashboard.
+* **`RoleRepository.java`**: Búsqueda de roles por nombre (`findByName`).
+* **`CommentRepository.java`**: Búsqueda cronológica de comentarios por ID de ticket.
+* **`TicketHistoryRepository.java`**: Búsqueda cronológica del historial de cambios de un ticket.
 
 ---
 
-### 2.5. Controladores REST (`com.spring.controller`)
-
-* **`TicketController.java`**: Endpoints `/api/tickets` (CRUD y transiciones de tickets).
-* **`AuthController.java`**: Endpoints `/api/auth/login` y `/api/auth/register`.
-* **`CommentController.java`**: Endpoints `/api/comments` para añadir comentarios.
-* **`DashboardController.java`**: Endpoints `/api/dashboard/stats` para ver analíticas.
-
----
-
-### 2.6. Seguridad (`com.spring.security`)
-
-* **`SecurityConfig.java`**: Cadena de filtros `SecurityFilterChain`, codificador `BCryptPasswordEncoder`, rutas públicas (`/api/auth/**`, `/swagger-ui/**`, `/v3/api-docs/**`) y rutas aseguradas.
-* **`JwtTokenProvider.java`**: Utilidad criptográfica para generar y verificar tokens JWT.
-* **`JwtAuthenticationFilter.java`**: Filtro que intercepta el encabezado `Authorization: Bearer <token>`, valida el token y autentica la solicitud en el `SecurityContext`.
+### 3.10. Seguridad y JWT (`com.spring.security`)
+* **`SecurityConfig.java`**:
+  * Configura el `SecurityFilterChain`: política `SessionCreationPolicy.STATELESS`, desactivación de CSRF para API REST, configuración CORS para orígenes del frontend, y protección de endpoints con `@EnableMethodSecurity`.
+* **`CustomUserDetailsService.java`**:
+  * Implementa `UserDetailsService`. Carga el usuario desde PostgreSQL por correo y transforma sus roles en `GrantedAuthority` (`ROLE_ADMIN`, etc.).
+* **`JwtTokenProvider.java`**:
+  * Genera tokens JWT firmados con HMAC-SHA256, extrae claims (`sub`, `role`, `userId`) y valida expiración y firma.
+* **`JwtAuthenticationFilter.java`**:
+  * Intercepta cada solicitud HTTP, extrae la cabecera `Authorization: Bearer <token>`, valida el token y carga la autenticación en el `SecurityContextHolder`.
 
 ---
 
-### 2.7. Excepciones (`com.spring.exception`)
-
-* **`GlobalExceptionHandler.java`**: `@RestControllerAdvice` para transformar excepciones en respuestas JSON con código HTTP, timestamp y mensaje descriptivo.
-
----
-
-## 3. Implementación Paso a Paso de los Componentes Solicitados
-
-### Paso 1: `UserRepository.java`
-**Ruta:** `src/main/java/com/spring/repository/UserRepository.java`
-
-```java
-package com.spring.repository;
-
-import com.spring.entity.User;
-import com.spring.entity.enums.RoleName;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    // Buscar usuario por correo electrónico (clave para autenticación)
-    Optional<User> findByEmail(String email);
-
-    // Verificar existencia de correo antes de registrar
-    boolean existsByEmail(String email);
-
-    // Listar solo usuarios activos
-    List<User> findByActiveTrue();
-
-    // Obtener usuarios que posean un rol específico (ej: técnicos disponibles)
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName AND u.active = true")
-    List<User> findByRoleNameAndActiveTrue(@Param("roleName") RoleName roleName);
-}
-```
+### 3.11. Capa de Servicios (`com.spring.service`)
+* **`UserService.java`**: Listado de técnicos activos y consulta de todos los usuarios registrados.
+* **`TicketService.java`**:
+  * Corazón del sistema: creación de tickets (`OPENED`), filtrado por roles (`ADMIN` todos, `TECH` asignados, `USER` propios), asignación de técnicos (`ASSIGNED`) y validación estricta de transiciones de estado (`IN_PROCESS` ➔ `RESOLVED` ➔ `CLOSED`).
+* **`CommentService.java`**: Creación y validación de comentarios (rechaza comentarios si el ticket está en estado `CLOSED`).
+* **`TicketHistoryService.java`**: Registro atómico y transaccional obligatorio de cada cambio de estado.
+* **`DashboardService.java`**: Conteo de tickets agrupados por estado para el panel de métricas.
+* **`RoleService.java`**: Creación y listado de roles del sistema.
 
 ---
 
-### Paso 2: `TicketRepository.java`
-**Ruta:** `src/main/java/com/spring/repository/TicketRepository.java`
+## 4. Frontend Modular (`Fronted/`)
 
-```java
-package com.spring.repository;
+Desarrollado en **Vanilla JavaScript** con arquitectura modular ES6:
 
-import com.spring.entity.Ticket;
-import com.spring.entity.enums.TicketCategory;
-import com.spring.entity.enums.TicketPriority;
-import com.spring.entity.enums.TicketState;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
-
-@Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
-
-    // Tickets creados por un usuario en específico
-    List<Ticket> findByRequesterId(Long requesterId);
-
-    // Tickets asignados a un técnico específico
-    List<Ticket> findByTechnicianAssignedId(Long technicianId);
-
-    // Filtrar tickets por estado actual
-    List<Ticket> findByState(TicketState state);
-
-    // Filtrar por prioridad
-    List<Ticket> findByPriority(TicketPriority priority);
-
-    // Filtrar por categoría
-    List<Ticket> findByCategory(TicketCategory category);
-
-    // Conteo por estado (ideal para estadísticas del Dashboard)
-    long countByState(TicketState state);
-
-    // Conteo por prioridad
-    long countByPriority(TicketPriority priority);
-}
-```
+* **`index.html` + `js/index.js`**: Pantalla de autenticación (Login y Registro dinámico).
+* **`dashboard.html` + `js/dashboard.js`**: Panel de métricas e indicadores de rendimiento según el rol.
+* **`tickets.html` + `js/tickets.js`**: Bandeja de solicitudes, filtros por estado y modal de creación de tickets.
+* **`ticket-detail.html` + `js/ticket-detail.js`**: Vista detallada con Stepper del ciclo de vida, comentarios en tiempo real, timeline de auditoría y botones de acción desbloqueados según el rol del usuario autenticado.
+* **`admin.html` + `js/admin.js`**: Directorio de personal y usuarios exclusivo para Administradores.
+* **`js/api.js`**: Centralizador de llamadas HTTP con `fetch()` y cabeceras JWT automáticas.
+* **`js/auth.js`**: Manejador de tokens en `sessionStorage`, decodificación de roles y guards de navegación (`checkAuth()`, `checkAdminAccess()`).
+* **`js/ui.js`**: Funciones auxiliares para Toasts visuales, modales, spinners y formateo de fechas.
 
 ---
 
-### Paso 3: `TicketRequest.java`
-**Ruta:** `src/main/java/com/spring/dto/request/TicketRequest.java`
+## 5. Infraestructura y Base de Datos (Docker Compose)
 
-```java
-package com.spring.dto.request;
+El archivo [`docker-compose.yml`](file:///home/diego/CampusDESK/docker-compose.yml) levanta:
 
-import com.spring.entity.enums.TicketCategory;
-import com.spring.entity.enums.TicketPriority;
-import lombok.*;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketRequest {
-
-    private String title;
-    private String description;
-    private TicketCategory category;
-    private TicketPriority priority;
-
-    // ID del usuario que solicita el ticket
-    private Long requesterId;
-
-    // ID del técnico asignado (opcional al crear)
-    private Long technicianId;
-}
-```
-
----
-
-### Paso 4: `TicketResponse.java`
-**Ruta:** `src/main/java/com/spring/dto/response/TicketResponse.java`
-
-El DTO de respuesta aplana la entidad, evitando devolver la contraseña del usuario o colecciones pesadas no requeridas por la vista:
-
-```java
-package com.spring.dto.response;
-
-import com.spring.entity.Ticket;
-import com.spring.entity.enums.TicketCategory;
-import com.spring.entity.enums.TicketPriority;
-import com.spring.entity.enums.TicketState;
-import lombok.*;
-
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketResponse {
-
-    private Long id;
-    private String title;
-    private String description;
-    private TicketCategory category;
-    private TicketPriority priority;
-    private TicketState state;
-
-    // Datos simplificados del solicitante
-    private Long requesterId;
-    private String requesterName;
-    private String requesterEmail;
-
-    // Datos simplificados del técnico asignado (si existe)
-    private Long technicianId;
-    private String technicianName;
-
-    private LocalDateTime createDate;
-    private LocalDateTime resolutionDate;
-    private LocalDateTime closeDate;
-
-    // Método helper de mapeo Entity -> DTO
-    public static TicketResponse fromEntity(Ticket ticket) {
-        if (ticket == null) return null;
-
-        String reqName = null;
-        String reqEmail = null;
-        if (ticket.getRequester() != null) {
-            reqName = ticket.getRequester().getFirstName() + " " + ticket.getRequester().getLastName();
-            reqEmail = ticket.getRequester().getEmail();
-        }
-
-        String techName = null;
-        Long techId = null;
-        if (ticket.getTechnicianAssigned() != null) {
-            techId = ticket.getTechnicianAssigned().getId();
-            techName = ticket.getTechnicianAssigned().getFirstName() + " " + ticket.getTechnicianAssigned().getLastName();
-        }
-
-        return TicketResponse.builder()
-                .id(ticket.getId())
-                .title(ticket.getTitle())
-                .description(ticket.getDescription())
-                .category(ticket.getCategory())
-                .priority(ticket.getPriority())
-                .state(ticket.getState())
-                .requesterId(ticket.getRequester() != null ? ticket.getRequester().getId() : null)
-                .requesterName(reqName)
-                .requesterEmail(reqEmail)
-                .technicianId(techId)
-                .technicianName(techName)
-                .createDate(ticket.getCreateDate())
-                .resolutionDate(ticket.getResolutionDate())
-                .closeDate(ticket.getCloseDate())
-                .build();
-    }
-}
-```
-
----
-
-### Paso 5: `TicketController.java`
-**Ruta:** `src/main/java/com/spring/controller/TicketController.java`
-
-El controlador expone los endpoints REST y delega la lógica de negocio a `TicketService`:
-
-```java
-package com.spring.controller;
-
-import com.spring.dto.request.TicketRequest;
-import com.spring.dto.response.TicketResponse;
-import com.spring.entity.enums.TicketState;
-import com.spring.service.TicketService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/tickets")
-@RequiredArgsConstructor
-public class TicketController {
-
-    private final TicketService ticketService;
-
-    // 1. Crear nuevo ticket
-    @PostMapping
-    public ResponseEntity<TicketResponse> createTicket(@RequestBody TicketRequest request) {
-        TicketResponse response = ticketService.createTicket(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    // 2. Obtener todos los tickets (con filtro opcional por estado)
-    @GetMapping
-    public ResponseEntity<List<TicketResponse>> getAllTickets(@RequestParam(required = false) TicketState state) {
-        List<TicketResponse> tickets = ticketService.getAllTickets(state);
-        return ResponseEntity.ok(tickets);
-    }
-
-    // 3. Obtener ticket por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
-        TicketResponse ticket = ticketService.getTicketById(id);
-        return ResponseEntity.ok(ticket);
-    }
-
-    // 4. Listar tickets creados por un solicitante
-    @GetMapping("/requester/{requesterId}")
-    public ResponseEntity<List<TicketResponse>> getTicketsByRequester(@PathVariable Long requesterId) {
-        return ResponseEntity.ok(ticketService.getTicketsByRequester(requesterId));
-    }
-
-    // 5. Listar tickets asignados a un técnico
-    @GetMapping("/technician/{technicianId}")
-    public ResponseEntity<List<TicketResponse>> getTicketsByTechnician(@PathVariable Long technicianId) {
-        return ResponseEntity.ok(ticketService.getTicketsByTechnician(technicianId));
-    }
-
-    // 6. Asignar técnico a un ticket
-    @PatchMapping("/{id}/assign/{technicianId}")
-    public ResponseEntity<TicketResponse> assignTechnician(
-            @PathVariable Long id,
-            @PathVariable Long technicianId) {
-        TicketResponse updated = ticketService.assignTechnician(id, technicianId);
-        return ResponseEntity.ok(updated);
-    }
-
-    // 7. Cambiar estado de un ticket
-    @PatchMapping("/{id}/state")
-    public ResponseEntity<TicketResponse> updateTicketState(
-            @PathVariable Long id,
-            @RequestParam TicketState newState) {
-        TicketResponse updated = ticketService.updateState(id, newState);
-        return ResponseEntity.ok(updated);
-    }
-
-    // 8. Actualizar información general de un ticket
-    @PutMapping("/{id}")
-    public ResponseEntity<TicketResponse> updateTicket(
-            @PathVariable Long id,
-            @RequestBody TicketRequest request) {
-        TicketResponse updated = ticketService.updateTicket(id, request);
-        return ResponseEntity.ok(updated);
-    }
-
-    // 9. Eliminar ticket
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
-        ticketService.deleteTicket(id);
-        return ResponseEntity.noContent().build();
-    }
-}
-```
-
----
-
-## 4. Complemento Recomendado: `TicketService.java`
-
-Para que `TicketController` funcione perfectamente sin errores de compilación, en `src/main/java/com/spring/service/TicketService.java` puedes definir los métodos de la interfaz o la clase de servicio:
-
-```java
-package com.spring.service;
-
-import com.spring.dto.request.TicketRequest;
-import com.spring.dto.response.TicketResponse;
-import com.spring.entity.enums.TicketState;
-
-import java.util.List;
-
-public interface TicketService {
-    TicketResponse createTicket(TicketRequest request);
-    List<TicketResponse> getAllTickets(TicketState state);
-    TicketResponse getTicketById(Long id);
-    List<TicketResponse> getTicketsByRequester(Long requesterId);
-    List<TicketResponse> getTicketsByTechnician(Long technicianId);
-    TicketResponse assignTechnician(Long ticketId, Long technicianId);
-    TicketResponse updateState(Long ticketId, TicketState newState);
-    TicketResponse updateTicket(Long ticketId, TicketRequest request);
-    void deleteTicket(Long ticketId);
-}
-```
+1. **`dev_postgres` (PostgreSQL 17):**
+   * **Puerto:** `5438:5432`
+   * **Base de datos:** `campusDESK`
+   * **Credenciales:** Usuario `dev_user`, Contraseña `DevTeamSecurePass2026!`
+   * **Volumen de Scripts:** `./mis_scripts:/docker-entrypoint-initdb.d:ro` (ejecuta automáticamente [`mis_scripts/init-database.sql`](file:///home/diego/CampusDESK/mis_scripts/init-database.sql) en el primer arranque).
+2. **`dev_pgadmin` (pgAdmin 4):**
+   * **Puerto:** `5055:80` (Interfaz gráfica para administrar PostgreSQL).
+   * **Credenciales:** `team@devlocal.com` / `PgAdminTeamPass2026!`
