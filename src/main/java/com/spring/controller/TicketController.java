@@ -4,6 +4,8 @@ import com.spring.dto.request.CommentRequest;
 import com.spring.dto.request.TicketRequest;
 import com.spring.dto.response.CommentResponse;
 import com.spring.dto.response.TicketResponse;
+import com.spring.entity.enums.TicketCategory;
+import com.spring.entity.enums.TicketPriority;
 import com.spring.entity.enums.TicketState;
 import com.spring.service.CommentService;
 import com.spring.service.TicketService;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +40,12 @@ public class TicketController {
             @ApiResponse(responseCode = "401", description = "No autenticado")
     })
     @PostMapping
-    public ResponseEntity<TicketResponse> createTicket(@RequestBody TicketRequest request) {
+    public ResponseEntity<TicketResponse> createTicket(@Valid @RequestBody TicketRequest request) {
         TicketResponse response = ticketService.createTicket(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Listar tickets autorizados", description = "Lista tickets con aislamiento de roles: ADMIN ve todos, TECHNICIAN ve sus asignados, USER ve solo sus solicitudes creadas. Permite filtrar por estado.")
+    @Operation(summary = "Listar tickets autorizados", description = "Lista tickets con aislamiento de roles: ADMIN ve todos, TECHNICIAN ve sus asignados, USER ve solo sus solicitudes creadas. Permite filtrar por estado, prioridad y categoría.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de incidencias devuelto con éxito"),
             @ApiResponse(responseCode = "401", description = "No autenticado")
@@ -51,8 +54,12 @@ public class TicketController {
     public ResponseEntity<List<TicketResponse>> getAllTickets(
             @Parameter(description = "Filtrar por estado: OPENED, ASSIGNED, IN_PROCESS, RESOLVED, CLOSED")
             @RequestParam(required = false) TicketState state,
+            @Parameter(description = "Filtrar por prioridad: LOW, MEDIUM, HIGH, CRITIC")
+            @RequestParam(required = false) TicketPriority priority,
+            @Parameter(description = "Filtrar por categoría: HARDWARE, SOFTWARE, NETWORK, ACCESS, OTHER")
+            @RequestParam(required = false) TicketCategory category,
             Authentication authentication) {
-        return ResponseEntity.ok(ticketService.getAllTickets(state, authentication));
+        return ResponseEntity.ok(ticketService.getAllTickets(state, priority, category, authentication));
     }
 
     @Operation(summary = "Consultar detalle de un ticket", description = "Obtiene información completa de la incidencia. Valida que el usuario tenga permisos sobre el recurso.")
@@ -78,7 +85,7 @@ public class TicketController {
     @PutMapping("/{id}")
     public ResponseEntity<TicketResponse> updateTicket(
             @PathVariable Long id,
-            @RequestBody TicketRequest request,
+            @Valid @RequestBody TicketRequest request,
             Authentication authentication) {
         return ResponseEntity.ok(ticketService.updateTicket(id, request, authentication));
     }
@@ -86,6 +93,7 @@ public class TicketController {
     @Operation(summary = "Asignar o reasignar técnico (Solo ADMIN)", description = "Asigna un técnico disponible a la incidencia. El estado transiciona automáticamente a ASIGNADA.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Técnico asignado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "El usuario indicado no tiene rol TECHNICIAN"),
             @ApiResponse(responseCode = "403", description = "Permiso denegado (requiere rol ADMIN)"),
             @ApiResponse(responseCode = "404", description = "Ticket o técnico no encontrado")
     })
@@ -93,8 +101,9 @@ public class TicketController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TicketResponse> assignTechnician(
             @PathVariable Long id,
-            @RequestParam Long technicianId) {
-        return ResponseEntity.ok(ticketService.assignTechnician(id, technicianId));
+            @RequestParam Long technicianId,
+            Authentication authentication) {
+        return ResponseEntity.ok(ticketService.assignTechnician(id, technicianId, authentication));
     }
 
     @Operation(summary = "Cambiar estado de la incidencia", description = "Ejecuta transiciones del ciclo de vida respetando reglas estrictas: RESUELTA requiere EN_PROCESO; CERRADA solo por el solicitante en ticket RESUELTO.")
@@ -122,17 +131,19 @@ public class TicketController {
         return ResponseEntity.ok(commentService.getCommentsByTicketId(id));
     }
 
-    @Operation(summary = "Registrar comentario en un ticket", description = "Agrega un comentario a la incidencia. Se rechaza si el ticket ya está en estado CERRADA.")
+    @Operation(summary = "Registrar comentario en un ticket", description = "Agrega un comentario a la incidencia. Se rechaza si el ticket ya está en estado CERRADA. Valida permisos: USER solo en sus tickets, TECHNICIAN solo en sus tickets asignados.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Comentario registrado"),
+            @ApiResponse(responseCode = "403", description = "No tienes permisos para comentar en este ticket"),
             @ApiResponse(responseCode = "409", description = "No se permite comentar en tickets cerrados")
     })
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long id,
-            @RequestBody CommentRequest request) {
+            @Valid @RequestBody CommentRequest request,
+            Authentication authentication) {
         request.setTicketId(id);
-        return new ResponseEntity<>(commentService.createComment(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.createComment(request, authentication), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Consultar tickets por solicitante", description = "Ruta auxiliar para listar tickets creados por un usuario específico.")

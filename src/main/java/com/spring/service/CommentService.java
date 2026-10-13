@@ -8,9 +8,11 @@ import com.spring.entity.User;
 import com.spring.entity.enums.TicketState;
 import com.spring.repository.CommentRepository;
 import com.spring.repository.TicketRepository;
-import jakarta.persistence.EntityManager;
+import com.spring.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,10 +26,17 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final TicketRepository ticketRepository;
-    private final EntityManager entityManager;
+    private final UserRepository userRepository;
 
+    /**
+     * Crea un comentario validando permisos:
+     * - ADMIN puede comentar en cualquier ticket activo
+     * - TECHNICIAN solo puede comentar en tickets que tiene asignados
+     * - USER solo puede comentar en sus propios tickets
+     * - Nadie puede comentar en tickets CERRADOS
+     */
     @Transactional
-    public CommentResponse createComment(CommentRequest request) {
+    public CommentResponse createComment(CommentRequest request, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
 
@@ -35,7 +44,34 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se permite agregar comentarios a un ticket cerrado");
         }
 
-        User author = entityManager.getReference(User.class, request.getAuthorId());
+        // Validar permisos de comentario según rol
+        if (authentication != null) {
+            String email = authentication.getName();
+            boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
+
+            if (!isAdmin) {
+                boolean isTechnician = hasRole(authentication, "ROLE_TECHNICIAN");
+
+                if (isTechnician) {
+                    // Técnico solo puede comentar en sus tickets asignados
+                    if (ticket.getTechnicianAssigned() == null ||
+                            !email.equalsIgnoreCase(ticket.getTechnicianAssigned().getEmail())) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                                "Solo puedes comentar en tickets que tienes asignados");
+                    }
+                } else {
+                    // USER solo puede comentar en sus propios tickets
+                    if (ticket.getRequester() == null ||
+                            !email.equalsIgnoreCase(ticket.getRequester().getEmail())) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                                "Solo puedes comentar en tus propias solicitudes");
+                    }
+                }
+            }
+        }
+
+        User author = userRepository.findById(request.getAuthorId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Autor no encontrado"));
 
         Comment comment = Comment.builder()
                 .content(request.getContent())
@@ -46,6 +82,14 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         return mapToResponse(savedComment);
+    }
+
+    /**
+     * Sobrecarga para compatibilidad con CommentController (sin autenticación).
+     */
+    @Transactional
+    public CommentResponse createComment(CommentRequest request) {
+        return createComment(request, null);
     }
 
     @Transactional(readOnly = true)
@@ -61,8 +105,18 @@ public class CommentService {
                 .id(comment.getId())
                 .content(comment.getContent())
                 .authorId(comment.getAuthor().getId())
+                .authorName(comment.getAuthor().getFirstName() + " " + comment.getAuthor().getLastName())
                 .ticketId(comment.getTicket().getId())
                 .createdAt(comment.getCreatedAt())
                 .build();
+    }
+
+    private boolean hasRole(Authentication authentication, String role) {
+        for (GrantedAuthority ga : authentication.getAuthorities()) {
+            if (role.equals(ga.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

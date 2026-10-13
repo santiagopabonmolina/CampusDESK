@@ -55,23 +55,29 @@ CampusDESK/
 ├── src/main/java/com/spring/
 │   ├── config/          # Configuración OpenAPI / Swagger
 │   ├── controller/      # Controladores REST HTTP (Endpoints públicos y protegidos)
-│   ├── dto/             # Data Transfer Objects (Request y Response)
+│   ├── dto/             # Data Transfer Objects (Request y Response con validaciones)
 │   ├── entity/          # Entidades persistentes JPA (User, Role, Ticket, Comment, History)
+│   ├── exception/       # GlobalExceptionHandler centralizado
 │   ├── repository/      # Interfaces Spring Data JPA para acceso a PostgreSQL
 │   ├── security/        # Filtros JWT, CustomUserDetailsService y SecurityConfig
 │   └── service/         # Lógica y reglas de negocio, transaccionalidad y validaciones
 ├── src/main/resources/
-│   └── application.properties # Configuración de BD, JWT, CORS y Swagger
+│   └── application.properties # Configuración con variables de entorno parametrizadas
 ├── Fronted/             # Cliente Web desacoplado en Vanilla JS
 │   ├── css/             # Hojas de estilo modulares (variables, base, components, pages)
 │   ├── js/              # Módulos JS (config, auth, api, ui y controladores de vista)
 │   ├── index.html       # Acceso (Login y Registro)
 │   ├── dashboard.html   # Métricas y resumen por rol
-│   ├── tickets.html     # Listado, creación y filtrado de incidencias
+│   ├── tickets.html     # Listado, creación y filtrado combinado (estado, prioridad, categoría)
 │   ├── ticket-detail.html # Detalle, transiciones, comentarios e historial
 │   └── admin.html       # Directorio de personal y usuarios (Solo ADMIN)
-├── docker-compose.yml   # Contenedor PostgreSQL 16 para desarrollo
-├── init-database.sql    # Semilla SQL con roles y usuarios preconfigurados
+├── scripts/             # Scripts SQL organizados de base de datos
+│   ├── 01-schema.sql    # DDL: Creación de tablas, claves foráneas e índices
+│   ├── 02-seed-data.sql # DML: Roles y cuentas iniciales preconfiguradas
+│   ├── 03-sample-tickets.sql # DML: Incidencias de prueba en todos los estados
+│   └── README.md        # Documentación de base de datos
+├── docker-compose.yml   # Contenedor PostgreSQL 17 + pgAdmin 4
+├── .env.example         # Plantilla de variables de entorno
 └── build.gradle         # Dependencias y configuración Gradle
 ```
 
@@ -84,7 +90,7 @@ El sistema maneja 3 roles con privilegios claramente delimitados:
 | Rol | Privilegios y Alcance |
 | :--- | :--- |
 | **`ADMIN`** | Consulta todos los tickets y usuarios. Asigna y reasigna técnicos. Visualiza estadísticas globales y el historial completo de cualquier solicitud. |
-| **`TECHNICIAN`** | Consulta únicamente los tickets asignados a su cuenta. Gestiona el ciclo de vida (`ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA`). Añade comentarios de soporte. |
+| **`TECHNICIAN`** | Consulta únicamente los tickets asignados a su cuenta. Gestiona el ciclo de vida (`ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA`). Añade comentarios de soporte en sus incidencias. |
 | **`USER`** | Crea incidencias. Consulta y modifica **únicamente** sus propias solicitudes mientras permanezcan abiertas y sin asignar. Confirma el cierre (`CERRADA`) una vez resuelta. |
 
 > [!IMPORTANT]
@@ -110,7 +116,7 @@ $$\text{ABIERTA} \xrightarrow{\text{Asignación (ADMIN)}} \text{ASIGNADA} \xrigh
 
 ### 1. Requisitos
 * **Java Development Kit (JDK) 21** o superior instalado (`java -version`).
-* **Docker y Docker Compose** (o PostgreSQL 16 instalado localmente).
+* **Docker y Docker Compose** (o PostgreSQL 16/17 instalado localmente).
 * Navegador web moderno (Chrome, Edge, Firefox).
 
 ---
@@ -128,11 +134,20 @@ docker compose up -d
 * **Usuario:** `dev_user`
 * **Contraseña:** `DevTeamSecurePass2026!`
 
-#### Cargar Datos Semilla (Roles y Usuarios de Prueba):
-Ejecuta el script SQL [`init-database.sql`](init-database.sql) en PostgreSQL:
+El contenedor monta la carpeta `./scripts` y ejecuta automáticamente los scripts en orden (`01-schema.sql` ➔ `02-seed-data.sql` ➔ `03-sample-tickets.sql`).
+
+#### Carga Manual de Scripts (Opcional):
+Si requieres ejecutar los scripts manualmente mediante `psql`:
 
 ```bash
-docker exec -i campusdesk-postgres psql -U dev_user -d campusDESK < init-database.sql
+# 1. Crear estructura (DDL)
+docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/01-schema.sql
+
+# 2. Cargar roles y usuarios iniciales (Seed)
+docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/02-seed-data.sql
+
+# 3. (Opcional) Cargar casos de prueba
+docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/03-sample-tickets.sql
 ```
 
 ---
@@ -176,7 +191,7 @@ Abre en el navegador: **`http://127.0.0.1:5500/index.html`**.
 | :--- | :--- | :--- | :--- |
 | **Super Administrador** | `admin@campusdesk.com` | `SuperAdmin2026!` | `ROLE_ADMIN` |
 | **Técnico de Soporte** | `tecnico@campusdesk.com` | `Tech2026!` | `ROLE_TECHNICIAN` |
-| **Usuario Solicitante** | *(Registrar uno nuevo desde la web)* | *(Mínimo 6 caracteres)* | `ROLE_USER` |
+| **Usuario Solicitante** | `usuario@campusdesk.com` | `User2026!` | `ROLE_USER` |
 
 ---
 
@@ -202,7 +217,7 @@ La API REST cuenta con documentación interactiva con soporte para pruebas prote
 | **CP-02** | Registrar correo duplicado | Rechazo con `HTTP 409 Conflict` | ✅ Verificado |
 | **CP-03** | Iniciar sesión correctamente | Retorna JWT válido y datos de perfil | ✅ Verificado |
 | **CP-04** | Acceder a endpoint protegido sin token | Rechazo con `HTTP 401 Unauthorized` | ✅ Verificado |
-| **CP-05** | Crear ticket | Registrado en estado `ABIERTA` | ✅ Verificado |
+| **CP-05** | Crear ticket con datos válidos | Registrado en estado `ABIERTA` | ✅ Verificado |
 | **CP-06** | Consultar ticket ajeno como USER | Rechazo con `HTTP 403 Forbidden` | ✅ Verificado |
 | **CP-07** | Asignar técnico como ADMIN | Ticket transiciona a `ASIGNADA` | ✅ Verificado |
 | **CP-08** | Intentar asignar como USER | Rechazo con `HTTP 403 Forbidden` | ✅ Verificado |

@@ -83,8 +83,15 @@ export const API = {
   getTechnicians: () => fetchApi('/users/technicians'),
   getAllUsers: () => fetchApi('/users'),
   
-  // Tickets
-  getTickets: (state = null) => fetchApi(state ? `/tickets?state=${state}` : '/tickets'),
+  // Tickets (Filtros por estado, prioridad y categoría)
+  getTickets: (state = null, priority = null, category = null) => {
+    const params = new URLSearchParams();
+    if (state) params.append('state', state);
+    if (priority) params.append('priority', priority);
+    if (category) params.append('category', category);
+    const qs = params.toString();
+    return fetchApi(qs ? `/tickets?${qs}` : '/tickets');
+  },
   getTicketById: (id) => fetchApi(`/tickets/${id}`),
   createTicket: (data) => fetchApi('/tickets', { method: 'POST', body: data }),
   updateTicket: (id, data) => fetchApi(`/tickets/${id}`, { method: 'PUT', body: data }),

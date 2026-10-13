@@ -4,6 +4,9 @@ import com.spring.dto.request.TicketRequest;
 import com.spring.dto.response.TicketResponse;
 import com.spring.entity.Ticket;
 import com.spring.entity.User;
+import com.spring.entity.enums.RoleName;
+import com.spring.entity.enums.TicketCategory;
+import com.spring.entity.enums.TicketPriority;
 import com.spring.entity.enums.TicketState;
 import com.spring.repository.TicketRepository;
 import com.spring.repository.UserRepository;
@@ -47,32 +50,40 @@ public class TicketService {
     }
 
     @Transactional(readOnly = true)
-    public List<TicketResponse> getAllTickets(TicketState state, Authentication authentication) {
+    public List<TicketResponse> getAllTickets(TicketState state, TicketPriority priority,
+                                              TicketCategory category, Authentication authentication) {
+        List<Ticket> tickets;
+
         if (authentication == null) {
-            List<Ticket> tickets = (state != null) ? ticketRepository.findByState(state) : ticketRepository.findAll();
-            return tickets.stream().map(TicketResponse::fromEntity).collect(Collectors.toList());
+            tickets = ticketRepository.findAll();
+        } else {
+            String email = authentication.getName();
+            boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
+            boolean isTechnician = hasRole(authentication, "ROLE_TECHNICIAN");
+
+            if (isAdmin) {
+                tickets = ticketRepository.findAll();
+            } else if (isTechnician) {
+                User tech = userRepository.findByEmail(email).orElse(null);
+                if (tech == null) return List.of();
+                tickets = ticketRepository.findByTechnicianAssignedId(tech.getId());
+            } else {
+                // USER: Solo sus propias solicitudes
+                User user = userRepository.findByEmail(email).orElse(null);
+                if (user == null) return List.of();
+                tickets = ticketRepository.findByRequesterId(user.getId());
+            }
         }
 
-        String email = authentication.getName();
-        boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
-        boolean isTechnician = hasRole(authentication, "ROLE_TECHNICIAN");
-
-        List<Ticket> tickets;
-        if (isAdmin) {
-            tickets = (state != null) ? ticketRepository.findByState(state) : ticketRepository.findAll();
-        } else if (isTechnician) {
-            User tech = userRepository.findByEmail(email).orElse(null);
-            if (tech == null) return List.of();
-            tickets = (state != null)
-                    ? ticketRepository.findByTechnicianAssignedIdAndState(tech.getId(), state)
-                    : ticketRepository.findByTechnicianAssignedId(tech.getId());
-        } else {
-            // USER: Solo sus propias solicitudes
-            User user = userRepository.findByEmail(email).orElse(null);
-            if (user == null) return List.of();
-            tickets = (state != null)
-                    ? ticketRepository.findByRequesterIdAndState(user.getId(), state)
-                    : ticketRepository.findByRequesterId(user.getId());
+        // Aplicar filtros en memoria (respetando permisos ya aplicados)
+        if (state != null) {
+            tickets = tickets.stream().filter(t -> t.getState() == state).collect(Collectors.toList());
+        }
+        if (priority != null) {
+            tickets = tickets.stream().filter(t -> t.getPriority() == priority).collect(Collectors.toList());
+        }
+        if (category != null) {
+            tickets = tickets.stream().filter(t -> t.getCategory() == category).collect(Collectors.toList());
         }
 
         return tickets.stream().map(TicketResponse::fromEntity).collect(Collectors.toList());
@@ -127,19 +138,39 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketResponse assignTechnician(Long id, Long technicianId) {
+    public TicketResponse assignTechnician(Long id, Long technicianId, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
 
         User technician = userRepository.findById(technicianId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Technician not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Técnico no encontrado"));
+
+        // Validar que el usuario tenga rol TECHNICIAN
+        boolean isTechnician = technician.getRoles().stream()
+                .anyMatch(role -> role.getName() == RoleName.TECHNICIAN);
+        if (!isTechnician) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El usuario seleccionado no tiene el rol de TÉCNICO y no puede ser asignado");
+        }
 
         TicketState previousState = ticket.getState();
         ticket.setTechnicianAssigned(technician);
         ticket.setState(TicketState.ASSIGNED);
 
-        ticketHistoryService.recordChange(ticket, previousState, TicketState.ASSIGNED, technician);
+        // Registrar al admin que hizo la asignación como responsable del cambio
+        User admin = null;
+        if (authentication != null) {
+            admin = userRepository.findByEmail(authentication.getName()).orElse(null);
+        }
+        User changedBy = (admin != null) ? admin : technician;
+
+        ticketHistoryService.recordChange(ticket, previousState, TicketState.ASSIGNED, changedBy);
         return TicketResponse.fromEntity(ticketRepository.save(ticket));
+    }
+
+    @Transactional
+    public TicketResponse assignTechnician(Long id, Long technicianId) {
+        return assignTechnician(id, technicianId, null);
     }
 
     @Transactional

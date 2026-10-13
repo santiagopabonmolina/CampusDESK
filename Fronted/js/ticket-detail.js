@@ -186,13 +186,14 @@ async function loadComments() {
         }
         
         container.innerHTML = comments.map(c => {
-            const initial = "U";
+            const displayName = c.authorName || `Usuario ID: ${c.authorId}`;
+            const initial = displayName.charAt(0).toUpperCase();
             return `
             <div class="comment">
                 <div class="comment-avatar">${initial}</div>
                 <div class="comment-content">
                     <div class="comment-header">
-                        <span class="comment-author">Usuario ID: ${c.authorId}</span>
+                        <span class="comment-author">${escapeHTML(displayName)}</span>
                         <span class="comment-date">${formatDate(c.createdAt)}</span>
                     </div>
                     <div class="comment-text">${escapeHTML(c.content)}</div>

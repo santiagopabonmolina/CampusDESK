@@ -18,23 +18,31 @@ if (hasRole(CONFIG.ROLES.ADMIN)) {
     document.getElementById('admin-menu').classList.remove('hidden');
 }
 
-// Filters
+// Filters (Estado, Prioridad, Categoría)
 const filterState = document.getElementById('filter-state');
-filterState.addEventListener('change', loadTickets);
+const filterPriority = document.getElementById('filter-priority');
+const filterCategory = document.getElementById('filter-category');
+
+if (filterState) filterState.addEventListener('change', loadTickets);
+if (filterPriority) filterPriority.addEventListener('change', loadTickets);
+if (filterCategory) filterCategory.addEventListener('change', loadTickets);
 
 // Load Tickets
 export async function loadTickets() {
     const tbody = document.getElementById('tickets-tbody');
     const loading = document.getElementById('loading-indicator');
     const empty = document.getElementById('empty-state');
-    const stateValue = filterState.value;
+
+    const stateValue = filterState ? filterState.value : '';
+    const priorityValue = filterPriority ? filterPriority.value : '';
+    const categoryValue = filterCategory ? filterCategory.value : '';
 
     tbody.innerHTML = '';
     empty.classList.add('hidden');
     loading.classList.remove('hidden');
 
     try {
-        const tickets = await API.getTickets(stateValue || null);
+        const tickets = await API.getTickets(stateValue || null, priorityValue || null, categoryValue || null);
         
         if (tickets.length === 0) {
             empty.classList.remove('hidden');

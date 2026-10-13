@@ -88,15 +88,34 @@
             </header>
 
             <div class="content-scroll">
-                <div class="filters-bar">
-                    <div style="flex: 1;">
-                        <select id=\"filter-state\" class="form-control" style="background: rgba(0,0,0,0.5);">
+                <div class="filters-bar" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 180px;">
+                        <select id="filter-state" class="form-control" style="background: rgba(0,0,0,0.5);">
                             <option value="">Todos los Estados</option>
                             <option value="OPENED">Abierta</option>
                             <option value="ASSIGNED">Asignada</option>
                             <option value="IN_PROCESS">En Proceso</option>
                             <option value="RESOLVED">Resuelta</option>
                             <option value="CLOSED">Cerrada</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <select id="filter-priority" class="form-control" style="background: rgba(0,0,0,0.5);">
+                            <option value="">Todas las Prioridades</option>
+                            <option value="LOW">Baja</option>
+                            <option value="MEDIUM">Media</option>
+                            <option value="HIGH">Alta</option>
+                            <option value="CRITIC">Crítica</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 180px;">
+                        <select id="filter-category" class="form-control" style="background: rgba(0,0,0,0.5);">
+                            <option value="">Todas las Categorías</option>
+                            <option value="HARDWARE">Hardware</option>
+                            <option value="SOFTWARE">Software</option>
+                            <option value="NETWORK">Redes</option>
+                            <option value="ACCESS">Accesos</option>
+                            <option value="OTHER">Otros</option>
                         </select>
                     </div>
                 </div>
