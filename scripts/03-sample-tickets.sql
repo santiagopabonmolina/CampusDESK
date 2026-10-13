@@ -2,6 +2,7 @@
 -- 03-sample-tickets.sql
 -- CampusDESK - TechNova Solutions
 -- DML: Casos de prueba y tickets de ejemplo en diferentes estados
+-- Idempotente: Si ya existen los tickets de prueba, no se duplican.
 -- ==============================================================================
 
 DO $$
@@ -15,6 +16,12 @@ DECLARE
     v_ticket_4 BIGINT;
     v_ticket_5 BIGINT;
 BEGIN
+    -- Evitar duplicados si ya existen tickets de prueba cargados
+    IF EXISTS (SELECT 1 FROM ticket WHERE title = 'Falla en el teclado mecánico oficina 302') THEN
+        RAISE NOTICE 'Los tickets de prueba ya se encuentran cargados en la base de datos.';
+        RETURN;
+    END IF;
+
     -- Obtener IDs de usuarios
     SELECT id INTO v_admin_id FROM users WHERE email = 'admin@campusdesk.com';
     SELECT id INTO v_tech_id FROM users WHERE email = 'tecnico@campusdesk.com';
@@ -22,7 +29,7 @@ BEGIN
 
     IF v_user_id IS NOT NULL AND v_tech_id IS NOT NULL THEN
 
-        -- Ticket 1: Estado OPENED (Abierta, sin técnico)
+        -- Ticket 1: Estado OPENED (Abierta, sin técnico asignado)
         INSERT INTO ticket (title, description, category, priority, state, requester_id, technician_id, create_date)
         VALUES ('Falla en el teclado mecánico oficina 302', 'Varias teclas no responden, impidiendo el trabajo normal.', 'HARDWARE', 'LOW', 'OPENED', v_user_id, NULL, NOW() - INTERVAL '3 days')
         RETURNING id INTO v_ticket_1;
@@ -30,7 +37,7 @@ BEGIN
         INSERT INTO ticket_history (ticket_id, previous_status, new_status, changed_by, changed_at)
         VALUES (v_ticket_1, NULL, 'OPENED', v_user_id, NOW() - INTERVAL '3 days');
 
-        -- Ticket 2: Estado ASSIGNED (Asignada a técnico)
+        -- Ticket 2: Estado ASSIGNED (Asignada a técnico por el Administrador)
         INSERT INTO ticket (title, description, category, priority, state, requester_id, technician_id, create_date)
         VALUES ('Error al conectar a base de datos PostgreSQL', 'Timeout recurrente al intentar conectar a la base de datos de desarrollo.', 'SOFTWARE', 'HIGH', 'ASSIGNED', v_user_id, v_tech_id, NOW() - INTERVAL '2 days')
         RETURNING id INTO v_ticket_2;
@@ -58,7 +65,7 @@ BEGIN
         INSERT INTO comment (content, author_id, ticket_id, created_at)
         VALUES ('Iniciando revisión del Access Point ubicado en el pasillo norte.', v_tech_id, v_ticket_3, NOW() - INTERVAL '20 hours');
 
-        -- Ticket 4: Estado RESOLVED (Resuelta, esperando confirmación del solicitante)
+        -- Ticket 4: Estado RESOLVED (Resuelta, esperando confirmación de cierre por el solicitante)
         INSERT INTO ticket (title, description, category, priority, state, requester_id, technician_id, create_date, resolution_date)
         VALUES ('Restablecimiento de contraseña VPN', 'No puedo acceder al entorno de trabajo remoto desde casa.', 'ACCESS', 'MEDIUM', 'RESOLVED', v_user_id, v_tech_id, NOW() - INTERVAL '18 hours', NOW() - INTERVAL '2 hours')
         RETURNING id INTO v_ticket_4;
@@ -75,7 +82,7 @@ BEGIN
         INSERT INTO comment (content, author_id, ticket_id, created_at)
         VALUES ('Contraseña temporal restablecida y enviada al correo corporativo. Por favor confirma el cierre.', v_tech_id, v_ticket_4, NOW() - INTERVAL '2 hours');
 
-        -- Ticket 5: Estado CLOSED (Cerrada por el solicitante)
+        -- Ticket 5: Estado CLOSED (Cerrada por la solicitante)
         INSERT INTO ticket (title, description, category, priority, state, requester_id, technician_id, create_date, resolution_date, close_date)
         VALUES ('Solicitud de monitor secundario', 'Instalación de monitor HDMI adicional para estación de desarrollo.', 'HARDWARE', 'LOW', 'CLOSED', v_user_id, v_tech_id, NOW() - INTERVAL '5 days', NOW() - INTERVAL '4 days', NOW() - INTERVAL '4 days' + INTERVAL '3 hours')
         RETURNING id INTO v_ticket_5;

@@ -6,12 +6,17 @@ export function getToken() {
 
 export function getCurrentUser() {
   const user = sessionStorage.getItem('user');
-  return user ? JSON.parse(user) : null;
+  try {
+    return user ? JSON.parse(user) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 export function isLoggedIn() {
   const token = getToken();
-  if (!token) return false;
+  const user = getCurrentUser();
+  if (!token || !user) return false;
   
   // Basic expiration check (assuming JWT payload)
   try {
@@ -56,7 +61,7 @@ export function logout(redirect = true) {
 
 export function checkAuth() {
   if (!isLoggedIn()) {
-    logout();
+    logout(true);
   }
 }
 
@@ -68,6 +73,9 @@ export function checkAdminAccess() {
 }
 
 // Initial check for all protected pages (if we're not on index.html)
-if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/' && !window.location.pathname.endsWith('Fronted/')) {
+if (!window.location.pathname.endsWith('index.html') && 
+    window.location.pathname !== '/' && 
+    !window.location.pathname.endsWith('Fronted/') &&
+    !window.location.pathname.endsWith('Fronted')) {
   checkAuth();
 }

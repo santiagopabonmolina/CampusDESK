@@ -1,6 +1,9 @@
 import { API } from './api.js';
 import { hasRole, CONFIG, getCurrentUser } from './auth.js';
-import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, setButtonLoading, escapeHTML } from './ui.js';
+import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, setButtonLoading, escapeHTML, renderSidebarUser } from './ui.js';
+
+// Initialize user and UI
+renderSidebarUser();
 
 const { open: openCreate, close: closeCreate } = setupModal(
     'modal-create-ticket', 
@@ -15,7 +18,8 @@ if (urlParams.get('action') === 'new') {
 }
 
 if (hasRole(CONFIG.ROLES.ADMIN)) {
-    document.getElementById('admin-menu').classList.remove('hidden');
+    const adminMenu = document.getElementById('admin-menu');
+    if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
 // Filters (Estado, Prioridad, Categoría)
@@ -44,7 +48,7 @@ export async function loadTickets() {
     try {
         const tickets = await API.getTickets(stateValue || null, priorityValue || null, categoryValue || null);
         
-        if (tickets.length === 0) {
+        if (!tickets || tickets.length === 0) {
             empty.classList.remove('hidden');
         } else {
             // Sort by id desc (newest first)
@@ -61,7 +65,7 @@ export async function loadTickets() {
                     <td style="font-weight: 500;">#${ticket.id}</td>
                     <td>
                         <div>${escapeHTML(ticket.title)}</div>
-                        <small class="text-muted">${escapeHTML(ticket.requesterName)}</small>
+                        <small class="text-muted">${escapeHTML(ticket.requesterName || 'N/A')}</small>
                     </td>
                     <td>${catLabels[ticket.category] || ticket.category}</td>
                     <td>${getPriorityBadge(ticket.priority)}</td>
@@ -72,7 +76,8 @@ export async function loadTickets() {
             });
         }
     } catch (error) {
-        showToast(error.message, 'error');
+        showToast(error.message || 'Error al cargar tickets', 'error');
+        empty.classList.remove('hidden');
     } finally {
         loading.classList.add('hidden');
     }
@@ -84,6 +89,11 @@ document.getElementById('form-create-ticket').addEventListener('submit', async (
     e.preventDefault();
     const btn = document.getElementById('btn-submit-ticket');
     const user = getCurrentUser();
+
+    if (!user) {
+        showToast('Debe iniciar sesión para crear un ticket', 'error');
+        return;
+    }
 
     const data = {
         title: document.getElementById('ticket-title').value,
