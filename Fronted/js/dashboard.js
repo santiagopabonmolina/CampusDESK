@@ -1,12 +1,20 @@
 import { API } from './api.js';
-import { hasRole, CONFIG } from './auth.js';
-import { showToast, setupModal } from './ui.js';
+import { CONFIG } from './config.js';
+import { hasRole, isLoggedIn } from './auth.js';
+import { showToast, initAppShell } from './ui.js';
 
-setupModal();
+// Init sidebar & user info
+initAppShell();
+
+// Guard route
+if (!isLoggedIn()) {
+    window.location.href = 'index.html';
+}
 
 // Show admin menu if admin
 if (hasRole(CONFIG.ROLES.ADMIN)) {
-    document.getElementById('admin-menu').classList.remove('hidden');
+    const adminMenu = document.getElementById('admin-menu');
+    if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
 async function loadDashboard() {
@@ -17,41 +25,54 @@ async function loadDashboard() {
             stats = await API.getSummary();
         } else {
             const tickets = await API.getTickets();
-            stats.totalTickets = tickets.length;
-            tickets.forEach(t => {
-                if (t.state === 'OPENED') stats.opened++;
-                if (t.state === 'ASSIGNED') stats.assigned++;
-                if (t.state === 'IN_PROCESS') stats.inProcess++;
-                if (t.state === 'RESOLVED') stats.resolved++;
-                if (t.state === 'CLOSED') stats.closed++;
-            });
+            if (Array.isArray(tickets)) {
+                stats.totalTickets = tickets.length;
+                tickets.forEach(t => {
+                    if (t.state === 'OPENED') stats.opened++;
+                    if (t.state === 'ASSIGNED') stats.assigned++;
+                    if (t.state === 'IN_PROCESS') stats.inProcess++;
+                    if (t.state === 'RESOLVED') stats.resolved++;
+                    if (t.state === 'CLOSED') stats.closed++;
+                });
+            }
         }
 
         // Update UI
-        document.getElementById('stat-total').textContent = stats.totalTickets;
-        document.getElementById('stat-opened').textContent = stats.opened;
-        document.getElementById('stat-inprocess').textContent = stats.inProcess + stats.assigned; // Group for simplicity
-        document.getElementById('stat-resolved').textContent = stats.resolved;
+        const statTotal = document.getElementById('stat-total');
+        const statOpened = document.getElementById('stat-opened');
+        const statInProcess = document.getElementById('stat-inprocess');
+        const statResolved = document.getElementById('stat-resolved');
+
+        if (statTotal) statTotal.textContent = stats.totalTickets ?? 0;
+        if (statOpened) statOpened.textContent = stats.opened ?? 0;
+        if (statInProcess) statInProcess.textContent = (stats.inProcess ?? 0) + (stats.assigned ?? 0);
+        if (statResolved) statResolved.textContent = stats.resolved ?? 0;
 
         renderChart(stats);
 
-        document.getElementById('loading-indicator').classList.add('hidden');
-        document.getElementById('dashboard-content').classList.remove('hidden');
+        const loading = document.getElementById('loading-indicator');
+        const content = document.getElementById('dashboard-content');
+        if (loading) loading.classList.add('hidden');
+        if (content) content.classList.remove('hidden');
     } catch (error) {
-        showToast(error.message, 'error');
+        console.error('Error loading dashboard:', error);
+        showToast(error.message || 'Error al cargar métricas', 'error');
+        const loading = document.getElementById('loading-indicator');
+        if (loading) loading.classList.add('hidden');
     }
 }
 
 function renderChart(stats) {
     const chart = document.getElementById('states-chart');
-    const max = Math.max(stats.opened, stats.assigned, stats.inProcess, stats.resolved, stats.closed, 1);
+    if (!chart) return;
+    const max = Math.max(stats.opened || 0, stats.assigned || 0, stats.inProcess || 0, stats.resolved || 0, stats.closed || 0, 1);
     
     const bars = [
-        { label: 'Abierta', value: stats.opened, color: 'var(--color-opened)' },
-        { label: 'Asignada', value: stats.assigned, color: 'var(--color-assigned)' },
-        { label: 'Proceso', value: stats.inProcess, color: 'var(--color-in_process)' },
-        { label: 'Resuelta', value: stats.resolved, color: 'var(--color-resolved)' },
-        { label: 'Cerrada', value: stats.closed, color: 'var(--color-closed)' }
+        { label: 'Abierta', value: stats.opened || 0, color: 'var(--color-opened)' },
+        { label: 'Asignada', value: stats.assigned || 0, color: 'var(--color-assigned)' },
+        { label: 'Proceso', value: stats.inProcess || 0, color: 'var(--color-in_process)' },
+        { label: 'Resuelta', value: stats.resolved || 0, color: 'var(--color-resolved)' },
+        { label: 'Cerrada', value: stats.closed || 0, color: 'var(--color-closed)' }
     ];
 
     chart.innerHTML = bars.map(b => {
@@ -66,4 +87,8 @@ function renderChart(stats) {
     }).join('');
 }
 
-document.addEventListener('DOMContentLoaded', loadDashboard);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+} else {
+    loadDashboard();
+}

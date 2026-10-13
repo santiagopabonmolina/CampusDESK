@@ -43,7 +43,7 @@
                     </li>
                     <li>
                         <a href="tickets.html" class="nav-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8\"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                             Tickets
                         </a>
                     </li>
@@ -91,6 +91,7 @@
                                     <th>ID</th>
                                     <th>Nombre Completo</th>
                                     <th>Correo Electrónico</th>
+                                    <th style="text-align: right; padding-right: 1.5rem;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="users-tbody">
@@ -104,11 +105,59 @@
                     </div>
 
                     <div id="empty-state" class="empty-state hidden">
-                        <p class="text-muted">No se encontraron usuarios técnicos.</p>
+                        <p class="text-muted">No se encontraron usuarios registrados.</p>
                     </div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Modal Gestión de Roles -->
+    <div class="modal-overlay" id="modal-roles">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Gestionar Roles de Usuario</h3>
+                <button class="btn-close" id="btn-close-roles">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1.25rem;">
+                    <p style="font-weight: 600; font-size: 1.05rem;" id="modal-user-name">-</p>
+                    <p class="text-muted" style="font-size: 0.85rem;" id="modal-user-email">-</p>
+                </div>
+                
+                <label class="form-label mb-2">Roles Asignados en PostgreSQL:</label>
+                <div class="roles-checklist" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem;">
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-user" value="USER">
+                        <div class="role-option-info">
+                            <div class="role-title">USER <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; margin-left: 6px;">Solicitante</span></div>
+                            <small class="text-muted">Crear y dar seguimiento a sus solicitudes de soporte</small>
+                        </div>
+                    </label>
+                    
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-tech" value="TECHNICIAN">
+                        <div class="role-option-info">
+                            <div class="role-title" style="color: #a78bfa;">TECHNICIAN <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; margin-left: 6px;">Técnico</span></div>
+                            <small class="text-muted">Atender tickets asignados, avanzar estados y comentar</small>
+                        </div>
+                    </label>
+                    
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-admin" value="ADMIN">
+                        <div class="role-option-info">
+                            <div class="role-title" style="color: #f43f5e;">ADMIN <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; margin-left: 6px;">Administrador</span></div>
+                            <small class="text-muted">Control total: asignar técnicos, gestionar personal y métricas</small>
+                        </div>
+                    </label>
+                </div>
+                <div id="roles-error-msg" class="text-danger hidden" style="font-size: 0.85rem; color: #f87171; margin-bottom: 0.5rem;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-roles">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-save-roles">Guardar Cambios</button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="js/admin.js"></script>

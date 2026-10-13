@@ -26,23 +26,28 @@ export async function fetchApi(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, config);
-
-    if (response.status === 401) {
-      showToast('Tu sesión expiró o es inválida', 'error');
-      logout();
-      return null;
-    }
-
-    if (response.status === 403) {
-      showToast('No tienes permisos para esta acción', 'error');
-      throw new Error('Forbidden');
-    }
     
     // Parse response
     let data = null;
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.indexOf("application/json") !== -1) {
       data = await response.json();
+    }
+
+    if (response.status === 401) {
+      if (endpoint.includes('/auth/login')) {
+        const msg = (data && data.message) ? data.message : 'Credenciales incorrectas: correo electrónico o contraseña inválidos';
+        throw new Error(msg);
+      }
+      showToast('Tu sesión expiró o es inválida', 'error');
+      logout();
+      return null;
+    }
+
+    if (response.status === 403) {
+      const msg = (data && data.message) ? data.message : 'No tienes permisos para realizar esta acción';
+      showToast(msg, 'error');
+      throw new Error(msg);
     }
 
     if (!response.ok) {
@@ -64,7 +69,7 @@ export async function fetchApi(endpoint, options = {}) {
   } catch (error) {
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
       showToast('No se pudo conectar con el servidor', 'error');
-      throw new Error('Servidor caído');
+      throw new Error('Servidor caído o inalcanzable');
     }
     throw error;
   }
@@ -82,6 +87,7 @@ export const API = {
   // Users
   getTechnicians: () => fetchApi('/users/technicians'),
   getAllUsers: () => fetchApi('/users'),
+  updateUserRoles: (userId, roles) => fetchApi(`/users/${userId}/roles`, { method: 'PUT', body: roles }),
   
   // Tickets (Filtros por estado, prioridad y categoría)
   getTickets: (state = null, priority = null, category = null) => {

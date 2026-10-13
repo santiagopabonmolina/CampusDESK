@@ -1,5 +1,7 @@
 import { CONFIG } from './config.js';
 
+export { CONFIG };
+
 export function getToken() {
   return sessionStorage.getItem('token');
 }

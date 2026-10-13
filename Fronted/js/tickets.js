@@ -1,9 +1,14 @@
 import { API } from './api.js';
-import { hasRole, CONFIG, getCurrentUser } from './auth.js';
-import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, setButtonLoading, escapeHTML, renderSidebarUser } from './ui.js';
+import { CONFIG } from './config.js';
+import { hasRole, getCurrentUser, isLoggedIn } from './auth.js';
+import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, setButtonLoading, escapeHTML, initAppShell } from './ui.js';
 
 // Initialize user and UI
-renderSidebarUser();
+initAppShell();
+
+if (!isLoggedIn()) {
+    window.location.href = 'index.html';
+}
 
 const { open: openCreate, close: closeCreate } = setupModal(
     'modal-create-ticket', 
@@ -41,15 +46,15 @@ export async function loadTickets() {
     const priorityValue = filterPriority ? filterPriority.value : '';
     const categoryValue = filterCategory ? filterCategory.value : '';
 
-    tbody.innerHTML = '';
-    empty.classList.add('hidden');
-    loading.classList.remove('hidden');
+    if (tbody) tbody.innerHTML = '';
+    if (empty) empty.classList.add('hidden');
+    if (loading) loading.classList.remove('hidden');
 
     try {
         const tickets = await API.getTickets(stateValue || null, priorityValue || null, categoryValue || null);
         
         if (!tickets || tickets.length === 0) {
-            empty.classList.remove('hidden');
+            if (empty) empty.classList.remove('hidden');
         } else {
             // Sort by id desc (newest first)
             tickets.sort((a, b) => b.id - a.id);
@@ -72,50 +77,57 @@ export async function loadTickets() {
                     <td>${getStateBadge(ticket.state)}</td>
                     <td>${formatDate(ticket.createDate)}</td>
                 `;
-                tbody.appendChild(tr);
+                if (tbody) tbody.appendChild(tr);
             });
         }
     } catch (error) {
         showToast(error.message || 'Error al cargar tickets', 'error');
-        empty.classList.remove('hidden');
+        if (empty) empty.classList.remove('hidden');
     } finally {
-        loading.classList.add('hidden');
+        if (loading) loading.classList.add('hidden');
     }
 }
 window.loadTickets = loadTickets;
 
 // Create Ticket
-document.getElementById('form-create-ticket').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('btn-submit-ticket');
-    const user = getCurrentUser();
+const formCreate = document.getElementById('form-create-ticket');
+if (formCreate) {
+    formCreate.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-ticket');
+        const user = getCurrentUser();
 
-    if (!user) {
-        showToast('Debe iniciar sesión para crear un ticket', 'error');
-        return;
-    }
+        if (!user) {
+            showToast('Debe iniciar sesión para crear un ticket', 'error');
+            return;
+        }
 
-    const data = {
-        title: document.getElementById('ticket-title').value,
-        description: document.getElementById('ticket-desc').value,
-        category: document.getElementById('ticket-category').value,
-        priority: document.getElementById('ticket-priority').value,
-        requesterId: user.id
-    };
+        const data = {
+            title: document.getElementById('ticket-title').value,
+            description: document.getElementById('ticket-desc').value,
+            category: document.getElementById('ticket-category').value,
+            priority: document.getElementById('ticket-priority').value,
+            requesterId: user.id
+        };
 
-    try {
-        setButtonLoading(btn, true, 'Crear Ticket');
-        await API.createTicket(data);
-        showToast('Ticket creado exitosamente', 'success');
-        closeCreate();
-        document.getElementById('form-create-ticket').reset();
-        loadTickets();
-    } catch (error) {
-        showToast(error.message, 'error');
-    } finally {
-        setButtonLoading(btn, false, 'Crear Ticket');
-    }
-});
+        try {
+            setButtonLoading(btn, true, 'Crear Ticket');
+            await API.createTicket(data);
+            showToast('Ticket creado exitosamente', 'success');
+            closeCreate();
+            formCreate.reset();
+            loadTickets();
+        } catch (error) {
+            showToast(error.message, 'error');
+        } finally {
+            setButtonLoading(btn, false, 'Crear Ticket');
+        }
+    });
+}
 
 // Init
-document.addEventListener('DOMContentLoaded', loadTickets);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTickets);
+} else {
+    loadTickets();
+}

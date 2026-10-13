@@ -93,16 +93,6 @@ input, textarea, select {
 .header-title h2 {
   font-size: 1.5rem;
   font-weight: 600;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-/* Tipografía */
-h1, h2, h3, h4 {
-  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -110,20 +100,33 @@ h1, h2, h3, h4 {
   color: var(--text-secondary);
 }
 
-/* Orbe decorativo */
+/* Orbe decorativo con animación flotante */
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-25px, 25px) scale(1.1); }
+}
+
 .purple-orb {
   position: fixed;
-  width: 400px;
-  height: 400px;
+  width: 450px;
+  height: 450px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(155, 48, 255, 0.15) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(40px);
+  background: radial-gradient(circle, rgba(155, 48, 255, 0.18) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(50px);
   z-index: -1;
   pointer-events: none;
 }
 
-.orb-1 { top: -100px; right: -100px; }
-.orb-2 { bottom: -100px; left: -100px; }
+.orb-1 { 
+  top: -100px; 
+  right: -100px;
+  animation: orbFloat 14s ease-in-out infinite alternate;
+}
+.orb-2 { 
+  bottom: -100px; 
+  left: -100px;
+  animation: orbFloat 18s ease-in-out infinite alternate-reverse;
+}
 
 /* Responsive */
 @media (max-width: 768px) {

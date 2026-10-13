@@ -61,21 +61,21 @@ export function formatDate(dateStr) {
 
 export function getStateBadge(state) {
   const labels = {
-    'OPENED': 'ABIERTA',
-    'ASSIGNED': 'ASIGNADA',
-    'IN_PROCESS': 'EN PROCESO',
-    'RESOLVED': 'RESUELTA',
-    'CLOSED': 'CERRADA'
+    'OPENED': 'Abierta',
+    'ASSIGNED': 'Asignada',
+    'IN_PROCESS': 'En Proceso',
+    'RESOLVED': 'Resuelta',
+    'CLOSED': 'Cerrada'
   };
   return `<span class="badge badge-state-${state}">${labels[state] || state}</span>`;
 }
 
 export function getPriorityBadge(priority) {
   const labels = {
-    'LOW': 'BAJA',
-    'MEDIUM': 'MEDIA',
-    'HIGH': 'ALTA',
-    'CRITIC': 'CRÍTICA'
+    'LOW': 'Baja',
+    'MEDIUM': 'Media',
+    'HIGH': 'Alta',
+    'CRITIC': 'Crítica'
   };
   return `<span class="badge badge-priority-${priority}">${labels[priority] || priority}</span>`;
 }
@@ -83,22 +83,46 @@ export function getPriorityBadge(priority) {
 export function renderSidebarUser() {
   const userStr = sessionStorage.getItem('user');
   if (!userStr) return;
-  const user = JSON.parse(userStr);
-  
-  const userNameEl = document.getElementById('sidebar-user-name');
-  const userRoleEl = document.getElementById('sidebar-user-role');
-  const userAvatarEl = document.getElementById('sidebar-user-avatar');
-  
-  if (userNameEl) userNameEl.textContent = `${user.firstName} ${user.lastName}`;
-  if (userRoleEl) {
-    let roleText = 'Usuario';
-    if (user.role === 'ROLE_ADMIN') roleText = 'Administrador';
-    if (user.role === 'ROLE_TECHNICIAN') roleText = 'Técnico';
-    userRoleEl.textContent = roleText;
+  try {
+    const user = JSON.parse(userStr);
+    const userNameEl = document.getElementById('sidebar-user-name');
+    const userRoleEl = document.getElementById('sidebar-user-role');
+    const userAvatarEl = document.getElementById('sidebar-user-avatar');
+    
+    if (userNameEl && user.firstName) {
+      userNameEl.textContent = `${user.firstName} ${user.lastName || ''}`.trim();
+    }
+    if (userRoleEl && user.role) {
+      let roleText = 'Usuario';
+      if (user.role === 'ROLE_ADMIN') roleText = 'Administrador';
+      if (user.role === 'ROLE_TECHNICIAN') roleText = 'Técnico';
+      userRoleEl.textContent = roleText;
+    }
+    if (userAvatarEl && user.firstName) {
+      userAvatarEl.textContent = user.firstName.charAt(0).toUpperCase();
+    }
+  } catch (e) {
+    console.error('Error rendering sidebar user:', e);
   }
-  if (userAvatarEl) {
-    userAvatarEl.textContent = user.firstName.charAt(0).toUpperCase();
+}
+
+export function initAppShell() {
+  renderSidebarUser();
+  const logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn && !logoutBtn.dataset.bound) {
+    logoutBtn.dataset.bound = 'true';
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
   }
+}
+
+// Auto-run when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAppShell);
+} else {
+  initAppShell();
 }
 
 export function setButtonLoading(btn, isLoading, originalText) {
@@ -112,8 +136,11 @@ export function setButtonLoading(btn, isLoading, originalText) {
 }
 
 export function setupModal(modalId, triggerIds, closeIds) {
+  initAppShell();
+  if (!modalId) return { open: () => {}, close: () => {} };
+
   const modal = document.getElementById(modalId);
-  if (!modal) return;
+  if (!modal) return { open: () => {}, close: () => {} };
   
   const openModal = () => modal.classList.add('active');
   const closeModal = () => modal.classList.remove('active');
@@ -129,17 +156,6 @@ export function setupModal(modalId, triggerIds, closeIds) {
     closeIds.forEach(id => {
       const btn = document.getElementById(id);
       if (btn) btn.addEventListener('click', closeModal);
-    });
-  }
-  
-  // Setup general user elements
-  renderSidebarUser();
-  
-  const logoutBtn = document.getElementById('btn-logout');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      sessionStorage.clear();
-      window.location.href = 'index.html';
     });
   }
   
