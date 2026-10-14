@@ -48,16 +48,18 @@ export async function loadTicketData() {
             catBadge.textContent = catLabels[t.category] || t.category;
         }
 
-        // Stepper
+        // Stepper animado
         updateStepper(t.state);
 
         // Sidebar Info
         const reqName = document.getElementById('ticket-requester');
         const reqEmail = document.getElementById('ticket-requester-email');
         const techName = document.getElementById('ticket-technician');
-        const createDate = document.getElementById('ticket-create-date');
-        const resDateGroup = document.getElementById('group-resolution-date');
-        const resDate = document.getElementById('ticket-resolution-date');
+        const createDate = document.getElementById('ticket-created');
+        const resDateGroup = document.getElementById('group-resolved');
+        const resDate = document.getElementById('ticket-resolved');
+        const closedDateGroup = document.getElementById('group-closed');
+        const closedDate = document.getElementById('ticket-closed');
 
         if (reqName) reqName.textContent = t.requesterName || 'N/A';
         if (reqEmail) reqEmail.textContent = t.requesterEmail || '';
@@ -70,6 +72,15 @@ export async function loadTicketData() {
                 resDate.textContent = formatDate(t.resolutionDate);
             } else {
                 resDateGroup.classList.add('hidden');
+            }
+        }
+
+        if (closedDateGroup && closedDate) {
+            if (t.state === 'CLOSED') {
+                closedDateGroup.classList.remove('hidden');
+                closedDate.textContent = t.resolutionDate ? formatDate(t.resolutionDate) : 'Cerrado';
+            } else {
+                closedDateGroup.classList.add('hidden');
             }
         }
 
@@ -95,8 +106,17 @@ function updateStepper(currentState) {
         const el = document.getElementById(`step-${s}`);
         if (!el) return;
         el.className = 'step';
-        if (idx < currentIndex) el.classList.add('completed');
-        if (idx === currentIndex) el.classList.add('active');
+        const marker = el.querySelector('.step-marker');
+        
+        if (idx < currentIndex) {
+            el.classList.add('completed');
+            if (marker) marker.innerHTML = '✓';
+        } else if (idx === currentIndex) {
+            el.classList.add('active');
+            if (marker) marker.textContent = idx + 1;
+        } else {
+            if (marker) marker.textContent = idx + 1;
+        }
     });
 }
 
@@ -144,7 +164,7 @@ function renderActions(t) {
     if (((isTech && isMyAssigned) || isAdmin) && t.state === 'IN_PROCESS') {
         const btn = document.createElement('button');
         btn.className = 'btn btn-primary';
-        btn.style.background = 'var(--color-resolved)';
+        btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         btn.textContent = 'Marcar como Resuelta';
         btn.onclick = () => changeStatus('RESOLVED');
         container.appendChild(btn);
@@ -154,7 +174,7 @@ function renderActions(t) {
     if (((isUser && isMyTicket) || isAdmin) && t.state === 'RESOLVED') {
         const btn = document.createElement('button');
         btn.className = 'btn btn-primary';
-        btn.style.background = 'var(--color-closed)';
+        btn.style.background = 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
         btn.textContent = 'Confirmar Cierre';
         btn.onclick = () => changeStatus('CLOSED');
         container.appendChild(btn);
@@ -163,9 +183,7 @@ function renderActions(t) {
     // ADMIN: Eliminar incidencia
     if (isAdmin) {
         const btnDelete = document.createElement('button');
-        btnDelete.className = 'btn btn-secondary';
-        btnDelete.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        btnDelete.style.color = '#ef4444';
+        btnDelete.className = 'btn btn-danger';
         btnDelete.textContent = 'Eliminar Ticket';
         btnDelete.onclick = async () => {
             if (confirm(`¿Confirma que desea eliminar el Ticket #${t.id}? Esta operación es irreversible.`)) {
@@ -212,7 +230,7 @@ async function openAssignModal() {
             return;
         }
         select.innerHTML = techs.map(t => 
-            `<option value="${t.id}">${t.firstName} ${t.lastName} (${t.email})</option>`
+            `<option value="${t.id}">${escapeHTML(t.firstName)} ${escapeHTML(t.lastName)} (${escapeHTML(t.email)})</option>`
         ).join('');
     } catch (error) {
         select.innerHTML = '<option value="">Error al cargar técnicos</option>';
@@ -242,20 +260,49 @@ async function loadComments() {
         const comments = await API.getComments(ticketId);
         const container = document.getElementById('comments-container');
         if (!container) return;
-        if (comments.length === 0) {
-            container.innerHTML = '<p class="text-muted" style="text-align:center;">No hay comentarios aún.</p>';
+        if (!comments || comments.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 2rem 1rem;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <p class="text-muted" style="margin: 0;">No hay comentarios aún. Sé el primero en escribir.</p>
+                </div>
+            `;
             return;
         }
         
         container.innerHTML = comments.map(c => {
             const displayName = c.authorName || `Usuario ID: ${c.authorId}`;
             const initial = displayName.charAt(0).toUpperCase();
+
+            // Identificar rol para estilo visual de burbuja y avatar
+            let roleClass = 'role-user';
+            let roleTag = 'Usuario';
+            let tagClass = 'user';
+
+            const userRoles = c.authorRoles || [];
+            const roleStr = c.authorRole || (userRoles.length > 0 ? userRoles[0] : '');
+            
+            if (roleStr.includes('ADMIN') || (user && user.role === 'ROLE_ADMIN' && c.authorId === user.id)) {
+                roleClass = 'role-admin';
+                roleTag = 'Admin';
+                tagClass = 'admin';
+            } else if (roleStr.includes('TECH') || (user && user.role === 'ROLE_TECHNICIAN' && c.authorId === user.id)) {
+                roleClass = 'role-technician';
+                roleTag = 'Técnico';
+                tagClass = 'technician';
+            }
+
             return `
             <div class="comment">
-                <div class="comment-avatar">${initial}</div>
-                <div class="comment-content">
+                <div class="comment-avatar ${roleClass}" title="${roleTag}">${initial}</div>
+                <div class="comment-bubble">
                     <div class="comment-header">
-                        <span class="comment-author">${escapeHTML(displayName)}</span>
+                        <div class="comment-author-wrap">
+                            <span class="comment-author">${escapeHTML(displayName)}</span>
+                            <span class="comment-role-tag ${tagClass}">${roleTag}</span>
+                        </div>
                         <span class="comment-date">${formatDate(c.createdAt)}</span>
                     </div>
                     <div class="comment-text">${escapeHTML(c.content)}</div>
@@ -273,11 +320,12 @@ if (formComment) {
         e.preventDefault();
         const input = document.getElementById('comment-text');
         const btn = document.getElementById('btn-submit-comment');
-        if (!input || !btn) return;
+        if (!input || !btn || !input.value.trim()) return;
         try {
             btn.disabled = true;
+            btn.textContent = 'Enviando...';
             await API.addComment({
-                content: input.value,
+                content: input.value.trim(),
                 ticketId: parseInt(ticketId),
                 authorId: user.id
             });
@@ -288,6 +336,7 @@ if (formComment) {
             showToast(error.message, 'error');
         } finally {
             btn.disabled = false;
+            btn.textContent = 'Enviar';
         }
     });
 }
@@ -300,23 +349,23 @@ async function loadHistory() {
         if (!container) return;
         
         if (!history || history.length === 0) {
-            container.innerHTML = '<p class="text-muted">Sin historial</p>';
+            container.innerHTML = '<p class="text-muted" style="padding: 1rem 0;">Sin registros de cambios aún.</p>';
             return;
         }
 
         container.innerHTML = history.map(h => {
             let actionText = '';
             if (!h.previousStatus) {
-                actionText = `Ticket Creado en estado ${getStateBadge(h.newStatus)}`;
+                actionText = `Ticket creado en estado ${getStateBadge(h.newStatus)}`;
             } else if (h.newStatus === 'ASSIGNED') {
-                actionText = `Técnico Asignado. Estado pasó a ${getStateBadge(h.newStatus)}`;
+                actionText = `Técnico asignado. Estado cambió a ${getStateBadge(h.newStatus)}`;
             } else {
-                actionText = `Estado cambiado a ${getStateBadge(h.newStatus)}`;
+                actionText = `Estado actualizado a ${getStateBadge(h.newStatus)}`;
             }
 
             return `
             <div class="timeline-item">
-                <div class="timeline-date">${formatDate(h.changedAt)} - Por: ${escapeHTML(h.changedByEmail)}</div>
+                <div class="timeline-date">${formatDate(h.changedAt)} &bull; ${escapeHTML(h.changedByEmail || 'Sistema')}</div>
                 <div class="timeline-content">${actionText}</div>
             </div>`;
         }).join('');

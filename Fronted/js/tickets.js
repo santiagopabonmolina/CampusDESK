@@ -49,6 +49,28 @@ if (btnResetFilters) btnResetFilters.addEventListener('click', resetFilters);
 const btnClearHeader = document.getElementById('btn-clear-filters-header');
 if (btnClearHeader) btnClearHeader.addEventListener('click', resetFilters);
 
+function renderSkeletonRows(tbody, count = 5) {
+    if (!tbody) return;
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <tr class="skeleton-tr">
+                <td><span class="skeleton skeleton-text" style="width: 40px;"></span></td>
+                <td>
+                    <span class="skeleton skeleton-text" style="width: 160px; margin-bottom: 6px;"></span>
+                    <span class="skeleton skeleton-text" style="width: 90px; height: 10px;"></span>
+                </td>
+                <td><span class="skeleton skeleton-text" style="width: 70px;"></span></td>
+                <td><span class="skeleton skeleton-pill"></span></td>
+                <td><span class="skeleton skeleton-pill"></span></td>
+                <td><span class="skeleton skeleton-text" style="width: 80px;"></span></td>
+                <td style="text-align: right;"><span class="skeleton skeleton-pill" style="width: 60px;"></span></td>
+            </tr>
+        `;
+    }
+    tbody.innerHTML = html;
+}
+
 // Load Tickets
 export async function loadTickets() {
     const tbody = document.getElementById('tickets-tbody');
@@ -59,42 +81,50 @@ export async function loadTickets() {
     const priorityValue = filterPriority ? filterPriority.value : '';
     const categoryValue = filterCategory ? filterCategory.value : '';
 
-    if (tbody) tbody.innerHTML = '';
     if (empty) empty.classList.add('hidden');
     if (loading) loading.classList.remove('hidden');
+    renderSkeletonRows(tbody, 4);
 
     try {
         const tickets = await API.getTickets(stateValue || null, priorityValue || null, categoryValue || null);
         
         if (!tickets || tickets.length === 0) {
+            if (tbody) tbody.innerHTML = '';
             if (empty) empty.classList.remove('hidden');
         } else {
             // Sort by id desc (newest first)
             tickets.sort((a, b) => b.id - a.id);
+            if (tbody) tbody.innerHTML = '';
             
+            const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
+
             tickets.forEach(ticket => {
                 const tr = document.createElement('tr');
                 tr.onclick = () => window.location.href = `ticket-detail.html?id=${ticket.id}`;
-                
-                // Categories translation mapping
-                const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
+                tr.setAttribute('title', 'Clic para ver detalles');
                 
                 tr.innerHTML = `
-                    <td style="font-weight: 600; color: #c084fc;">#${ticket.id}</td>
+                    <td style="font-weight: 700; color: var(--accent-light);">#${ticket.id}</td>
                     <td>
-                        <div style="font-weight: 500;">${escapeHTML(ticket.title)}</div>
-                        <small class="text-muted">${escapeHTML(ticket.requesterName || 'N/A')}</small>
+                        <div style="font-weight: 600; color: #f8fafc;">${escapeHTML(ticket.title)}</div>
+                        <small class="text-muted" style="display: block; margin-top: 2px;">${escapeHTML(ticket.requesterName || 'N/A')}</small>
                     </td>
-                    <td><span style="font-size: 0.88rem; color: #cbd5e1;">${catLabels[ticket.category] || ticket.category}</span></td>
+                    <td><span style="font-size: 0.86rem; color: #cbd5e1; font-weight: 500;">${catLabels[ticket.category] || ticket.category}</span></td>
                     <td>${getPriorityBadge(ticket.priority)}</td>
                     <td>${getStateBadge(ticket.state)}</td>
                     <td style="color: var(--text-muted); font-size: 0.85rem;">${formatDate(ticket.createDate)}</td>
+                    <td style="text-align: right;">
+                        <span class="btn-quick-view">
+                            Ver &rarr;
+                        </span>
+                    </td>
                 `;
                 if (tbody) tbody.appendChild(tr);
             });
         }
     } catch (error) {
         showToast(error.message || 'Error al cargar tickets', 'error');
+        if (tbody) tbody.innerHTML = '';
         if (empty) empty.classList.remove('hidden');
     } finally {
         if (loading) loading.classList.add('hidden');
@@ -116,8 +146,8 @@ if (formCreate) {
         }
 
         const data = {
-            title: document.getElementById('ticket-title').value,
-            description: document.getElementById('ticket-desc').value,
+            title: document.getElementById('ticket-title').value.trim(),
+            description: document.getElementById('ticket-desc').value.trim(),
             category: document.getElementById('ticket-category').value,
             priority: document.getElementById('ticket-priority').value,
             requesterId: user.id

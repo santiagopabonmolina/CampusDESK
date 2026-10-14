@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Administración</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -12,13 +12,14 @@
 </head>
 <body>
     <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
 
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="brand-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -28,7 +29,7 @@
             </div>
 
             <a href="tickets.html?action=new" class="btn-new-ticket">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Nuevo Ticket
             </a>
 
@@ -43,7 +44,7 @@
                     </li>
                     <li>
                         <a href="tickets.html" class="nav-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8\"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                             Tickets
                         </a>
                     </li>
@@ -78,12 +79,15 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title">
+                    <button type="button" class="btn-mobile-nav" aria-label="Abrir menú de navegación">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
                     <h2>Directorio de Personal</h2>
                 </div>
             </header>
 
             <div class="content-scroll">
-                <div class="glass-card" style="padding: 0;">
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
                     <div class="tickets-table-container">
                         <table class="tickets-table">
                             <thead>
@@ -101,11 +105,18 @@
                     </div>
                     
                     <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                        <span class="spinner" style="width: 30px; height: 30px;"></span>
+                        <span class="spinner" style="width: 32px; height: 32px;"></span>
                     </div>
 
                     <div id="empty-state" class="empty-state hidden">
-                        <p class="text-muted">No se encontraron usuarios registrados.</p>
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3>No se encontraron usuarios</h3>
+                        <p class="text-muted">No se encontraron usuarios registrados en la plataforma.</p>
                     </div>
                 </div>
             </div>
@@ -117,7 +128,7 @@
         <div class="modal" style="max-width: 480px;">
             <div class="modal-header">
                 <h3 class="modal-title">Gestionar Roles de Usuario</h3>
-                <button class="btn-close" id="btn-close-roles">&times;</button>
+                <button type="button" class="btn-close" id="btn-close-roles" aria-label="Cerrar modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div style="margin-bottom: 1.25rem;">
@@ -125,12 +136,12 @@
                     <p class="text-muted" style="font-size: 0.85rem;" id="modal-user-email">-</p>
                 </div>
                 
-                <label class="form-label mb-2">Roles Asignados en PostgreSQL:</label>
+                <label class="form-label mb-2">Roles Asignados:</label>
                 <div class="roles-checklist" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem;">
                     <label class="role-option-card">
                         <input type="checkbox" id="role-chk-user" value="USER">
                         <div class="role-option-info">
-                            <div class="role-title">USER <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; margin-left: 6px;">Solicitante</span></div>
+                            <div class="role-title">USER <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; margin-left: 6px;">Solicitante</span></div>
                             <small class="text-muted">Crear y dar seguimiento a sus solicitudes de soporte</small>
                         </div>
                     </label>
@@ -138,7 +149,7 @@
                     <label class="role-option-card">
                         <input type="checkbox" id="role-chk-tech" value="TECHNICIAN">
                         <div class="role-option-info">
-                            <div class="role-title" style="color: #a78bfa;">TECHNICIAN <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; margin-left: 6px;">Técnico</span></div>
+                            <div class="role-title" style="color: #38bdf8;">TECHNICIAN <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; margin-left: 6px;">Técnico</span></div>
                             <small class="text-muted">Atender tickets asignados, avanzar estados y comentar</small>
                         </div>
                     </label>
@@ -146,7 +157,7 @@
                     <label class="role-option-card">
                         <input type="checkbox" id="role-chk-admin" value="ADMIN">
                         <div class="role-option-info">
-                            <div class="role-title" style="color: #f43f5e;">ADMIN <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; margin-left: 6px;">Administrador</span></div>
+                            <div class="role-title" style="color: #c084fc;">ADMIN <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; margin-left: 6px;">Administrador</span></div>
                             <small class="text-muted">Control total: asignar técnicos, gestionar personal y métricas</small>
                         </div>
                     </label>

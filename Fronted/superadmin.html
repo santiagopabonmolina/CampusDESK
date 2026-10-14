@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -14,12 +14,12 @@
     <div class="purple-orb orb-1"></div>
     <div class="purple-orb orb-2"></div>
 
-    <div class="app-layout">
+    <div class="app-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="brand-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -79,6 +79,9 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title">
+                    <button type="button" class="btn-mobile-nav" aria-label="Abrir menú de navegación">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
                     <h2>Panel de Métricas</h2>
                 </div>
             </header>
@@ -107,7 +110,7 @@
                     </div>
 
                     <div class="glass-card stat-card">
-                        <div class="stat-icon assigned" style="color: #60a5fa;">
+                        <div class="stat-icon assigned">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
                         </div>
                         <div class="stat-info">
@@ -137,7 +140,7 @@
                     </div>
 
                     <div class="glass-card stat-card">
-                        <div class="stat-icon closed" style="color: #94a3b8;">
+                        <div class="stat-icon closed">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                         </div>
                         <div class="stat-info">
@@ -149,9 +152,10 @@
 
                 <!-- Priority Chart Section -->
                 <div class="glass-card mt-3">
-                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">Incidencias por Estado</h3>
+                    <h3 style="margin-bottom: 0.5rem; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px;">Incidencias por Estado</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">Distribución en tiempo real del ciclo de vida de los tickets</p>
                     <div class="chart-container" id="states-chart">
-                        <!-- Barras inyectadas por JS -->
+                        <!-- Barras animadas inyectadas por JS -->
                     </div>
                 </div>
             </div>

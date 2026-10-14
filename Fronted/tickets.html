@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Tickets</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -19,7 +19,7 @@
         <aside class="sidebar" id="sidebar">
             <a href="dashboard.html" class="brand">
                 <div class="brand-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -29,7 +29,7 @@
             </a>
 
             <button class="btn-new-ticket" id="btn-open-create-modal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Nuevo Ticket
             </button>
 
@@ -79,22 +79,25 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title">
+                    <button type="button" class="btn-mobile-nav" aria-label="Abrir menú de navegación">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
                     <h2>Gestión de Tickets</h2>
                 </div>
                 <div class="header-actions" style="display: flex; gap: 10px; align-items: center;">
-                    <button class="btn btn-secondary" id="btn-clear-filters-header" title="Limpiar Filtros" style="padding: 8px 14px; font-size: 0.85rem;">
+                    <button class="btn btn-secondary" id="btn-clear-filters-header" title="Limpiar Filtros" style="padding: 8px 16px; font-size: 0.85rem;">
                         Limpiar Filtros
                     </button>
-                    <button class="btn btn-secondary" onclick="loadTickets()" title="Recargar" style="padding: 8px; border-radius: 50%;">
+                    <button class="btn btn-secondary" onclick="loadTickets()" title="Recargar lista" style="padding: 8px; border-radius: 50%;" aria-label="Recargar lista">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                     </button>
                 </div>
             </header>
 
             <div class="content-scroll">
-                <div class="filters-bar" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-                    <div style="flex: 1; min-width: 180px;">
-                        <select id="filter-state" class="form-control" style="background: rgba(0,0,0,0.5);">
+                <div class="filters-bar">
+                    <div class="filter-item">
+                        <select id="filter-state" class="form-control" aria-label="Filtrar por estado">
                             <option value="">Todos los Estados</option>
                             <option value="OPENED">Abierta</option>
                             <option value="ASSIGNED">Asignada</option>
@@ -103,8 +106,8 @@
                             <option value="CLOSED">Cerrada</option>
                         </select>
                     </div>
-                    <div style="flex: 1; min-width: 180px;">
-                        <select id="filter-priority" class="form-control" style="background: rgba(0,0,0,0.5);">
+                    <div class="filter-item">
+                        <select id="filter-priority" class="form-control" aria-label="Filtrar por prioridad">
                             <option value="">Todas las Prioridades</option>
                             <option value="LOW">Baja</option>
                             <option value="MEDIUM">Media</option>
@@ -112,8 +115,8 @@
                             <option value="CRITIC">Crítica</option>
                         </select>
                     </div>
-                    <div style="flex: 1; min-width: 180px;">
-                        <select id="filter-category" class="form-control" style="background: rgba(0,0,0,0.5);">
+                    <div class="filter-item">
+                        <select id="filter-category" class="form-control" aria-label="Filtrar por categoría">
                             <option value="">Todas las Categorías</option>
                             <option value="HARDWARE">Hardware</option>
                             <option value="SOFTWARE">Software</option>
@@ -124,17 +127,18 @@
                     </div>
                 </div>
 
-                <div class="glass-card" style="padding: 0;">
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
                     <div class="tickets-table-container">
                         <table class="tickets-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Título</th>
+                                    <th>Título e Incidencia</th>
                                     <th>Categoría</th>
                                     <th>Prioridad</th>
                                     <th>Estado</th>
-                                    <th>Fecha</th>
+                                    <th>Fecha Creación</th>
+                                    <th style="text-align: right; padding-right: 1.5rem;">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="tickets-tbody">
@@ -143,18 +147,18 @@
                         </table>
                     </div>
                     
-                    <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                        <span class="spinner" style="width: 32px; height: 32px;"></span>
+                    <div id="loading-indicator" class="text-center hidden" style="padding: 2.5rem;">
+                        <span class="spinner" style="width: 36px; height: 36px;"></span>
                     </div>
 
                     <div id="empty-state" class="empty-state hidden">
-                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="9" y1="3" x2="9" y2="21"></line>
                         </svg>
                         <h3>No se encontraron incidencias</h3>
                         <p class="text-muted mt-2">No hay tickets registrados con los filtros seleccionados actualmente.</p>
-                        <button type="button" class="btn-reset-filters" id="btn-reset-filters">
+                        <button type="button" class="btn-reset-filters mt-3" id="btn-reset-filters">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
                             Restablecer Filtros
                         </button>
@@ -168,41 +172,43 @@
     <div class="modal-overlay" id="modal-create-ticket">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Nueva Solicitud</h3>
-                <button class="btn-close" id="btn-close-create-modal">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <h3 class="modal-title">Nueva Solicitud de Ticket</h3>
+                <button type="button" class="btn-close" id="btn-close-create-modal" aria-label="Cerrar modal">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
             <form id="form-create-ticket">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label" for="ticket-title">Título</label>
-                        <input type="text" id="ticket-title" class="form-control" required placeholder="Ej: Falla en conexión VPN">
+                        <label class="form-label" for="ticket-title">Título de la incidencia</label>
+                        <input type="text" id="ticket-title" class="form-control" required placeholder="Ej: Falla en conexión VPN o monitor adicional">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="ticket-category">Categoría</label>
+                            <select id="ticket-category" class="form-control" required>
+                                <option value="">Seleccione...</option>
+                                <option value="HARDWARE">Hardware</option>
+                                <option value="SOFTWARE">Software</option>
+                                <option value="NETWORK">Redes</option>
+                                <option value="ACCESS">Accesos</option>
+                                <option value="OTHER">Otros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ticket-priority">Prioridad</label>
+                            <select id="ticket-priority" class="form-control" required>
+                                <option value="">Seleccione...</option>
+                                <option value="LOW">Baja</option>
+                                <option value="MEDIUM">Media</option>
+                                <option value="HIGH">Alta</option>
+                                <option value="CRITIC">Crítica</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="ticket-category">Categoría</label>
-                        <select id="ticket-category" class="form-control" required>
-                            <option value="">Seleccione...</option>
-                            <option value="HARDWARE">Hardware</option>
-                            <option value="SOFTWARE">Software</option>
-                            <option value="NETWORK">Redes</option>
-                            <option value="ACCESS">Accesos</option>
-                            <option value="OTHER">Otros</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="ticket-priority">Prioridad</label>
-                        <select id="ticket-priority" class="form-control" required>
-                            <option value="">Seleccione...</option>
-                            <option value="LOW">Baja</option>
-                            <option value="MEDIUM">Media</option>
-                            <option value="HIGH">Alta</option>
-                            <option value="CRITIC">Crítica</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="ticket-desc">Descripción</label>
-                        <textarea id="ticket-desc" class="form-control" rows="4" required placeholder="Detalle el problema..."></textarea>
+                        <label class="form-label" for="ticket-desc">Descripción detallada</label>
+                        <textarea id="ticket-desc" class="form-control" rows="4" required placeholder="Describe los síntomas del problema, ubicación y pasos para reproducirlo..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

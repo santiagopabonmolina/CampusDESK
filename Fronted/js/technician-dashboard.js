@@ -1,7 +1,7 @@
 import { API } from './api.js';
 import { CONFIG } from './config.js';
 import { hasRole, isLoggedIn } from './auth.js';
-import { showToast, initAppShell } from './ui.js';
+import { showToast, initAppShell, animateCounter } from './ui.js';
 
 // Init sidebar & user info
 initAppShell();
@@ -22,10 +22,8 @@ export async function loadDashboard() {
         let stats = { totalTickets: 0, opened: 0, assigned: 0, inProcess: 0, resolved: 0, closed: 0 };
 
         try {
-            // El endpoint /api/dashboard/stats y /api/reports/summary filtra automáticamente según el rol del usuario
             stats = await API.getSummary();
         } catch (e) {
-            // Fallback directo a tickets filtrados
             const tickets = await API.getTickets();
             if (Array.isArray(tickets)) {
                 stats.totalTickets = tickets.length;
@@ -39,7 +37,6 @@ export async function loadDashboard() {
             }
         }
 
-        // Actualizar UI: 5 indicadores desglosados individualmente (sin agrupar)
         const statTotal = document.getElementById('stat-total');
         const statOpened = document.getElementById('stat-opened');
         const statAssigned = document.getElementById('stat-assigned');
@@ -47,12 +44,12 @@ export async function loadDashboard() {
         const statResolved = document.getElementById('stat-resolved');
         const statClosed = document.getElementById('stat-closed');
 
-        if (statTotal) statTotal.textContent = stats.totalTickets ?? 0;
-        if (statOpened) statOpened.textContent = stats.opened ?? 0;
-        if (statAssigned) statAssigned.textContent = stats.assigned ?? 0;
-        if (statInProcess) statInProcess.textContent = stats.inProcess ?? 0;
-        if (statResolved) statResolved.textContent = stats.resolved ?? 0;
-        if (statClosed) statClosed.textContent = stats.closed ?? 0;
+        if (statTotal) animateCounter(statTotal, stats.totalTickets ?? 0);
+        if (statOpened) animateCounter(statOpened, stats.opened ?? 0);
+        if (statAssigned) animateCounter(statAssigned, stats.assigned ?? 0);
+        if (statInProcess) animateCounter(statInProcess, stats.inProcess ?? 0);
+        if (statResolved) animateCounter(statResolved, stats.resolved ?? 0);
+        if (statClosed) animateCounter(statClosed, stats.closed ?? 0);
 
         renderChart(stats);
 
@@ -74,23 +71,32 @@ function renderChart(stats) {
     const max = Math.max(stats.opened || 0, stats.assigned || 0, stats.inProcess || 0, stats.resolved || 0, stats.closed || 0, 1);
     
     const bars = [
-        { label: 'Abierta', value: stats.opened || 0, color: 'var(--color-opened)' },
-        { label: 'Asignada', value: stats.assigned || 0, color: 'var(--color-assigned)' },
-        { label: 'En Proceso', value: stats.inProcess || 0, color: 'var(--color-in_process)' },
-        { label: 'Resuelta', value: stats.resolved || 0, color: 'var(--color-resolved)' },
-        { label: 'Cerrada', value: stats.closed || 0, color: 'var(--color-closed)' }
+        { label: 'Abierta', value: stats.opened || 0, color: 'linear-gradient(180deg, #38bdf8 0%, rgba(56, 189, 248, 0.4) 100%)', glow: 'rgba(56, 189, 248, 0.5)' },
+        { label: 'Asignada', value: stats.assigned || 0, color: 'linear-gradient(180deg, #a78bfa 0%, rgba(167, 139, 250, 0.4) 100%)', glow: 'rgba(167, 139, 250, 0.5)' },
+        { label: 'En Proceso', value: stats.inProcess || 0, color: 'linear-gradient(180deg, #fbbf24 0%, rgba(251, 191, 36, 0.4) 100%)', glow: 'rgba(251, 191, 36, 0.5)' },
+        { label: 'Resuelta', value: stats.resolved || 0, color: 'linear-gradient(180deg, #34d399 0%, rgba(52, 211, 153, 0.4) 100%)', glow: 'rgba(52, 211, 153, 0.5)' },
+        { label: 'Cerrada', value: stats.closed || 0, color: 'linear-gradient(180deg, #94a3b8 0%, rgba(148, 163, 184, 0.4) 100%)', glow: 'rgba(148, 163, 184, 0.5)' }
     ];
 
     chart.innerHTML = bars.map(b => {
-        const height = Math.max((b.value / max) * 180, 8);
+        const targetHeight = Math.max((b.value / max) * 190, 8);
         return `
-            <div class=\"bar-wrap\">
-                <span style=\"font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #f8fafc;\">${b.value}</span>
-                <div class=\"bar\" style=\"height: ${height}px; background: ${b.color}; min-width: 36px; border-radius: 6px 6px 0 0;\"></div>
-                <span class=\"bar-label\" style=\"margin-top: 6px; font-size: 0.8rem;\">${b.label}</span>
+            <div class="bar-wrap">
+                <span class="bar-value">${b.value}</span>
+                <div class="bar" style="height: 0px; background: ${b.color}; box-shadow: 0 0 14px ${b.glow};" data-height="${targetHeight}"></div>
+                <span class="bar-label">${b.label}</span>
             </div>
         `;
     }).join('');
+
+    requestAnimationFrame(() => {
+        chart.querySelectorAll('.bar').forEach(barEl => {
+            const h = barEl.getAttribute('data-height');
+            setTimeout(() => {
+                barEl.style.height = `${h}px`;
+            }, 80);
+        });
+    });
 }
 
 if (document.readyState === 'loading') {

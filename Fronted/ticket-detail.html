@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Detalle Ticket</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
+    <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="brand">
                 <div class="brand-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -26,7 +29,7 @@
             </div>
 
             <a href="tickets.html?action=new" class="btn-new-ticket">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 Nuevo Ticket
             </a>
 
@@ -40,7 +43,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="tickets.html" class="nav-item">
+                        <a href="tickets.html" class="nav-item active">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                             Tickets
                         </a>
@@ -75,8 +78,11 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-header">
-                <div class="header-title" style="display: flex; align-items: center; gap: 1rem;">
-                    <a href="tickets.html" class="btn btn-secondary" style="padding: 8px; border-radius: 50%;">
+                <div class="header-title">
+                    <button type="button" class="btn-mobile-nav" aria-label="Abrir menú de navegación">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <a href="tickets.html" class="btn btn-secondary" style="padding: 8px; border-radius: 50%;" title="Volver a Tickets" aria-label="Volver a Tickets">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </a>
                     <h2 id="header-ticket-id">Cargando...</h2>
@@ -84,102 +90,104 @@
             </header>
 
             <div class="content-scroll">
-                <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                    <span class="spinner" style="width: 40px; height: 40px;"></span>
+                <div id="loading-indicator" class="text-center" style="padding: 3.5rem;">
+                    <span class="spinner" style="width: 44px; height: 44px;"></span>
                 </div>
 
                 <div id="ticket-content" class="hidden">
-                    <!-- Stepper -->
-                    <div class="glass-card mb-4">
+                    <!-- Stepper del Ciclo de Vida -->
+                    <div class="glass-card mb-4" style="padding: 1.5rem 1.75rem;">
                         <div class="stepper" id="ticket-stepper">
                             <div class="step" id="step-OPENED">
                                 <div class="step-marker">1</div>
-                                <span class="step-label">ABIERTA</span>
+                                <span class="step-label">Abierta</span>
                             </div>
                             <div class="step" id="step-ASSIGNED">
                                 <div class="step-marker">2</div>
-                                <span class="step-label">ASIGNADA</span>
+                                <span class="step-label">Asignada</span>
                             </div>
                             <div class="step" id="step-IN_PROCESS">
                                 <div class="step-marker">3</div>
-                                <span class="step-label">EN PROCESO</span>
+                                <span class="step-label">En Proceso</span>
                             </div>
                             <div class="step" id="step-RESOLVED">
                                 <div class="step-marker">4</div>
-                                <span class="step-label">RESUELTA</span>
+                                <span class="step-label">Resuelta</span>
                             </div>
                             <div class="step" id="step-CLOSED">
                                 <div class="step-marker">5</div>
-                                <span class="step-label">CERRADA</span>
+                                <span class="step-label">Cerrada</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="detail-grid">
-                        <!-- Main Info -->
+                        <!-- Main Info & Comments Column -->
                         <div class="glass-card">
                             <div class="ticket-header">
-                                <h1 id="ticket-title" style="margin-bottom: 0.5rem;">-</h1>
+                                <h1 id="ticket-title" style="font-size: 1.6rem; font-weight: 700; letter-spacing: -0.4px; line-height: 1.3; margin-bottom: 0.6rem;">-</h1>
                                 <div class="ticket-meta">
                                     <span id="ticket-priority-badge"></span>
-                                    <span id="ticket-category-badge" class="badge" style="background: rgba(255,255,255,0.1);"></span>
+                                    <span id="ticket-category-badge" class="badge" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0;"></span>
                                 </div>
                             </div>
                             
-                            <div class="info-group">
+                            <div class="info-group mt-3">
                                 <div class="info-label">Descripción del problema</div>
-                                <div class="info-value text-muted" id="ticket-desc" style="white-space: pre-wrap; line-height: 1.6;">-</div>
+                                <div class="info-value text-muted" id="ticket-desc" style="white-space: pre-wrap; line-height: 1.65; font-size: 0.95rem; background: rgba(0,0,0,0.25); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">-</div>
                             </div>
 
                             <div class="actions-footer" id="actions-container">
                                 <!-- Botones inyectados dinámicamente según estado y rol -->
                             </div>
 
-                            <div class="comments-section">
-                                <h3>Comentarios</h3>
+                            <div class="comments-section mt-4">
+                                <h3>Comentarios y Discusión</h3>
                                 <div class="comment-list mt-3" id="comments-container">
                                     <!-- Comentarios inyectados aquí -->
                                 </div>
                                 
                                 <form id="form-comment" class="comment-form-container mt-4">
-                                    <textarea id="comment-text" class="form-control" rows="3" placeholder="Escribe un comentario..." required></textarea>
-                                    <button type="submit" class="btn btn-primary" id="btn-submit-comment">Enviar</button>
+                                    <textarea id="comment-text" class="form-control" rows="3" placeholder="Escribe un comentario o actualización sobre este ticket..." required></textarea>
+                                    <button type="submit" class="btn btn-primary" id="btn-submit-comment">
+                                        Enviar Comentario
+                                    </button>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Sidebar Info -->
+                        <!-- Sidebar Info & History Column -->
                         <div>
                             <div class="glass-card mb-4">
-                                <h3>Detalles</h3>
+                                <h3 style="font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px;">Detalles de la Incidencia</h3>
                                 <div class="mt-4">
                                     <div class="info-group">
                                         <div class="info-label">Solicitante</div>
-                                        <div class="info-value" id="ticket-requester">-</div>
-                                        <div class="text-muted" style="font-size: 0.8rem;" id="ticket-requester-email">-</div>
+                                        <div class="info-value" id="ticket-requester" style="font-weight: 600;">-</div>
+                                        <div class="text-muted" style="font-size: 0.8rem; margin-top: 2px;" id="ticket-requester-email">-</div>
                                     </div>
                                     <div class="info-group">
                                         <div class="info-label">Técnico Asignado</div>
-                                        <div class="info-value" id="ticket-technician">Sin asignar</div>
+                                        <div class="info-value" id="ticket-technician" style="color: var(--accent-light); font-weight: 600;">Sin asignar</div>
                                     </div>
                                     <div class="info-group">
-                                        <div class="info-label">Fecha Creación</div>
+                                        <div class="info-label">Fecha de Creación</div>
                                         <div class="info-value" id="ticket-created">-</div>
                                     </div>
                                     <div class="info-group hidden" id="group-resolved">
-                                        <div class="info-label">Fecha Resolución</div>
-                                        <div class="info-value" id="ticket-resolved">-</div>
+                                        <div class="info-label">Fecha de Resolución</div>
+                                        <div class="info-value" id="ticket-resolved" style="color: var(--color-resolved); font-weight: 600;">-</div>
                                     </div>
                                     <div class="info-group hidden" id="group-closed">
-                                        <div class="info-label">Fecha Cierre</div>
-                                        <div class="info-value" id="ticket-closed">-</div>
+                                        <div class="info-label">Fecha de Cierre</div>
+                                        <div class="info-value" id="ticket-closed" style="color: var(--color-closed); font-weight: 600;">-</div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="glass-card">
-                                <h3>Historial</h3>
-                                <div class="timeline mt-4" id="timeline-container">
+                                <h3 style="font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px;">Historial de Auditoría</h3>
+                                <div class="timeline mt-3" id="timeline-container">
                                     <!-- Historial inyectado aquí -->
                                 </div>
                             </div>
@@ -194,20 +202,20 @@
     <div class="modal-overlay" id="modal-assign">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Asignar Técnico</h3>
-                <button class="btn-close" id="btn-close-assign">✕</button>
+                <h3 class="modal-title">Asignar Técnico Responsable</h3>
+                <button type="button" class="btn-close" id="btn-close-assign" aria-label="Cerrar modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">Seleccione un técnico</label>
+                    <label class="form-label" for="select-technician">Seleccione un técnico disponible</label>
                     <select id="select-technician" class="form-control">
-                        <option value="">Cargando...</option>
+                        <option value="">Cargando técnicos...</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="btn-cancel-assign">Cancelar</button>
-                <button class="btn btn-primary" id="btn-confirm-assign">Asignar</button>
+                <button type="button" class="btn btn-secondary" id="btn-cancel-assign">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-assign">Asignar Técnico</button>
             </div>
         </div>
     </div>

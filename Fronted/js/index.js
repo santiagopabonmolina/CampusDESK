@@ -18,8 +18,14 @@ const loginGeneralError = document.getElementById('login-general-error');
 
 // Tab switching
 export function switchToLogin() {
-    if (tabLogin) tabLogin.className = 'auth-tab active';
-    if (tabRegister) tabRegister.className = 'auth-tab';
+    if (tabLogin) {
+        tabLogin.className = 'auth-tab active';
+        tabLogin.setAttribute('aria-selected', 'true');
+    }
+    if (tabRegister) {
+        tabRegister.className = 'auth-tab';
+        tabRegister.setAttribute('aria-selected', 'false');
+    }
     if (authTabsBar) authTabsBar.classList.remove('hidden');
     if (loginForm) loginForm.classList.remove('hidden');
     if (registerForm) registerForm.classList.add('hidden');
@@ -27,8 +33,14 @@ export function switchToLogin() {
 }
 
 export function switchToRegister() {
-    if (tabRegister) tabRegister.className = 'auth-tab active';
-    if (tabLogin) tabLogin.className = 'auth-tab';
+    if (tabRegister) {
+        tabRegister.className = 'auth-tab active';
+        tabRegister.setAttribute('aria-selected', 'true');
+    }
+    if (tabLogin) {
+        tabLogin.className = 'auth-tab';
+        tabLogin.setAttribute('aria-selected', 'false');
+    }
     if (authTabsBar) authTabsBar.classList.remove('hidden');
     if (registerForm) registerForm.classList.remove('hidden');
     if (loginForm) loginForm.classList.add('hidden');
@@ -47,6 +59,73 @@ if (urlParams.get('mode') === 'register') {
     switchToRegister();
 }
 
+// Toggle password visibility helper
+function setupPasswordToggle(btnId, inputId) {
+    const btn = document.getElementById(btnId);
+    const input = document.getElementById(inputId);
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+
+        const eyeOpen = btn.querySelector('.eye-open');
+        const eyeClosed = btn.querySelector('.eye-closed');
+
+        if (eyeOpen && eyeClosed) {
+            if (isPassword) {
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            } else {
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            }
+        }
+    });
+}
+
+setupPasswordToggle('btn-toggle-login-pwd', 'login-password');
+setupPasswordToggle('btn-toggle-reg-pwd', 'reg-password');
+
+// Password Strength Meter
+const regPasswordInput = document.getElementById('reg-password');
+const strengthContainer = document.getElementById('strength-container');
+const strengthBar = document.getElementById('strength-bar');
+const strengthText = document.getElementById('strength-text');
+
+if (regPasswordInput && strengthContainer && strengthBar && strengthText) {
+    regPasswordInput.addEventListener('input', () => {
+        const val = regPasswordInput.value;
+        if (!val) {
+            strengthContainer.style.display = 'none';
+            return;
+        }
+        strengthContainer.style.display = 'flex';
+
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        strengthBar.className = 'password-strength-bar';
+        if (score <= 2) {
+            strengthBar.classList.add('strength-weak');
+            strengthText.textContent = 'Fortaleza: Débil';
+            strengthText.style.color = '#f87171';
+        } else if (score <= 4) {
+            strengthBar.classList.add('strength-medium');
+            strengthText.textContent = 'Fortaleza: Media';
+            strengthText.style.color = '#fbbf24';
+        } else {
+            strengthBar.classList.add('strength-strong');
+            strengthText.textContent = 'Fortaleza: Fuerte';
+            strengthText.style.color = '#34d399';
+        }
+    });
+}
+
 // Login Submit
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -58,19 +137,19 @@ if (loginForm) {
         const btn = document.getElementById('btn-login');
 
         try {
-            setButtonLoading(btn, true, 'Acceder');
+            setButtonLoading(btn, true, 'Acceder a la Plataforma');
             const data = await API.login({ email, password });
             
             if (data && data.token) {
                 setSession(data);
                 showToast('¡Bienvenido a CampusDESK!', 'success');
-                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                setTimeout(() => window.location.href = 'dashboard.html', 800);
             }
         } catch (error) {
             if (loginGeneralError) loginGeneralError.textContent = error.message;
             showToast(error.message, 'error');
         } finally {
-            setButtonLoading(btn, false, 'Acceder');
+            setButtonLoading(btn, false, 'Acceder a la Plataforma');
         }
     });
 }
@@ -93,11 +172,12 @@ if (registerForm) {
         }
 
         try {
-            setButtonLoading(btn, true, 'Registrando...');
+            setButtonLoading(btn, true, 'Creando Cuenta...');
             await API.register({ firstName, lastName, email, password });
             
             showToast('Cuenta creada exitosamente. Ahora puedes iniciar sesión.', 'success');
             registerForm.reset();
+            if (strengthContainer) strengthContainer.style.display = 'none';
             switchToLogin();
             const loginEmail = document.getElementById('login-email');
             if (loginEmail) loginEmail.value = email;
@@ -117,7 +197,7 @@ if (registerForm) {
             if (regGeneralError) regGeneralError.textContent = errorText;
             showToast(errorText, 'error');
         } finally {
-            setButtonLoading(btn, false, 'Registrarse');
+            setButtonLoading(btn, false, 'Crear Cuenta');
         }
     });
 }
