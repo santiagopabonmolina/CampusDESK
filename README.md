@@ -1,237 +1,337 @@
 # 🏢 CampusDESK — Plataforma de Gestión de Incidencias Tecnológicas
 
-> **Proyecto empresarial desarrollado para TechNova Solutions**  
-> Solución centralizada para la gestión, seguimiento y resolución del ciclo de vida de incidencias tecnológicas corporativas.
+> **TechNova Solutions**  
+> Solución corporativa integral para la centralización, reporte, asignación, seguimiento, resolución y auditoría de incidencias técnicas en infraestructura y servicios de TI.
 
 ---
 
-## 👥 Integrantes del Equipo de Desarrollo
+## 👥 Integrantes del Equipo
 
-* **Diego Parra**
-* **Carlos Lindarte**
-* **Santiago Pabón**
+* **Santiago Pabón Molina**
+* **Diego Andrés Parra**
+* **Carlos Andrés Lindarte**
 
 ---
 
 ## 📌 Descripción del Proyecto
 
-**CampusDESK** es una aplicación web empresarial diseñada para optimizar los canales de soporte técnico de **TechNova Solutions** (más de 200 colaboradores). Reemplaza la gestión informal por correo y mensajería con una plataforma estructurada que garantiza:
+**CampusDESK** es una solución web empresarial desarrollada para **TechNova Solutions** (organización con más de 200 colaboradores). La plataforma sustituye los canales informales y fragmentados (como correos electrónicos y chats de mensajería) por un sistema centralizado, auditable y con aislamiento estricto de datos mediante control de acceso basado en roles (**RBAC**).
 
-* Trazabilidad completa y ciclo de vida inmutable de tickets.
-* Asignación organizada y controlada de técnicos por parte de administradores.
-* Historial de auditoría cronológico registrado automáticamente por evento.
-* Control de acceso basado en roles (**RBAC**) con aislamiento estricto de datos.
-* Dashboard con métricas agregadas en tiempo real respaldadas en PostgreSQL.
+### Características Principales:
+* **Trazabilidad Inmutable:** Registro histórico de auditoría por cada evento (creación, cambio de estado, asignación de técnicos y comentarios).
+* **Control de Acceso Basado en Roles (RBAC):** Privilegios delimitados entre `ADMIN`, `TECHNICIAN` y `USER`.
+* **Máquina de Estados Obligatoria:** Validación estricta del ciclo de vida del ticket (`ABIERTA` ➔ `ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA` ➔ `CERRADA`).
+* **Seguridad sin Estado (Stateless):** Autenticación y autorización mediante tokens JWT (HMAC-SHA256) con contraseñas cifradas en BCrypt.
+* **Dashboard Analítico en Tiempo Real:** Métricas agregadas y conteos en vivo sincronizados con PostgreSQL.
+* **Cliente Ligero Desacoplado:** Frontend construido en JavaScript nativo modular (ES6+), sin sobrecarga de frameworks ni librerías externas.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
 ### Backend
-* **Java 21** con **Spring Boot 4.1.1**
-* **Spring Data JPA / Hibernate** (Persistencia y mapeo relacional)
-* **Spring Security** (Autenticación y autorización basada en métodos y roles)
-* **JWT (JSON Web Tokens)** con algoritmo HMAC-SHA256
-* **BCrypt Password Encoder** (Cifrado unidireccional de contraseñas)
-* **Spring Validation** (Validación de DTOs con Bean Validation)
-* **Springdoc OpenAPI 3.1.0 (Swagger UI)** (Documentación interactiva con soporte BearerAuth)
-* **PostgreSQL 16** (Base de datos relacional)
-* **Gradle 9.7** (Gestor de dependencias y construcción)
+* **Lenguaje:** Java 21 (LTS)
+* **Framework:** Spring Boot 4.1.1 / Spring Framework 6
+* **Persistencia:** Spring Data JPA / Hibernate ORM
+* **Seguridad:** Spring Security con filtros personalizados para JWT y BCrypt Password Encoder
+* **Validación de Datos:** Jakarta Bean Validation / Hibernate Validator
+* **Documentación Interactiva:** Springdoc OpenAPI 3.1.0 (Swagger UI con integración BearerAuth)
+* **Gestor de Dependencias y Construcción:** Gradle 9.7 con Gradle Wrapper
+
+### Base de Datos
+* **Motor:** PostgreSQL 17
+* **Administrador Web:** pgAdmin 4 (orquestado vía Docker)
+* **Persistencia y Scripts:** Docker Volumes con carga automatizada de scripts DDL y DML
 
 ### Frontend
-* **HTML5 semántico**
-* **CSS3 moderno** (Diseño responsivo, CSS Custom Properties / Variables, Glassmorphism)
-* **JavaScript Vanilla (ES6+ Modules)** (Sin frameworks: React, Angular, Vue, Bootstrap o Tailwind prohibidos según requerimientos)
-* **Fetch API & Async/Await** para consumo de la API REST
+* **Arquitectura:** Single/Multi-page desacoplada en **Vanilla JavaScript (ES6+ Modules)**
+* **Diseño y Estilos:** HTML5 semántico y CSS3 puro con Custom Properties (Variables CSS), Grid, Flexbox y Glassmorphism
+* **Consumo de API:** Fetch API nativa y sintaxis asíncrona (`async/await`)
+* *(Sin dependencias de frameworks como React, Angular, Vue, Bootstrap o Tailwind)*
 
 ---
 
-## 🏛️ Arquitectura del Sistema
+## 📋 Requisitos Previos
 
-El proyecto implementa una arquitectura por capas desacoplada con separación estricta de responsabilidades:
+Antes de ejecutar el proyecto, asegúrate de contar con las siguientes herramientas instaladas en tu sistema:
 
-```
-CampusDESK/
-├── src/main/java/com/spring/
-│   ├── config/          # Configuración OpenAPI / Swagger
-│   ├── controller/      # Controladores REST HTTP (Endpoints públicos y protegidos)
-│   ├── dto/             # Data Transfer Objects (Request y Response con validaciones)
-│   ├── entity/          # Entidades persistentes JPA (User, Role, Ticket, Comment, History)
-│   ├── exception/       # GlobalExceptionHandler centralizado
-│   ├── repository/      # Interfaces Spring Data JPA para acceso a PostgreSQL
-│   ├── security/        # Filtros JWT, CustomUserDetailsService y SecurityConfig
-│   └── service/         # Lógica y reglas de negocio, transaccionalidad y validaciones
-├── src/main/resources/
-│   └── application.properties # Configuración con variables de entorno parametrizadas
-├── Fronted/             # Cliente Web desacoplado en Vanilla JS
-│   ├── css/             # Hojas de estilo modulares (variables, base, components, pages)
-│   ├── js/              # Módulos JS (config, auth, api, ui y controladores de vista)
-│   ├── index.html       # Acceso (Login y Registro)
-│   ├── dashboard.html   # Métricas y resumen por rol
-│   ├── tickets.html     # Listado, creación y filtrado combinado (estado, prioridad, categoría)
-│   ├── ticket-detail.html # Detalle, transiciones, comentarios e historial
-│   └── admin.html       # Directorio de personal y usuarios (Solo ADMIN)
-├── scripts/             # Scripts SQL organizados de base de datos
-│   ├── 01-schema.sql    # DDL: Creación de tablas, claves foráneas e índices
-│   ├── 02-seed-data.sql # DML: Roles y cuentas iniciales preconfiguradas
-│   ├── 03-sample-tickets.sql # DML: Incidencias de prueba en todos los estados
-│   └── README.md        # Documentación de base de datos
-├── docker-compose.yml   # Contenedor PostgreSQL 17 + pgAdmin 4
-├── .env.example         # Plantilla de variables de entorno
-└── build.gradle         # Dependencias y configuración Gradle
-```
+1. **Java Development Kit (JDK):** Versión 21 o superior ([Descargar JDK 21](https://www.oracle.com/java/technologies/downloads/#java21)).
+   ```bash
+   java -version
+   ```
+2. **Docker y Docker Compose:** Para levantar PostgreSQL y pgAdmin ([Docker Desktop](https://www.docker.com/products/docker-desktop/)).
+   ```bash
+   docker compose version
+   ```
+3. **Servidor HTTP Local para el Frontend:** Python 3 (`python -m http.server`), Node.js (`npx serve`) o la extensión **Live Server** de VS Code.
+4. **Git:** Para el control de versiones.
 
 ---
 
-## 🔐 Modelo de Seguridad y Roles (RBAC)
+## 📥 Instrucciones de Instalación
 
-El sistema maneja 3 roles con privilegios claramente delimitados:
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/tu-usuario/CampusDESK.git
+   cd CampusDESK
+   ```
 
-| Rol | Privilegios y Alcance |
-| :--- | :--- |
-| **`ADMIN`** | Consulta todos los tickets y usuarios. Asigna y reasigna técnicos. Visualiza estadísticas globales y el historial completo de cualquier solicitud. |
-| **`TECHNICIAN`** | Consulta únicamente los tickets asignados a su cuenta. Gestiona el ciclo de vida (`ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA`). Añade comentarios de soporte en sus incidencias. |
-| **`USER`** | Crea incidencias. Consulta y modifica **únicamente** sus propias solicitudes mientras permanezcan abiertas y sin asignar. Confirma el cierre (`CERRADA`) una vez resuelta. |
+2. **Preparar las variables de entorno:**
+   Copia el archivo de plantilla `.env.example` y renómbralo a `.env`:
+   ```powershell
+   # En Windows (PowerShell)
+   Copy-Item .env.example .env
 
-> [!IMPORTANT]
-> **Política de Registro:** Al registrarse públicamente en la plataforma, el sistema asigna **automáticamente y de forma obligatoria el rol `USER`**. Los roles de `ADMIN` y `TECHNICIAN` deben ser provisionados desde la base de datos para evitar elevación no autorizada de privilegios.
+   # En Linux / macOS
+   cp .env.example .env
+   ```
 
----
+3. **Verificar dependencias del proyecto:**
+   ```bash
+   # En Windows
+   .\gradlew.bat --version
 
-## 🔄 Flujo del Ciclo de Vida de los Tickets
-
-Todo ticket sigue una máquina de estados obligatoria y validada a nivel de Backend:
-
-$$\text{ABIERTA} \xrightarrow{\text{Asignación (ADMIN)}} \text{ASIGNADA} \xrightarrow{\text{Iniciar (TÉCNICO)}} \text{EN\_PROCESO} \xrightarrow{\text{Resolver (TÉCNICO)}} \text{RESUELTA} \xrightarrow{\text{Cierre (SOLICITANTE)}} \text{CERRADA}$$
-
-* **ABIERTA:** Estado inicial automático al crear un ticket. Solo el solicitante puede editarlo si no tiene técnico.
-* **ASIGNADA:** Se alcanza cuando un Administrador asigna un técnico (`PATCH /api/tickets/{id}/assign`).
-* **EN_PROCESO:** El técnico asignado comienza la atención (`PATCH /api/tickets/{id}/status?status=IN_PROCESS`).
-* **RESUELTA:** El técnico termina el soporte. Requiere obligatoriamente haber estado en `EN_PROCESO` (rechaza con HTTP 409 en caso contrario). Registra fecha de resolución.
-* **CERRADA:** Solo el solicitante dueño del ticket puede confirmar el cierre. Un ticket cerrado no permite modificaciones ni nuevos comentarios.
-
----
-
-## 🚀 Requisitos Previos e Instalación
-
-### 1. Requisitos
-* **Java Development Kit (JDK) 21** o superior instalado (`java -version`).
-* **Docker y Docker Compose** (o PostgreSQL 16/17 instalado localmente).
-* Navegador web moderno (Chrome, Edge, Firefox).
+   # En Linux / macOS
+   ./gradlew --version
+   ```
 
 ---
 
-### 2. Configurar y Levantar la Base de Datos (PostgreSQL)
+## ⚙️ Configuración Mediante Variables de Entorno
 
-Desde la raíz del proyecto, inicia el contenedor PostgreSQL configurado:
+El sistema permite parametrizar credenciales y puertos mediante el archivo `.env` o variables del sistema:
+
+| Variable | Descripción | Valor por Defecto / Recomendado |
+| :--- | :--- | :--- |
+| `DB_URL` | URL de conexión JDBC hacia PostgreSQL | `jdbc:postgresql://localhost:5438/campusDESK` |
+| `DB_USERNAME` | Usuario de base de datos | `dev_user` |
+| `DB_PASSWORD` | Contraseña del usuario de base de datos | `DevTeamSecurePass2026!` |
+| `JWT_SECRET` | Clave secreta para firmar tokens JWT (mínimo 256 bits) | `campusDeskSecretKey2026SuperSecureRandomStringAtLeast256BitsLong!!` |
+| `JWT_EXPIRATION` | Tiempo de vida del JWT en milisegundos (24 horas) | `86400000` |
+| `SERVER_PORT` | Puerto HTTP donde corre la API REST de Spring Boot | `8050` |
+| `CORS_ALLOWED_ORIGINS` | Orígenes web autorizados para interactuar con la API | `http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501` |
+
+---
+
+## 🗄️ Instrucciones para Preparar PostgreSQL
+
+El proyecto contiene un entorno de base de datos containerizado y preconfigurado con Docker Compose:
+
+### 1. Iniciar los Contenedores (Recomendado)
+
+En la raíz del proyecto, ejecuta:
 
 ```bash
 docker compose up -d
 ```
 
-* **Puerto:** `5438`
-* **Base de datos:** `campusDESK`
-* **Usuario:** `dev_user`
-* **Contraseña:** `DevTeamSecurePass2026!`
+Esto desplegará los siguientes servicios:
+* **`dev_postgres` (PostgreSQL 17):**
+  * **Host:** `localhost`
+  * **Puerto expuesto:** `5438` (mapeado a `5432` interno)
+  * **Base de datos:** `campusDESK`
+  * **Usuario:** `dev_user`
+  * **Contraseña:** `DevTeamSecurePass2026!`
+  * **Scripts de inicialización automática (`/docker-entrypoint-initdb.d`):**
+    * `01-schema.sql`: Estructura relacional completa (tablas `users`, `role`, `user_roles`, `tickets`, `comments`, `ticket_history`, foreign keys e índices).
+    * `02-seed-data.sql`: Carga oficial de roles y cuentas maestras con contraseñas hasheadas en BCrypt.
+    * `03-sample-tickets.sql`: Carga de incidencias de demostración en diferentes estados con histórico y comentarios.
+* **`dev_pgadmin` (pgAdmin 4):**
+  * **URL de acceso:** [http://localhost:5055](http://localhost:5055)
+  * **Email:** `team@devlocal.com`
+  * **Contraseña:** `PgAdminTeamPass2026!`
 
-El contenedor monta la carpeta `./scripts` y ejecuta automáticamente los scripts en orden (`01-schema.sql` ➔ `02-seed-data.sql` ➔ `03-sample-tickets.sql`).
+### 2. Recarga o Ejecución Manual con `psql` (Opcional)
 
-#### Carga Manual de Scripts (Opcional):
-Si requieres ejecutar los scripts manualmente mediante `psql`:
+Si requieres reiniciar o correr los scripts manualmente en el contenedor:
 
 ```bash
-# 1. Crear estructura (DDL)
+# 1. Esquema DDL
 docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/01-schema.sql
 
-# 2. Cargar roles y usuarios iniciales (Seed)
+# 2. Datos maestros y usuarios
 docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/02-seed-data.sql
 
-# 3. (Opcional) Cargar casos de prueba
+# 3. Tickets de muestra
 docker exec -i dev_postgres psql -U dev_user -d campusDESK < scripts/03-sample-tickets.sql
 ```
 
 ---
 
-### 3. Iniciar el Servidor Backend (Spring Boot)
+## 🔐 Descripción de Roles y Cuentas Preconfiguradas
 
-En la raíz del proyecto, ejecuta el wrapper de Gradle:
+El sistema aplica control de acceso basado en roles (**RBAC**):
 
-```bash
-# En Linux / macOS:
-./gradlew bootRun
+### 1. Rol `ADMIN` (Super Administrador)
+* **Alcance:** Control total de la plataforma. Visualiza todos los tickets corporativos, asigna y reasigna personal técnico responsable, gestiona el directorio de colaboradores y audita métricas consolidadas.
+* **Credenciales del Super Administrador:**
+  * **Correo Electrónico:** `admin@campusdesk.com`
+  * **Contraseña:** `SuperAdmin2026!`
+  * **Roles asignados:** `ROLE_ADMIN`, `ROLE_TECHNICIAN`, `ROLE_USER` (Acceso irrestricto)
 
-# En Windows:
-gradlew.bat bootRun
+### 2. Rol `TECHNICIAN` (Técnico de Soporte)
+* **Alcance:** Acceso delimitado **exclusivamente** a los tickets que le han sido asignados. Administra las fases de atención (`ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA`) y registra comentarios de soporte.
+* **Credenciales de prueba:**
+  * **Correo Electrónico:** `tecnico@campusdesk.com`
+  * **Contraseña:** `Tech2026!`
+  * **Rol asignado:** `ROLE_TECHNICIAN`
+
+### 3. Rol `USER` (Usuario Solicitante)
+* **Alcance:** Creación de solicitudes. Puede consultar y editar **únicamente** sus propios tickets mientras se encuentren en estado `ABIERTA` y sin técnico asignado. Es el único que puede validar y confirmar el cierre definitivo (`CERRADA`) una vez que el ticket esté en estado `RESUELTA`.
+* **Credenciales de prueba:**
+  * **Correo Electrónico:** `usuario@campusdesk.com`
+  * **Contraseña:** `User2026!`
+  * **Rol asignado:** `ROLE_USER`
+
+> [!NOTE]
+> Todo registro público realizado a través del endpoint `/api/auth/register` o el formulario del frontend recibe de forma obligatoria y predeterminada el rol `USER`.
+
+---
+
+## 🔄 Flujo del Ciclo de Vida de los Tickets
+
+```mermaid
+flowchart LR
+    A["ABIERTA\n(Creada por Solicitante)"] -->|"Asignación\n(ADMIN)"| B["ASIGNADA\n(Técnico Asignado)"]
+    B -->|"Iniciar Diagnóstico\n(TÉCNICO)"| C["EN_PROCESO\n(En Atención)"]
+    C -->|"Resolver Incidencia\n(TÉCNICO)"| D["RESUELTA\n(Esperando Conformidad)"]
+    D -->|"Confirmar Solución\n(SOLICITANTE)"| E["CERRADA\n(Ciclo Concluido)"]
 ```
 
-El servidor iniciará en: **`http://localhost:8080`**.
-
 ---
 
-### 4. Iniciar el Frontend
+## 🚀 Procedimiento de Ejecución del Backend y Frontend
 
-El frontend está desarrollado en Vanilla JS modular (ES Modules), por lo que debe servirse a través de un servidor HTTP local para permitir imports relativos y CORS:
-
-**Opción A — Con extensión Live Server de VS Code:**
-* Abre la carpeta `Fronted` en VS Code y haz clic en **"Go Live"** (Puerto por defecto: `5500` o `5501`).
-
-**Opción B — Con Python:**
+### Paso 1: Iniciar la Base de Datos
+Verifica que PostgreSQL esté arriba mediante Docker:
 ```bash
-cd Fronted
-python3 -m http.server 5500
+docker compose up -d
 ```
 
-Abre en el navegador: **`http://127.0.0.1:5500/index.html`**.
+### Paso 2: Iniciar el Backend (Spring Boot)
+En la raíz del proyecto, ejecuta:
+
+* **En Windows (PowerShell / CMD):**
+  ```powershell
+  .\gradlew.bat bootRun
+  ```
+* **En Linux / macOS:**
+  ```bash
+  ./gradlew bootRun
+  ```
+
+El servidor iniciará en el puerto **`8050`** (`http://localhost:8050`).
+
+### Paso 3: Iniciar el Frontend (Vanilla JS Modular)
+Dado que el frontend utiliza módulos nativos de ECMAScript (`import`/`export`), debe ejecutarse bajo un servidor HTTP local para permitir CORS e importaciones relativas:
+
+* **Opción A (Recomendada con Python):**
+  ```bash
+  cd Fronted
+  python -m http.server 5500
+  ```
+  Abre en tu navegador: [http://127.0.0.1:5500/index.html](http://127.0.0.1:5500/index.html)
+
+* **Opción B (Con VS Code Live Server):**
+  Abre el directorio `Fronted/` en Visual Studio Code, haz clic derecho sobre `index.html` y pulsa **"Open with Live Server"** (puerto `5500` o `5501`).
+
+* **Opción C (Con Node.js):**
+  ```bash
+  npx serve Fronted -p 5500
+  ```
 
 ---
 
-## 🔑 Credenciales de Prueba
+## 📖 Enlace Local para Consultar Swagger / OpenAPI
 
-| Perfil | Correo Electrónico | Contraseña | Rol Principal |
-| :--- | :--- | :--- | :--- |
-| **Super Administrador** | `admin@campusdesk.com` | `SuperAdmin2026!` | `ROLE_ADMIN` |
-| **Técnico de Soporte** | `tecnico@campusdesk.com` | `Tech2026!` | `ROLE_TECHNICIAN` |
-| **Usuario Solicitante** | `usuario@campusdesk.com` | `User2026!` | `ROLE_USER` |
+La API REST cuenta con documentación interactiva con soporte completo para pruebas protegidas por JWT:
 
----
+* **Swagger UI:** [http://localhost:8050/swagger-ui/index.html](http://localhost:8050/swagger-ui/index.html)
+* **Especificación OpenAPI (JSON):** [http://localhost:8050/v3/api-docs](http://localhost:8050/v3/api-docs)
 
-## 📖 Documentación Swagger / OpenAPI
-
-La API REST cuenta con documentación interactiva con soporte para pruebas protegidas mediante JWT:
-
-* **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-* **Especificación OpenAPI (JSON):** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
-
-### ¿Cómo probar endpoints en Swagger?
-1. Ejecuta `POST /api/auth/login` con credenciales válidas y copia el `token` resultante.
-2. Haz clic en el botón verde **Authorize** (arriba a la derecha).
-3. Pega el token y haz clic en **Authorize**. Todos los endpoints autenticados quedarán desbloqueados para pruebas.
-
----
-
-## 🧪 Matriz de Casos de Prueba Obligatorios
-
-| Código | Escenario | Resultado Esperado | Implementación |
-| :--- | :--- | :--- | :---: |
-| **CP-01** | Registrar usuario válido | Cuenta creada automáticamente con rol `USER` | ✅ Verificado |
-| **CP-02** | Registrar correo duplicado | Rechazo con `HTTP 409 Conflict` | ✅ Verificado |
-| **CP-03** | Iniciar sesión correctamente | Retorna JWT válido y datos de perfil | ✅ Verificado |
-| **CP-04** | Acceder a endpoint protegido sin token | Rechazo con `HTTP 401 Unauthorized` | ✅ Verificado |
-| **CP-05** | Crear ticket con datos válidos | Registrado en estado `ABIERTA` | ✅ Verificado |
-| **CP-06** | Consultar ticket ajeno como USER | Rechazo con `HTTP 403 Forbidden` | ✅ Verificado |
-| **CP-07** | Asignar técnico como ADMIN | Ticket transiciona a `ASIGNADA` | ✅ Verificado |
-| **CP-08** | Intentar asignar como USER | Rechazo con `HTTP 403 Forbidden` | ✅ Verificado |
-| **CP-09** | Modificar ticket ajeno como técnico | Rechazo con `HTTP 403 Forbidden` | ✅ Verificado |
-| **CP-10** | Resolver ticket sin pasar por `EN_PROCESO` | Rechazo con `HTTP 409 Conflict` | ✅ Verificado |
-| **CP-11** | Registrar cambio de estado | Registro histórico atómico en PostgreSQL | ✅ Verificado |
-| **CP-12** | Cerrar ticket `RESUELTA` como solicitante | Estado transiciona a `CERRADA` | ✅ Verificado |
-| **CP-13** | Comentar en ticket `CERRADA` | Rechazo con `HTTP 409 Conflict` | ✅ Verificado |
-| **CP-14** | Consultar estadísticas | Coincidencia de conteos con PostgreSQL | ✅ Verificado |
-| **CP-15** | Consumo API desde frontend autorizado | Comunicación fluida mediante CORS y Fetch | ✅ Verificado |
-| **CP-16** | Utilizar JWT inválido o expirado | Rechazo con `HTTP 401 Unauthorized` | ✅ Verificado |
+### ¿Cómo autenticarse en Swagger UI?
+1. Ingresa a [http://localhost:8050/swagger-ui/index.html](http://localhost:8050/swagger-ui/index.html).
+2. Despliega la sección **`1. Autenticación y Cuentas`** y abre el endpoint `POST /api/auth/login`.
+3. Haz clic en **Try it out** e inicia sesión con las credenciales del Super Administrador:
+   ```json
+   {
+     "email": "admin@campusdesk.com",
+     "password": "SuperAdmin2026!"
+   }
+   ```
+4. Copia el token JWT resultante (sin comillas).
+5. Pulsa el botón verde **Authorize 🔓** en la parte superior derecha de Swagger.
+6. Pega el token en el campo correspondiente y pulsa **Authorize** ➔ **Close**. A partir de este momento todos los endpoints protegidos se consumirán con el header `Authorization: Bearer <token>`.
 
 ---
 
-## ⚖️ Licencia
+## 📸 Evidencias de Funcionamiento
 
-Proyecto desarrollado bajo fines académicos y empresariales para **TechNova Solutions** bajo licencia Apache 2.0.
+A continuación se presentan las capturas de pantalla que respaldan el funcionamiento integral de la solución en sus diferentes vistas, roles y documentación de la API:
+
+### 1. Pantalla de Acceso — Inicio de Sesión y Registro
+Formulario con validación visual, diseño glassmorphism responsivo y autenticación contra la API REST.
+
+![Acceso - Inicio de Sesión y Registro](docs/evidencias/evidencia_05.png)
+
+---
+
+### 2. Dashboard General — Métricas del Administrador
+Panel de control con métricas en tiempo real: conteo total de incidencias, distribución por estado (`Abiertos`, `Asignados`, `En Proceso`, `Resueltos`, `Cerrados`) y acceso al módulo administrativo.
+
+![Dashboard General Administrador](docs/evidencias/evidencia_04.png)
+
+---
+
+### 3. Dashboard del Usuario Solicitante
+Vista personalizada del panel para colaboradores con sus métricas directas y accesos a sus tickets reportados.
+
+![Dashboard Usuario Solicitante](docs/evidencias/evidencia_06.png)
+
+---
+
+### 4. Gestión de Tickets y Filtros Combinados
+Módulo de tickets con filtrado por estado, prioridad y categoría, además del modal para radicar un nuevo ticket de soporte.
+
+![Gestión de Tickets y Filtros](docs/evidencias/evidencia_01.png)
+
+---
+
+### 5. Detalle de Incidencia y Diálogo Cronológico de Comentarios
+Visualización detallada del ticket (código, categoría, prioridad, descripción), panel de transiciones de estado e hilo de discusión interactivo entre usuario y técnicos.
+
+![Detalle de Incidencia y Comentarios](docs/evidencias/evidencia_08.png)
+
+---
+
+### 6. Directorio y Gestión de Personal (Solo ADMIN)
+Listado administrativo de usuarios y colaboradores con sus respectivos roles en la organización (`ADMIN`, `TECHNICIAN`, `USER`).
+
+![Directorio de Personal y Roles](docs/evidencias/evidencia_03.png)
+
+---
+
+### 7. Documentación Swagger UI — Cabecera e Información General
+Interfaz interactiva de Swagger UI ejecutándose en `http://localhost:8050/swagger-ui/index.html` con especificación OpenAPI 3.1.0 y soporte BearerAuth.
+
+![Swagger UI - Información General](docs/evidencias/evidencia_02.png)
+
+---
+
+### 8. Swagger UI — Módulo de Autenticación y Cuentas
+Endpoints documentados para registro público (`POST /api/auth/register`) e inicio de sesión con emisión de JWT (`POST /api/auth/login`).
+
+![Swagger UI - Autenticación y Cuentas](docs/evidencias/evidencia_07.png)
+
+---
+
+### 9. Swagger UI — Transición de Estados y Directorio
+Endpoints para la gestión del ciclo de vida del ticket (`PATCH /api/tickets/{id}/status`), asignación de técnicos y consulta de disponibilidad.
+
+![Swagger UI - Transición de Estados y Tickets](docs/evidencias/evidencia_09.png)
+
+---
+
+## 📄 Licencia
+
+Proyecto desarrollado con fines académicos y corporativos para **TechNova Solutions** bajo licencia Apache 2.0.
