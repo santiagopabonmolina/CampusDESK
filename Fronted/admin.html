@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Administración</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -12,6 +12,28 @@
 </head>
 <body>
     <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+
+    <!-- Mobile Topbar -->
+    <div class="mobile-topbar">
+        <div class="mobile-brand">
+            <div class="brand-icon" style="width: 30px; height: 30px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <span style="font-weight: 700; font-size: 1.15rem;">CampusDESK</span>
+        </div>
+        <button class="btn-mobile-toggle" id="btn-mobile-menu" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
 
     <div class="app-container">
         <!-- Sidebar -->
@@ -78,33 +100,37 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title">
-                    <h2>Directorio de Personal</h2>
+                    <h2>Directorio de Técnicos y Personal</h2>
                 </div>
             </header>
 
             <div class="content-scroll">
-                <div class="glass-card" style="padding: 0;">
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
                     <div class="tickets-table-container">
                         <table class="tickets-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th style="width: 80px;">ID</th>
                                     <th>Nombre Completo</th>
                                     <th>Correo Electrónico</th>
+                                    <th>Rol</th>
                                 </tr>
                             </thead>
                             <tbody id="users-tbody">
-                                <!-- JS injected -->
+                                <!-- Filas JS -->
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                        <span class="spinner" style="width: 30px; height: 30px;"></span>
-                    </div>
 
                     <div id="empty-state" class="empty-state hidden">
-                        <p class="text-muted">No se encontraron usuarios técnicos.</p>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3>No hay técnicos registrados</h3>
+                        <p class="text-muted mt-1">Actualmente no existen usuarios con el rol de técnico disponibles.</p>
                     </div>
                 </div>
             </div>
@@ -114,41 +140,44 @@
     <script type="module">
         import { API } from './js/api.js';
         import { checkAdminAccess } from './js/auth.js';
-        import { showToast, setupModal, escapeHTML } from './js/ui.js';
+        import { showToast, setupModal, escapeHTML, renderSkeletonTable } from './js/ui.js';
 
-        // Protected route
         checkAdminAccess();
         setupModal();
 
         async function loadUsers() {
             const tbody = document.getElementById('users-tbody');
-            const loading = document.getElementById('loading-indicator');
             const empty = document.getElementById('empty-state');
 
+            empty.classList.add('hidden');
+            renderSkeletonTable(tbody, 4, 4);
+
             try {
-                // Fetching only technicians for now, as that's the only endpoint guaranteed to exist
-                // If getAllUsers existed, we could list everyone.
                 const techs = await API.getTechnicians();
+                tbody.innerHTML = '';
                 
-                if (techs.length === 0) {
+                if (!techs || techs.length === 0) {
                     empty.classList.remove('hidden');
                 } else {
                     techs.forEach(u => {
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td style="font-weight: 500;">#${u.id}</td>
-                            <td>${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)} <span class="badge" style="background:rgba(139, 92, 246, 0.2); color:#a78bfa; margin-left:8px;">Técnico</span></td>
-                            <td>${escapeHTML(u.email)}</td>
+                            <td style="font-weight: 700; color: var(--accent-light);">#${u.id}</td>
+                            <td style="font-weight: 600;">${escapeHTML(u.firstName)} ${escapeHTML(u.lastName)}</td>
+                            <td style="color: var(--text-secondary);">${escapeHTML(u.email)}</td>
+                            <td>
+                                <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.35);">
+                                    Técnico
+                                </span>
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
                 }
             } catch (error) {
+                tbody.innerHTML = '';
                 showToast(error.message, 'error');
                 empty.classList.remove('hidden');
-                empty.innerHTML = `<p class="text-muted" style="color:#ef4444;">${error.message}</p>`;
-            } finally {
-                loading.classList.add('hidden');
             }
         }
 

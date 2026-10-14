@@ -35,14 +35,21 @@ public class TicketResponse {
     private LocalDateTime resolutionDate;
     private LocalDateTime closeDate;
 
-    // Mapeo seguro Entity -> DTO
+    // Mapeo seguro Entity -> DTO evitando recursión y proxies sin inicializar
     public static TicketResponse fromEntity(Ticket ticket) {
         if (ticket == null) return null;
 
         String reqName = null;
         String reqEmail = null;
+        Long reqId = null;
         if (ticket.getRequester() != null) {
-            reqName = ticket.getRequester().getFirstName() + " " + ticket.getRequester().getLastName();
+            reqId = ticket.getRequester().getId();
+            String fn = ticket.getRequester().getFirstName() != null ? ticket.getRequester().getFirstName() : "";
+            String ln = ticket.getRequester().getLastName() != null ? ticket.getRequester().getLastName() : "";
+            reqName = (fn + " " + ln).trim();
+            if (reqName.isEmpty()) {
+                reqName = ticket.getRequester().getEmail();
+            }
             reqEmail = ticket.getRequester().getEmail();
         }
 
@@ -50,7 +57,12 @@ public class TicketResponse {
         Long techId = null;
         if (ticket.getTechnicianAssigned() != null) {
             techId = ticket.getTechnicianAssigned().getId();
-            techName = ticket.getTechnicianAssigned().getFirstName() + " " + ticket.getTechnicianAssigned().getLastName();
+            String fn = ticket.getTechnicianAssigned().getFirstName() != null ? ticket.getTechnicianAssigned().getFirstName() : "";
+            String ln = ticket.getTechnicianAssigned().getLastName() != null ? ticket.getTechnicianAssigned().getLastName() : "";
+            techName = (fn + " " + ln).trim();
+            if (techName.isEmpty()) {
+                techName = ticket.getTechnicianAssigned().getEmail();
+            }
         }
 
         return TicketResponse.builder()
@@ -60,7 +72,7 @@ public class TicketResponse {
                 .category(ticket.getCategory())
                 .priority(ticket.getPriority())
                 .state(ticket.getState())
-                .requesterId(ticket.getRequester() != null ? ticket.getRequester().getId() : null)
+                .requesterId(reqId)
                 .requesterName(reqName)
                 .requesterEmail(reqEmail)
                 .technicianId(techId)

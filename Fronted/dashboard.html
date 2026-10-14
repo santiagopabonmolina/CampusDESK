@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -12,6 +12,28 @@
 </head>
 <body>
     <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+
+    <!-- Mobile Topbar -->
+    <div class="mobile-topbar">
+        <div class="mobile-brand">
+            <div class="brand-icon" style="width: 30px; height: 30px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <span style="font-weight: 700; font-size: 1.15rem;">CampusDESK</span>
+        </div>
+        <button class="btn-mobile-toggle" id="btn-mobile-menu" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
 
     <div class="app-container">
         <!-- Sidebar -->
@@ -78,19 +100,46 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title">
-                    <h2>Dashboard</h2>
+                    <h2>Métricas y Rendimiento</h2>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="location.reload()" style="padding: 8px; border-radius: 50%;">
+                    <button class="btn btn-secondary" onclick="loadDashboard()" style="padding: 9px; border-radius: 50%;" title="Actualizar métricas" aria-label="Actualizar métricas">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                     </button>
                 </div>
             </header>
 
             <div class="content-scroll">
-                <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                    <span class="spinner" style="width: 40px; height: 40px;"></span>
-                    <p class="mt-2 text-muted">Cargando métricas...</p>
+                <!-- Skeleton Loader para Estadísticas -->
+                <div id="stats-skeleton" class="stats-grid">
+                    <div class="glass-card stat-card">
+                        <div class="skeleton skeleton-circle"></div>
+                        <div style="flex: 1;">
+                            <div class="skeleton skeleton-title" style="width: 45px; height: 32px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80px;"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="skeleton skeleton-circle"></div>
+                        <div style="flex: 1;">
+                            <div class="skeleton skeleton-title" style="width: 45px; height: 32px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80px;"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="skeleton skeleton-circle"></div>
+                        <div style="flex: 1;">
+                            <div class="skeleton skeleton-title" style="width: 45px; height: 32px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80px;"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="skeleton skeleton-circle"></div>
+                        <div style="flex: 1;">
+                            <div class="skeleton skeleton-title" style="width: 45px; height: 32px;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80px;"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="dashboard-content" class="hidden">
@@ -136,10 +185,13 @@
                         </div>
                     </div>
 
-                    <div class="glass-card">
-                        <h3 class="mb-4">Distribución por Estado</h3>
+                    <div class="glass-card mt-3">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                            <h3>Distribución por Estado</h3>
+                            <span class="text-muted" style="font-size:0.82rem;">Visualización en tiempo real</span>
+                        </div>
                         <div class="chart-container" id="states-chart">
-                            <!-- JS injected bars -->
+                            <!-- Inyectado dinámicamente con animación -->
                         </div>
                     </div>
                 </div>
@@ -150,29 +202,28 @@
     <script type="module">
         import { API } from './js/api.js';
         import { hasRole, CONFIG } from './js/auth.js';
-        import { showToast, setupModal } from './js/ui.js';
+        import { showToast, setupModal, animateCounter } from './js/ui.js';
 
         setupModal();
 
-        // Show admin menu if admin
         if (hasRole(CONFIG.ROLES.ADMIN)) {
             document.getElementById('admin-menu').classList.remove('hidden');
         }
 
         async function loadDashboard() {
+            const skeleton = document.getElementById('stats-skeleton');
+            const content = document.getElementById('dashboard-content');
+
+            skeleton.classList.remove('hidden');
+            content.classList.add('hidden');
+
             try {
-                // If ADMIN, use the real summary endpoint
-                // If USER/TECH, the backend /reports/summary might not exist or be forbidden (assuming standard RBAC)
-                // BUT wait, looking at DashboardController, there's no specific role restriction, but let's see what it returns.
-                // It just returns global counts. If a user shouldn't see global counts, we'd have to filter.
-                // For simplicity, since the prompt says "El ADMIN ve estadísticas generales; los demás roles solo las de sus tickets permitidos",
-                // we'll fetch the tickets manually for non-admins to calculate their own stats.
-                
                 let stats = { totalTickets: 0, opened: 0, assigned: 0, inProcess: 0, resolved: 0, closed: 0 };
 
                 if (hasRole(CONFIG.ROLES.ADMIN)) {
                     stats = await API.getSummary();
                 } else {
+                    // Para usuarios regulares o técnicos, consulta sus tickets autorizados
                     const tickets = await API.getTickets();
                     stats.totalTickets = tickets.length;
                     tickets.forEach(t => {
@@ -184,17 +235,18 @@
                     });
                 }
 
-                // Update UI
-                document.getElementById('stat-total').textContent = stats.totalTickets;
-                document.getElementById('stat-opened').textContent = stats.opened;
-                document.getElementById('stat-inprocess').textContent = stats.inProcess + stats.assigned; // Group for simplicity
-                document.getElementById('stat-resolved').textContent = stats.resolved;
+                skeleton.classList.add('hidden');
+                content.classList.remove('hidden');
+
+                // Animar contadores
+                animateCounter(document.getElementById('stat-total'), stats.totalTickets, 800);
+                animateCounter(document.getElementById('stat-opened'), stats.opened, 800);
+                animateCounter(document.getElementById('stat-inprocess'), (stats.inProcess || 0) + (stats.assigned || 0), 800);
+                animateCounter(document.getElementById('stat-resolved'), stats.resolved, 800);
 
                 renderChart(stats);
-
-                document.getElementById('loading-indicator').classList.add('hidden');
-                document.getElementById('dashboard-content').classList.remove('hidden');
             } catch (error) {
+                skeleton.classList.add('hidden');
                 showToast(error.message, 'error');
             }
         }
@@ -212,17 +264,27 @@
             ];
 
             chart.innerHTML = bars.map(b => {
-                const height = (b.value / max) * 200; // max 200px height
+                const height = Math.max((b.value / max) * 190, 6);
                 return `
                     <div class="bar-wrap">
-                        <span style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;">${b.value}</span>
-                        <div class="bar" style="height: ${height}px; background: ${b.color};"></div>
+                        <span class="bar-value">${b.value}</span>
+                        <div class="bar" style="height: 0px; background: ${b.color};" data-height="${height}px"></div>
                         <span class="bar-label">${b.label}</span>
                     </div>
                 `;
             }).join('');
+
+            // Disparar crecimiento fluido de las barras
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    chart.querySelectorAll('.bar').forEach(el => {
+                        el.style.height = el.getAttribute('data-height');
+                    });
+                }, 50);
+            });
         }
 
+        window.loadDashboard = loadDashboard;
         document.addEventListener('DOMContentLoaded', loadDashboard);
     </script>
 </body>

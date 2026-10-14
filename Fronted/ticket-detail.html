@@ -4,13 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Detalle Ticket</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
+    <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+
+    <!-- Mobile Topbar -->
+    <div class="mobile-topbar">
+        <div class="mobile-brand">
+            <div class="brand-icon" style="width: 30px; height: 30px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+            </div>
+            <span style="font-weight: 700; font-size: 1.15rem;">CampusDESK</span>
+        </div>
+        <button class="btn-mobile-toggle" id="btn-mobile-menu" aria-label="Abrir menú de navegación" aria-expanded="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -40,7 +64,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="tickets.html" class="nav-item">
+                        <a href="tickets.html" class="nav-item active">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                             Tickets
                         </a>
@@ -76,7 +100,7 @@
         <main class="main-content">
             <header class="top-header">
                 <div class="header-title" style="display: flex; align-items: center; gap: 1rem;">
-                    <a href="tickets.html" class="btn btn-secondary" style="padding: 8px; border-radius: 50%;">
+                    <a href="tickets.html" class="btn btn-secondary" style="padding: 8px; border-radius: 50%; width: 38px; height: 38px;" title="Volver a tickets" aria-label="Volver a lista de tickets">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </a>
                     <h2 id="header-ticket-id">Cargando...</h2>
@@ -84,102 +108,120 @@
             </header>
 
             <div class="content-scroll">
-                <div id="loading-indicator" class="text-center" style="padding: 3rem;">
-                    <span class="spinner" style="width: 40px; height: 40px;"></span>
+                <!-- Skeleton Loader para Detalle -->
+                <div id="loading-indicator" class="glass-card" style="padding: 2rem;">
+                    <div class="skeleton skeleton-title" style="width: 40%; height: 28px; margin-bottom: 1.5rem;"></div>
+                    <div class="skeleton skeleton-text" style="width: 100%; height: 20px;"></div>
+                    <div class="skeleton skeleton-text" style="width: 90%; height: 20px;"></div>
+                    <div class="skeleton skeleton-text" style="width: 75%; height: 20px;"></div>
                 </div>
 
                 <div id="ticket-content" class="hidden">
-                    <!-- Stepper -->
-                    <div class="glass-card mb-4">
+                    <!-- Stepper Animado del Ciclo de Vida -->
+                    <div class="glass-card mb-4 stepper-container">
                         <div class="stepper" id="ticket-stepper">
+                            <div class="stepper-progress-bg"></div>
+                            <div class="stepper-progress-bar" id="stepper-progress-fill" style="width: 0%;"></div>
+
                             <div class="step" id="step-OPENED">
-                                <div class="step-marker">1</div>
+                                <div class="step-marker" id="marker-OPENED">1</div>
                                 <span class="step-label">ABIERTA</span>
                             </div>
                             <div class="step" id="step-ASSIGNED">
-                                <div class="step-marker">2</div>
+                                <div class="step-marker" id="marker-ASSIGNED">2</div>
                                 <span class="step-label">ASIGNADA</span>
                             </div>
                             <div class="step" id="step-IN_PROCESS">
-                                <div class="step-marker">3</div>
+                                <div class="step-marker" id="marker-IN_PROCESS">3</div>
                                 <span class="step-label">EN PROCESO</span>
                             </div>
                             <div class="step" id="step-RESOLVED">
-                                <div class="step-marker">4</div>
+                                <div class="step-marker" id="marker-RESOLVED">4</div>
                                 <span class="step-label">RESUELTA</span>
                             </div>
                             <div class="step" id="step-CLOSED">
-                                <div class="step-marker">5</div>
+                                <div class="step-marker" id="marker-CLOSED">5</div>
                                 <span class="step-label">CERRADA</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="detail-grid">
-                        <!-- Main Info -->
+                        <!-- Main Info & Comments -->
                         <div class="glass-card">
                             <div class="ticket-header">
-                                <h1 id="ticket-title" style="margin-bottom: 0.5rem;">-</h1>
+                                <h1 id="ticket-title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">-</h1>
                                 <div class="ticket-meta">
                                     <span id="ticket-priority-badge"></span>
-                                    <span id="ticket-category-badge" class="badge" style="background: rgba(255,255,255,0.1);"></span>
+                                    <span id="ticket-category-badge" class="badge" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border);"></span>
+                                    <span id="ticket-state-badge"></span>
                                 </div>
                             </div>
                             
                             <div class="info-group">
                                 <div class="info-label">Descripción del problema</div>
-                                <div class="info-value text-muted" id="ticket-desc" style="white-space: pre-wrap; line-height: 1.6;">-</div>
+                                <div class="info-value text-muted" id="ticket-desc" style="white-space: pre-wrap; line-height: 1.65; background: rgba(0,0,0,0.25); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">-</div>
                             </div>
 
                             <div class="actions-footer" id="actions-container">
-                                <!-- Botones inyectados dinámicamente según estado y rol -->
+                                <!-- Botones inyectados dinámicamente según rol y estado -->
                             </div>
 
+                            <!-- Sección de Comentarios -->
                             <div class="comments-section">
-                                <h3>Comentarios</h3>
-                                <div class="comment-list mt-3" id="comments-container">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.25rem;">
+                                    <h3>Comentarios y Notas</h3>
+                                    <span id="comments-count" class="text-muted" style="font-size:0.8rem;">0 comentarios</span>
+                                </div>
+
+                                <div class="comment-list" id="comments-container">
                                     <!-- Comentarios inyectados aquí -->
                                 </div>
                                 
                                 <form id="form-comment" class="comment-form-container mt-4">
-                                    <textarea id="comment-text" class="form-control" rows="3" placeholder="Escribe un comentario..." required></textarea>
-                                    <button type="submit" class="btn btn-primary" id="btn-submit-comment">Enviar</button>
+                                    <div style="width: 100%;">
+                                        <label class="form-label" for="comment-text">Agregar comentario</label>
+                                        <textarea id="comment-text" class="form-control" rows="3" placeholder="Escribe una respuesta o actualización de estado..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="btn-submit-comment" style="align-self: flex-end;">
+                                        Enviar Comentario
+                                    </button>
                                 </form>
                             </div>
                         </div>
 
-                        <!-- Sidebar Info -->
+                        <!-- Sidebar Info & Historial Timeline -->
                         <div>
                             <div class="glass-card mb-4">
-                                <h3>Detalles</h3>
-                                <div class="mt-4">
+                                <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem;">Ficha Técnica</h3>
+                                <div>
                                     <div class="info-group">
                                         <div class="info-label">Solicitante</div>
                                         <div class="info-value" id="ticket-requester">-</div>
-                                        <div class="text-muted" style="font-size: 0.8rem;" id="ticket-requester-email">-</div>
+                                        <div class="text-muted" style="font-size: 0.8rem; margin-top: 2px;" id="ticket-requester-email">-</div>
                                     </div>
                                     <div class="info-group">
                                         <div class="info-label">Técnico Asignado</div>
                                         <div class="info-value" id="ticket-technician">Sin asignar</div>
                                     </div>
                                     <div class="info-group">
-                                        <div class="info-label">Fecha Creación</div>
+                                        <div class="info-label">Fecha de Creación</div>
                                         <div class="info-value" id="ticket-created">-</div>
                                     </div>
                                     <div class="info-group hidden" id="group-resolved">
-                                        <div class="info-label">Fecha Resolución</div>
+                                        <div class="info-label">Fecha de Resolución</div>
                                         <div class="info-value" id="ticket-resolved">-</div>
                                     </div>
                                     <div class="info-group hidden" id="group-closed">
-                                        <div class="info-label">Fecha Cierre</div>
+                                        <div class="info-label">Fecha de Cierre</div>
                                         <div class="info-value" id="ticket-closed">-</div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="glass-card">
-                                <h3>Historial</h3>
-                                <div class="timeline mt-4" id="timeline-container">
+                                <h3 style="font-size: 1.15rem; margin-bottom: 1.25rem;">Historial de Cambios</h3>
+                                <div class="timeline" id="timeline-container">
                                     <!-- Historial inyectado aquí -->
                                 </div>
                             </div>
@@ -190,24 +232,24 @@
         </main>
     </div>
 
-    <!-- Modales de Acción -->
-    <div class="modal-overlay" id="modal-assign">
+    <!-- Modal de Asignación de Técnico (Solo Admin) -->
+    <div class="modal-overlay" id="modal-assign" role="dialog" aria-modal="true" aria-labelledby="modal-assign-title">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Asignar Técnico</h3>
-                <button class="btn-close" id="btn-close-assign">✕</button>
+                <h3 class="modal-title" id="modal-assign-title">Asignar Técnico al Ticket</h3>
+                <button class="btn-close" id="btn-close-assign" aria-label="Cerrar modal">✕</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="form-label">Seleccione un técnico</label>
+                    <label class="form-label" for="select-technician">Seleccione un técnico del equipo</label>
                     <select id="select-technician" class="form-control">
-                        <option value="">Cargando...</option>
+                        <option value="">Cargando técnicos disponibles...</option>
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="btn-cancel-assign">Cancelar</button>
-                <button class="btn btn-primary" id="btn-confirm-assign">Asignar</button>
+                <button class="btn btn-primary" id="btn-confirm-assign">Confirmar Asignación</button>
             </div>
         </div>
     </div>
@@ -215,7 +257,16 @@
     <script type="module">
         import { API } from './js/api.js';
         import { hasRole, CONFIG, getCurrentUser } from './js/auth.js';
-        import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, escapeHTML } from './js/ui.js';
+        import { 
+            showToast, 
+            setupModal, 
+            formatDate, 
+            getStateBadge, 
+            getPriorityBadge, 
+            getCategoryIcon, 
+            escapeHTML,
+            setButtonLoading 
+        } from './js/ui.js';
 
         setupModal();
 
@@ -243,7 +294,7 @@
                 document.getElementById('ticket-content').classList.remove('hidden');
             } catch (error) {
                 showToast(error.message, 'error');
-                setTimeout(() => window.location.href = 'tickets.html', 2000);
+                setTimeout(() => window.location.href = 'tickets.html', 1800);
             }
         }
 
@@ -253,8 +304,17 @@
             document.getElementById('ticket-desc').textContent = t.description;
             
             document.getElementById('ticket-priority-badge').innerHTML = getPriorityBadge(t.priority);
-            const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
-            document.getElementById('ticket-category-badge').textContent = catLabels[t.category] || t.category;
+            document.getElementById('ticket-state-badge').innerHTML = getStateBadge(t.state);
+            
+            const catLabels = { 
+                'HARDWARE':'Hardware', 
+                'SOFTWARE':'Software', 
+                'NETWORK':'Redes', 
+                'ACCESS':'Accesos', 
+                'OTHER':'Otros' 
+            };
+            const catIcon = getCategoryIcon(t.category);
+            document.getElementById('ticket-category-badge').innerHTML = `${catIcon} <span>${catLabels[t.category] || t.category}</span>`;
 
             document.getElementById('ticket-requester').textContent = t.requesterName || 'N/A';
             document.getElementById('ticket-requester-email').textContent = t.requesterEmail || '';
@@ -278,11 +338,27 @@
             const states = ['OPENED', 'ASSIGNED', 'IN_PROCESS', 'RESOLVED', 'CLOSED'];
             const currentIndex = states.indexOf(currentState);
             
+            const fillBar = document.getElementById('stepper-progress-fill');
+            if (fillBar && currentIndex >= 0) {
+                const percentage = (currentIndex / (states.length - 1)) * 100;
+                fillBar.style.width = `calc(${percentage}% - ${percentage > 0 ? '70px' : '0px'})`;
+            }
+
             states.forEach((s, idx) => {
                 const el = document.getElementById(`step-${s}`);
+                const marker = document.getElementById(`marker-${s}`);
+                if (!el || !marker) return;
+
                 el.className = 'step';
-                if (idx < currentIndex) el.classList.add('completed');
-                if (idx === currentIndex) el.classList.add('active');
+                if (idx < currentIndex) {
+                    el.classList.add('completed');
+                    marker.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                } else if (idx === currentIndex) {
+                    el.classList.add('active');
+                    marker.textContent = idx + 1;
+                } else {
+                    marker.textContent = idx + 1;
+                }
             });
         }
 
@@ -295,10 +371,10 @@
             const isTech = hasRole(CONFIG.ROLES.TECHNICIAN);
             const isUser = hasRole(CONFIG.ROLES.USER);
             
-            const isMyTicket = t.requesterId === user.id;
-            const isMyAssigned = t.technicianId === user.id;
+            const isMyTicket = user && t.requesterId === user.id;
+            const isMyAssigned = user && t.technicianId === user.id;
 
-            // Bloquear comentarios si está cerrado
+            // Bloquear comentarios si el ticket está CERRADO
             if (t.state === 'CLOSED') {
                 commentForm.classList.add('hidden');
             } else {
@@ -309,7 +385,10 @@
             if (isAdmin && t.state !== 'CLOSED' && t.state !== 'RESOLVED') {
                 const btnAsignar = document.createElement('button');
                 btnAsignar.className = 'btn btn-secondary';
-                btnAsignar.innerHTML = t.technicianId ? 'Reasignar Técnico' : 'Asignar Técnico';
+                btnAsignar.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
+                    <span>${t.technicianId ? 'Reasignar Técnico' : 'Asignar Técnico'}</span>
+                `;
                 btnAsignar.onclick = openAssignModal;
                 container.appendChild(btnAsignar);
             }
@@ -319,26 +398,35 @@
                 if (t.state === 'ASSIGNED') {
                     const btn = document.createElement('button');
                     btn.className = 'btn btn-primary';
-                    btn.textContent = 'Iniciar Trabajo (En Proceso)';
+                    btn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Iniciar Trabajo (En Proceso)</span>
+                    `;
                     btn.onclick = () => changeStatus('IN_PROCESS');
                     container.appendChild(btn);
                 }
                 if (t.state === 'IN_PROCESS') {
                     const btn = document.createElement('button');
                     btn.className = 'btn btn-primary';
-                    btn.style.background = 'var(--color-resolved)';
-                    btn.textContent = 'Marcar como Resuelta';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    btn.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <span>Marcar como Resuelta</span>
+                    `;
                     btn.onclick = () => changeStatus('RESOLVED');
                     container.appendChild(btn);
                 }
             }
 
-            // USER: Confirmar cierre
+            // USER: Confirmar cierre si está resuelta
             if (isUser && isMyTicket && t.state === 'RESOLVED') {
                 const btn = document.createElement('button');
                 btn.className = 'btn btn-primary';
-                btn.style.background = 'var(--color-closed)';
-                btn.textContent = 'Confirmar Cierre';
+                btn.style.background = 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+                btn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <span>Confirmar Cierre Definitivo</span>
+                `;
                 btn.onclick = () => changeStatus('CLOSED');
                 container.appendChild(btn);
             }
@@ -347,14 +435,14 @@
         async function changeStatus(newStatus) {
             try {
                 await API.changeStatus(ticketId, newStatus);
-                showToast('Estado actualizado', 'success');
+                showToast('Estado del ticket actualizado', 'success');
                 loadTicketData();
             } catch (error) {
                 showToast(error.message, 'error');
             }
         }
 
-        // --- Asignación ---
+        // --- Asignación Modal ---
         const modalAssign = document.getElementById('modal-assign');
         document.getElementById('btn-close-assign').onclick = () => modalAssign.classList.remove('active');
         document.getElementById('btn-cancel-assign').onclick = () => modalAssign.classList.remove('active');
@@ -362,27 +450,27 @@
         async function openAssignModal() {
             modalAssign.classList.add('active');
             const select = document.getElementById('select-technician');
-            select.innerHTML = '<option>Cargando...</option>';
+            select.innerHTML = '<option>Cargando técnicos disponibles...</option>';
             try {
                 const techs = await API.getTechnicians();
-                if (techs.length === 0) {
-                    select.innerHTML = '<option value="">No hay técnicos disponibles</option>';
+                if (!techs || techs.length === 0) {
+                    select.innerHTML = '<option value="">No hay técnicos registrados</option>';
                     return;
                 }
                 select.innerHTML = techs.map(t => 
                     `<option value="${t.id}">${t.firstName} ${t.lastName} (${t.email})</option>`
                 ).join('');
             } catch (error) {
-                select.innerHTML = '<option value="">Error al cargar técnicos</option>';
+                select.innerHTML = '<option value="">Error al cargar la lista</option>';
             }
         }
 
         document.getElementById('btn-confirm-assign').onclick = async () => {
             const techId = document.getElementById('select-technician').value;
-            if (!techId) return showToast('Seleccione un técnico', 'error');
+            if (!techId) return showToast('Seleccione un técnico válido', 'error');
             try {
                 await API.assignTechnician(ticketId, techId);
-                showToast('Técnico asignado', 'success');
+                showToast('Técnico asignado exitosamente', 'success');
                 modalAssign.classList.remove('active');
                 loadTicketData();
             } catch (error) {
@@ -390,24 +478,42 @@
             }
         };
 
-        // --- Comentarios ---
+        // --- Comentarios Tipo Burbujas con Avatar por Rol ---
         async function loadComments() {
             try {
                 const comments = await API.getComments(ticketId);
                 const container = document.getElementById('comments-container');
-                if (comments.length === 0) {
-                    container.innerHTML = '<p class="text-muted" style="text-align:center;">No hay comentarios aún.</p>';
+                const countBadge = document.getElementById('comments-count');
+
+                if (!comments || comments.length === 0) {
+                    container.innerHTML = '<p class="text-muted" style="text-align:center; padding: 1.5rem;">No hay notas ni comentarios aún.</p>';
+                    if (countBadge) countBadge.textContent = '0 comentarios';
                     return;
                 }
+
+                if (countBadge) countBadge.textContent = `${comments.length} comentario${comments.length !== 1 ? 's' : ''}`;
                 
                 container.innerHTML = comments.map(c => {
-                    const initial = "U"; // Lo ideal sería tener el nombre en el DTO
+                    const authorName = c.authorName || (c.authorId ? `Usuario #${c.authorId}` : 'Usuario');
+                    const initial = authorName.charAt(0).toUpperCase();
+
+                    // Asignación de rol visual
+                    let roleClass = 'role-user';
+                    let roleTag = 'Usuario';
+                    if (currentTicket && currentTicket.technicianId && c.authorId === currentTicket.technicianId) {
+                        roleClass = 'role-tech';
+                        roleTag = 'Técnico Asignado';
+                    }
+
                     return `
                     <div class="comment">
-                        <div class="comment-avatar">${initial}</div>
+                        <div class="comment-avatar ${roleClass}">${escapeHTML(initial)}</div>
                         <div class="comment-content">
                             <div class="comment-header">
-                                <span class="comment-author">Usuario ID: ${c.authorId}</span>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="comment-author">${escapeHTML(authorName)}</span>
+                                    <span class="badge" style="font-size:0.68rem; padding: 2px 8px; background: rgba(255,255,255,0.06);">${roleTag}</span>
+                                </div>
                                 <span class="comment-date">${formatDate(c.createdAt)}</span>
                             </div>
                             <div class="comment-text">${escapeHTML(c.content)}</div>
@@ -424,47 +530,49 @@
             const input = document.getElementById('comment-text');
             const btn = document.getElementById('btn-submit-comment');
             try {
-                btn.disabled = true;
+                setButtonLoading(btn, true, 'Enviar Comentario');
                 await API.addComment({
                     content: input.value,
                     ticketId: parseInt(ticketId),
-                    authorId: user.id
+                    authorId: user ? user.id : null
                 });
                 input.value = '';
                 loadComments();
-                showToast('Comentario añadido', 'success');
+                showToast('Comentario registrado con éxito', 'success');
             } catch (error) {
                 showToast(error.message, 'error');
             } finally {
-                btn.disabled = false;
+                setButtonLoading(btn, false, 'Enviar Comentario');
             }
         });
 
-        // --- Historial ---
+        // --- Historial en Línea de Tiempo Vertical ---
         async function loadHistory() {
             try {
                 const history = await API.getHistory(ticketId);
                 const container = document.getElementById('timeline-container');
                 
                 if (!history || history.length === 0) {
-                    container.innerHTML = '<p class="text-muted">Sin historial</p>';
+                    container.innerHTML = '<p class="text-muted">Sin eventos registrados.</p>';
                     return;
                 }
 
                 container.innerHTML = history.map(h => {
                     let actionText = '';
                     if (!h.previousStatus) {
-                        actionText = `Ticket Creado en estado ${getStateBadge(h.newStatus)}`;
+                        actionText = `Ticket creado en estado ${getStateBadge(h.newStatus)}`;
                     } else if (h.newStatus === 'ASSIGNED') {
-                        actionText = `Técnico Asignado. Estado pasó a ${getStateBadge(h.newStatus)}`;
+                        actionText = `Técnico asignado. Estado cambió a ${getStateBadge(h.newStatus)}`;
                     } else {
-                        actionText = `Estado cambiado a ${getStateBadge(h.newStatus)}`;
+                        actionText = `Estado actualizado: de ${getStateBadge(h.previousStatus)} a ${getStateBadge(h.newStatus)}`;
                     }
 
                     return `
                     <div class="timeline-item">
-                        <div class="timeline-date">${formatDate(h.changedAt)} - Por: ${escapeHTML(h.changedByEmail)}</div>
-                        <div class="timeline-content">${actionText}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">${formatDate(h.changedAt)} &bull; ${escapeHTML(h.changedByEmail)}</div>
+                            <div style="margin-top: 4px;">${actionText}</div>
+                        </div>
                     </div>`;
                 }).join('');
             } catch (error) {

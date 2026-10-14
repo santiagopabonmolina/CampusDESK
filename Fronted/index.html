@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusDESK - Acceso</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -18,8 +18,8 @@
         <div class="glass-card auth-container">
             <div class="auth-header">
                 <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
-                    <div class="brand-icon" style="width: 48px; height: 48px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="brand-icon" style="width: 50px; height: 50px;">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                             <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                             <line x1="12" y1="22.08" x2="12" y2="12"></line>
@@ -27,24 +27,28 @@
                     </div>
                 </div>
                 <h1>CampusDESK</h1>
-                <p class="text-muted">Gestión de incidencias tecnológicas</p>
+                <p class="text-muted" id="auth-subtitle">Gestión de incidencias tecnológicas</p>
             </div>
 
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-login">Iniciar Sesión</button>
-                <button class="auth-tab" id="tab-register">Registrarse</button>
+            <!-- Tabs de Navegación -->
+            <div class="auth-tabs" id="auth-tabs-container" role="tablist">
+                <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true">Iniciar Sesión</button>
+                <button class="auth-tab" id="tab-register" role="tab" aria-selected="false">Registrarse</button>
             </div>
 
-            <!-- Login Form -->
+            <!-- Formulario de Inicio de Sesión -->
             <form id="login-form">
                 <div class="form-group">
                     <label class="form-label" for="login-email">Correo Electrónico</label>
-                    <input type="email" id="login-email" class="form-control" placeholder="nombre@campusdesk.com" required>
+                    <input type="email" id="login-email" class="form-control" placeholder="nombre@campusdesk.com" required autocomplete="email">
                     <span class="form-error" id="login-email-error"></span>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="login-password">Contraseña</label>
-                    <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                    <div class="password-field-wrapper">
+                        <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                        <button type="button" class="btn-password-toggle" id="btn-toggle-login-pass"></button>
+                    </div>
                     <span class="form-error" id="login-password-error"></span>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-login">
@@ -52,73 +56,375 @@
                 </button>
             </form>
 
-            <!-- Register Form -->
+            <!-- Formulario de Registro -->
             <form id="register-form" class="hidden">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label class="form-label" for="reg-firstname">Nombre</label>
-                        <input type="text" id="reg-firstname" class="form-control" placeholder="Juan" required>
+                        <input type="text" id="reg-firstname" class="form-control" placeholder="Juan" required autocomplete="given-name">
                         <span class="form-error" id="reg-firstname-error"></span>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="reg-lastname">Apellido</label>
-                        <input type="text" id="reg-lastname" class="form-control" placeholder="Pérez" required>
+                        <input type="text" id="reg-lastname" class="form-control" placeholder="Pérez" required autocomplete="family-name">
                         <span class="form-error" id="reg-lastname-error"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="reg-email">Correo Electrónico</label>
-                    <input type="email" id="reg-email" class="form-control" placeholder="nombre@campusdesk.com" required>
+                    <input type="email" id="reg-email" class="form-control" placeholder="nombre@campusdesk.com" required autocomplete="email">
                     <span class="form-error" id="reg-email-error"></span>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="reg-password">Contraseña</label>
-                    <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required minlength="6">
+                    <div class="password-field-wrapper">
+                        <input type="password" id="reg-password" class="form-control" placeholder="••••••••" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="btn-password-toggle" id="btn-toggle-reg-pass"></button>
+                    </div>
+                    
+                    <!-- Indicador visual de fortaleza de contraseña -->
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div class="strength-segment" id="str-seg-1"></div>
+                            <div class="strength-segment" id="str-seg-2"></div>
+                            <div class="strength-segment" id="str-seg-3"></div>
+                            <div class="strength-segment" id="str-seg-4"></div>
+                        </div>
+                        <span class="strength-text" id="str-text">Mínimo 6 caracteres</span>
+                    </div>
                     <span class="form-error" id="reg-password-error"></span>
-                    <small class="text-muted" style="display:block; margin-top:4px; font-size:0.75rem;">Mínimo 6 caracteres</small>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-register">
                     Crear Cuenta
                 </button>
             </form>
+
+            <!-- Paso de Verificación de Correo (Tarea 2) -->
+            <div id="verify-step" class="hidden">
+                <div style="text-align: center; margin-bottom: 1.25rem;">
+                    <h2 style="font-size: 1.35rem; margin-bottom: 0.35rem;">Verifica tu correo</h2>
+                    <p class="text-muted" style="font-size: 0.85rem; line-height: 1.5;">
+                        Ingresa el código numérico de 6 dígitos enviado a:<br>
+                        <strong id="verify-email-display" style="color: var(--text-primary); word-break: break-all;">correo@campusdesk.com</strong>
+                    </p>
+                </div>
+
+                <div class="code-inputs" id="code-inputs" role="group" aria-label="Código de verificación">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="0" autocomplete="off" aria-label="Dígito 1">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="1" autocomplete="off" aria-label="Dígito 2">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="2" autocomplete="off" aria-label="Dígito 3">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="3" autocomplete="off" aria-label="Dígito 4">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="4" autocomplete="off" aria-label="Dígito 5">
+                    <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*" class="code-box" data-index="5" autocomplete="off" aria-label="Dígito 6">
+                </div>
+
+                <span class="form-error" id="verify-error" style="text-align: center; margin-bottom: 0.5rem;"></span>
+
+                <div class="code-timer-container">
+                    El código expira en <span class="code-timer-badge" id="code-timer">10:00</span>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="btn-verify-submit" style="width: 100%; margin-top: 1.25rem;">
+                    Verificar Cuenta
+                </button>
+
+                <button type="button" class="btn btn-secondary" id="btn-resend-code" style="width: 100%; margin-top: 0.75rem;" disabled>
+                    Reenviar código (60s)
+                </button>
+
+                <a href="#" id="link-back-login" style="display:block; text-align:center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--text-secondary); text-decoration: none;">
+                    ← Volver a Iniciar Sesión
+                </a>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { API } from './js/api.js';
         import { setSession, isLoggedIn } from './js/auth.js';
-        import { showToast, setButtonLoading } from './js/ui.js';
+        import { showToast, setButtonLoading, setupPasswordToggle, setupPasswordStrength } from './js/ui.js';
 
-        // Redirect if already logged in
+        // Redirigir al Dashboard si ya tiene sesión activa
         if (isLoggedIn()) {
             window.location.href = 'dashboard.html';
         }
 
-        // Tabs logic
+        // Setup Password Toggles
+        setupPasswordToggle(
+            document.getElementById('login-password'),
+            document.getElementById('btn-toggle-login-pass')
+        );
+        setupPasswordToggle(
+            document.getElementById('reg-password'),
+            document.getElementById('btn-toggle-reg-pass')
+        );
+
+        // Setup Password Strength Meter
+        setupPasswordStrength(
+            document.getElementById('reg-password'),
+            [
+                document.getElementById('str-seg-1'),
+                document.getElementById('str-seg-2'),
+                document.getElementById('str-seg-3'),
+                document.getElementById('str-seg-4')
+            ],
+            document.getElementById('str-text')
+        );
+
+        // DOM elements
+        const tabsContainer = document.getElementById('auth-tabs-container');
         const tabLogin = document.getElementById('tab-login');
         const tabRegister = document.getElementById('tab-register');
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
+        const verifyStep = document.getElementById('verify-step');
+        const verifyEmailDisplay = document.getElementById('verify-email-display');
+        const verifyError = document.getElementById('verify-error');
+        const codeTimerEl = document.getElementById('code-timer');
+        const btnVerify = document.getElementById('btn-verify-submit');
+        const btnResend = document.getElementById('btn-resend-code');
+        const linkBackLogin = document.getElementById('link-back-login');
+        const codeBoxes = Array.from(document.querySelectorAll('.code-box'));
 
+        let currentVerifyEmail = '';
+        let expirationInterval = null;
+        let resendInterval = null;
+        let expirationRemaining = 600;
+        let resendRemaining = 60;
+
+        // Switch to Login Tab
         tabLogin.addEventListener('click', () => {
             tabLogin.classList.add('active');
+            tabLogin.setAttribute('aria-selected', 'true');
             tabRegister.classList.remove('active');
+            tabRegister.setAttribute('aria-selected', 'false');
             loginForm.classList.remove('hidden');
             registerForm.classList.add('hidden');
+            verifyStep.classList.add('hidden');
+            tabsContainer.classList.remove('hidden');
+            document.getElementById('login-email').focus();
         });
 
+        // Switch to Register Tab
         tabRegister.addEventListener('click', () => {
             tabRegister.classList.add('active');
+            tabRegister.setAttribute('aria-selected', 'true');
             tabLogin.classList.remove('active');
+            tabLogin.setAttribute('aria-selected', 'false');
             registerForm.classList.remove('hidden');
             loginForm.classList.add('hidden');
+            verifyStep.classList.add('hidden');
+            tabsContainer.classList.remove('hidden');
+            document.getElementById('reg-firstname').focus();
+        });
+
+        // Show Verification Step
+        function showVerificationStep(email) {
+            currentVerifyEmail = email;
+            verifyEmailDisplay.textContent = email;
+            verifyError.textContent = '';
+
+            tabsContainer.classList.add('hidden');
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            verifyStep.classList.remove('hidden');
+
+            codeBoxes.forEach(box => {
+                box.value = '';
+                box.disabled = false;
+            });
+            setTimeout(() => codeBoxes[0].focus(), 100);
+
+            startExpirationTimer(600);
+            startResendTimer(60);
+        }
+
+        // Return to login
+        function returnToLogin(prefillEmail = '') {
+            clearInterval(expirationInterval);
+            clearInterval(resendInterval);
+            verifyStep.classList.add('hidden');
+            tabsContainer.classList.remove('hidden');
+            tabLogin.click();
+            if (prefillEmail) {
+                document.getElementById('login-email').value = prefillEmail;
+                document.getElementById('login-password').focus();
+            }
+        }
+
+        linkBackLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            returnToLogin(currentVerifyEmail);
+        });
+
+        // Expiration Timer
+        function startExpirationTimer(durationSeconds) {
+            clearInterval(expirationInterval);
+            expirationRemaining = durationSeconds;
+
+            function updateDisplay() {
+                const m = Math.floor(expirationRemaining / 60);
+                const s = expirationRemaining % 60;
+                codeTimerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                
+                if (expirationRemaining <= 0) {
+                    clearInterval(expirationInterval);
+                    codeTimerEl.textContent = 'Expirado';
+                    verifyError.textContent = 'El código ha expirado. Por favor solicita uno nuevo con "Reenviar código".';
+                    codeBoxes.forEach(b => b.disabled = true);
+                }
+                expirationRemaining--;
+            }
+
+            updateDisplay();
+            expirationInterval = setInterval(updateDisplay, 1000);
+        }
+
+        // Resend Cooldown Timer
+        function startResendTimer(durationSeconds) {
+            clearInterval(resendInterval);
+            resendRemaining = durationSeconds;
+            btnResend.disabled = true;
+
+            function updateButton() {
+                if (resendRemaining > 0) {
+                    btnResend.disabled = true;
+                    btnResend.textContent = `Reenviar código (${resendRemaining}s)`;
+                    resendRemaining--;
+                } else {
+                    clearInterval(resendInterval);
+                    btnResend.disabled = false;
+                    btnResend.textContent = 'Reenviar código';
+                }
+            }
+
+            updateButton();
+            resendInterval = setInterval(updateButton, 1000);
+        }
+
+        // 6-digit box handling
+        codeBoxes.forEach((box, idx) => {
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace') {
+                    if (box.value === '' && idx > 0) {
+                        codeBoxes[idx - 1].focus();
+                        codeBoxes[idx - 1].value = '';
+                    } else {
+                        box.value = '';
+                    }
+                    e.preventDefault();
+                    return;
+                }
+
+                if (e.key === 'ArrowLeft' && idx > 0) {
+                    codeBoxes[idx - 1].focus();
+                    return;
+                }
+
+                if (e.key === 'ArrowRight' && idx < codeBoxes.length - 1) {
+                    codeBoxes[idx + 1].focus();
+                    return;
+                }
+
+                if (!/^\d$/.test(e.key) && e.key !== 'Tab') {
+                    e.preventDefault();
+                }
+            });
+
+            box.addEventListener('input', () => {
+                const val = box.value.replace(/\D/g, '');
+                box.value = val ? val[val.length - 1] : '';
+                verifyError.textContent = '';
+
+                if (box.value && idx < codeBoxes.length - 1) {
+                    codeBoxes[idx + 1].focus();
+                }
+
+                const fullCode = codeBoxes.map(b => b.value).join('');
+                if (fullCode.length === 6) {
+                    handleVerifySubmit();
+                }
+            });
+
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = pasteData.replace(/\D/g, '').slice(0, 6);
+
+                if (!digits) return;
+
+                digits.split('').forEach((d, i) => {
+                    if (codeBoxes[i]) {
+                        codeBoxes[i].value = d;
+                    }
+                });
+
+                const nextFocus = Math.min(digits.length, codeBoxes.length - 1);
+                codeBoxes[nextFocus].focus();
+
+                if (digits.length === 6) {
+                    handleVerifySubmit();
+                }
+            });
+        });
+
+        // Submit Verification
+        async function handleVerifySubmit() {
+            const code = codeBoxes.map(b => b.value).join('');
+            if (code.length !== 6) {
+                verifyError.textContent = 'Por favor ingresa los 6 dígitos del código.';
+                return;
+            }
+
+            verifyError.textContent = '';
+            setButtonLoading(btnVerify, true, 'Verificar Cuenta');
+
+            try {
+                const res = await API.verifyEmail({ email: currentVerifyEmail, code });
+                showToast(res?.message || '¡Correo verificado con éxito!', 'success');
+                returnToLogin(currentVerifyEmail);
+            } catch (err) {
+                verifyError.textContent = err.message || 'Código de verificación incorrecto o expirado.';
+                showToast(err.message, 'error');
+                codeBoxes.forEach(b => b.value = '');
+                codeBoxes[0].focus();
+            } finally {
+                setButtonLoading(btnVerify, false, 'Verificar Cuenta');
+            }
+        }
+
+        btnVerify.addEventListener('click', handleVerifySubmit);
+
+        // Resend Code
+        btnResend.addEventListener('click', async () => {
+            if (btnResend.disabled) return;
+            verifyError.textContent = '';
+            setButtonLoading(btnResend, true, 'Reenviando...');
+
+            try {
+                const res = await API.resendCode({ email: currentVerifyEmail });
+                showToast(res?.message || 'Nuevo código enviado a tu correo.', 'success');
+                codeBoxes.forEach(b => {
+                    b.value = '';
+                    b.disabled = false;
+                });
+                codeBoxes[0].focus();
+                startExpirationTimer(600);
+                startResendTimer(60);
+            } catch (err) {
+                verifyError.textContent = err.message;
+                showToast(err.message, 'error');
+                btnResend.disabled = false;
+            } finally {
+                if (resendRemaining <= 0) {
+                    setButtonLoading(btnResend, false, 'Reenviar código');
+                }
+            }
         });
 
         // Login Submit
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Clear previous errors
             document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
             
             const email = document.getElementById('login-email').value;
@@ -132,10 +438,16 @@
                 if (data && data.token) {
                     setSession(data);
                     showToast('Bienvenido a CampusDESK', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                    setTimeout(() => window.location.href = 'dashboard.html', 800);
                 }
             } catch (error) {
-                showToast(error.message, 'error');
+                if (error.status === 403 || (error.data && error.data.verified === false) || error.message.toLowerCase().includes('verificar')) {
+                    showToast('Debes verificar tu correo antes de ingresar', 'info');
+                    showVerificationStep(email);
+                } else {
+                    document.getElementById('login-password-error').textContent = error.message;
+                    showToast(error.message, 'error');
+                }
             } finally {
                 setButtonLoading(btn, false, 'Acceder');
             }
@@ -144,11 +456,9 @@
         // Register Submit
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Clear previous errors
             document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
             
-            const fristName = document.getElementById('reg-firstname').value; // Usando fristName por el typo en backend
+            const fristName = document.getElementById('reg-firstname').value;
             const lastName = document.getElementById('reg-lastname').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
@@ -163,10 +473,11 @@
                 setButtonLoading(btn, true, 'Crear Cuenta');
                 await API.register({ fristName, lastName, email, password });
                 
-                showToast('Cuenta creada exitosamente. Ahora puedes iniciar sesión.', 'success');
+                showToast('Cuenta creada. Revisa el código de verificación en tu correo.', 'success');
                 registerForm.reset();
-                tabLogin.click(); // Switch to login tab
+                showVerificationStep(email);
             } catch (error) {
+                document.getElementById('reg-email-error').textContent = error.message;
                 showToast(error.message, 'error');
             } finally {
                 setButtonLoading(btn, false, 'Crear Cuenta');

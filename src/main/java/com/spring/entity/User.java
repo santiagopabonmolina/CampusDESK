@@ -39,6 +39,10 @@ public class User {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean verified = false;
+
     @Column(name = "register_date", updatable = false)
     private LocalDateTime registerDate;
 
@@ -56,6 +60,9 @@ public class User {
         this.registerDate = LocalDateTime.now();
         if (this.active == null) {
             this.active = true;
+        }
+        if (this.verified == null) {
+            this.verified = false;
         }
     }
 }
