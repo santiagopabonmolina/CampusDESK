@@ -39,12 +39,6 @@ public class User {
     @Column(nullable = false)
     private Boolean active = true;
 
-    @Column(name = "verification_code", length = 10)
-    private String verificationCode;
-
-    @Column(name = "verification_code_expires_at")
-    private LocalDateTime verificationCodeExpiresAt;
-
     @Column(name = "register_date", updatable = false)
     private LocalDateTime registerDate;
 
@@ -61,7 +55,7 @@ public class User {
     protected void onCreate() {
         this.registerDate = LocalDateTime.now();
         if (this.active == null) {
-            this.active = false;
+            this.active = true;
         }
     }
 }

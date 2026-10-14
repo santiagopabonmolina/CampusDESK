@@ -5,7 +5,8 @@
 -- ==============================================================================
 
 -- 1. Tabla de Roles del Sistema
-CREATE TABLE IF NOT EXISTS role (\n    id BIGSERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS role (
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
@@ -17,14 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     active BOOLEAN NOT NULL DEFAULT true,
-    verification_code VARCHAR(10),
-    verification_code_expires_at TIMESTAMP,
     register_date TIMESTAMP NOT NULL DEFAULT NOW()
 );
-
--- Migración segura si la tabla users ya existía previamente
-ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(10);
-ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires_at TIMESTAMP;
 
 -- 3. Tabla intermedia: Roles por Usuario (Muchos a Muchos)
 CREATE TABLE IF NOT EXISTS user_roles (

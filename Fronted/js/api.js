@@ -38,9 +38,6 @@ export async function fetchApi(endpoint, options = {}) {
       if (endpoint.includes('/auth/login')) {
         const msg = (data && data.message) ? data.message : 'Credenciales incorrectas: correo electrónico o contraseña inválidos';
         const err = new Error(msg);
-        if (data && data.requiresVerification) {
-          err.requiresVerification = true;
-        }
         err.data = data;
         throw err;
       }
@@ -93,8 +90,6 @@ export const API = {
   // Auth
   login: (data) => fetchApi('/auth/login', { method: 'POST', body: data }),
   register: (data) => fetchApi('/auth/register', { method: 'POST', body: data }),
-  verifyCode: (data) => fetchApi('/auth/verify-code', { method: 'POST', body: data }),
-  resendCode: (data) => fetchApi('/auth/resend-code', { method: 'POST', body: data }),
 
   // Portal Público & Landing
   getPublicStats: () => fetchApi('/public/stats'),
