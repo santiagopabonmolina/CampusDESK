@@ -74,10 +74,14 @@ export function checkAdminAccess() {
   }
 }
 
-// Initial check for all protected pages (if we're not on index.html)
-if (!window.location.pathname.endsWith('index.html') && 
-    window.location.pathname !== '/' && 
-    !window.location.pathname.endsWith('Fronted/') &&
-    !window.location.pathname.endsWith('Fronted')) {
+// Initial check for all protected pages (ignoring public pages: index.html, landing.html)
+const path = window.location.pathname.toLowerCase();
+const isPublicPage = path.endsWith('index.html') || 
+                     path.endsWith('landing.html') || 
+                     path === '/' || 
+                     path.endsWith('fronted/') || 
+                     path.endsWith('fronted');
+
+if (!isPublicPage) {
   checkAuth();
 }

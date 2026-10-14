@@ -5,8 +5,7 @@
 -- ==============================================================================
 
 -- 1. Tabla de Roles del Sistema
-CREATE TABLE IF NOT EXISTS role (
-    id BIGSERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS role (\n    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(20) NOT NULL UNIQUE
 );
 
@@ -18,8 +17,14 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     active BOOLEAN NOT NULL DEFAULT true,
+    verification_code VARCHAR(10),
+    verification_code_expires_at TIMESTAMP,
     register_date TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Migración segura si la tabla users ya existía previamente
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code VARCHAR(10);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires_at TIMESTAMP;
 
 -- 3. Tabla intermedia: Roles por Usuario (Muchos a Muchos)
 CREATE TABLE IF NOT EXISTS user_roles (
@@ -47,25 +52,25 @@ CREATE TABLE IF NOT EXISTS ticket (
     CONSTRAINT fk_ticket_technician FOREIGN KEY (technician_id) REFERENCES users (id)
 );
 
--- 5. Tabla de Comentarios en Tickets
+-- 5. Tabla de Comentarios de Seguimiento
 CREATE TABLE IF NOT EXISTS comment (
     id BIGSERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    author_id BIGINT NOT NULL,
     ticket_id BIGINT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES users (id),
-    CONSTRAINT fk_comment_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE
+    user_id BIGINT NOT NULL,
+    create_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_comment_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
--- 6. Tabla de Historial y Auditoría de Cambios de Estado
+-- 6. Tabla de Historial y Auditoría de Estados del Ticket
 CREATE TABLE IF NOT EXISTS ticket_history (
     id BIGSERIAL PRIMARY KEY,
     ticket_id BIGINT NOT NULL,
-    previous_status VARCHAR(30),
-    new_status VARCHAR(30) NOT NULL,
+    previous_state VARCHAR(30),
+    new_state VARCHAR(30) NOT NULL,
     changed_by BIGINT NOT NULL,
-    changed_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    change_date TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_history_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE,
     CONSTRAINT fk_history_changed_by FOREIGN KEY (changed_by) REFERENCES users (id)
 );

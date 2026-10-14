@@ -37,7 +37,12 @@ export async function fetchApi(endpoint, options = {}) {
     if (response.status === 401) {
       if (endpoint.includes('/auth/login')) {
         const msg = (data && data.message) ? data.message : 'Credenciales incorrectas: correo electrónico o contraseña inválidos';
-        throw new Error(msg);
+        const err = new Error(msg);
+        if (data && data.requiresVerification) {
+          err.requiresVerification = true;
+        }
+        err.data = data;
+        throw err;
       }
       showToast('Tu sesión expiró o es inválida', 'error');
       logout();
@@ -47,7 +52,9 @@ export async function fetchApi(endpoint, options = {}) {
     if (response.status === 403) {
       const msg = (data && data.message) ? data.message : 'No tienes permisos para realizar esta acción';
       showToast(msg, 'error');
-      throw new Error(msg);
+      const err = new Error(msg);
+      err.data = data;
+      throw err;
     }
 
     if (!response.ok) {
@@ -62,14 +69,17 @@ export async function fetchApi(endpoint, options = {}) {
         }
       }
       
-      throw new Error(errorMsg);
+      const err = new Error(errorMsg);
+      err.data = data;
+      throw err;
     }
 
     return data;
   } catch (error) {
     if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
       showToast('No se pudo conectar con el servidor', 'error');
-      throw new Error('Servidor caído o inalcanzable');
+      const err = new Error('Servidor caído o inalcanzable');
+      throw err;
     }
     throw error;
   }
@@ -83,6 +93,11 @@ export const API = {
   // Auth
   login: (data) => fetchApi('/auth/login', { method: 'POST', body: data }),
   register: (data) => fetchApi('/auth/register', { method: 'POST', body: data }),
+  verifyCode: (data) => fetchApi('/auth/verify-code', { method: 'POST', body: data }),
+  resendCode: (data) => fetchApi('/auth/resend-code', { method: 'POST', body: data }),
+
+  // Portal Público & Landing
+  getPublicStats: () => fetchApi('/public/stats'),
   
   // Users
   getTechnicians: () => fetchApi('/users/technicians'),
@@ -105,7 +120,7 @@ export const API = {
   changeStatus: (id, status) => fetchApi(`/tickets/${id}/status?status=${status}`, { method: 'PATCH' }),
   deleteTicket: (id) => fetchApi(`/tickets/${id}`, { method: 'DELETE' }),
   
-  // Comments (Conforme al contrato: /api/tickets/{id}/comments)
+  // Comments
   getComments: (ticketId) => fetchApi(`/tickets/${ticketId}/comments`),
   addComment: (data) => fetchApi(`/tickets/${data.ticketId}/comments`, { method: 'POST', body: data }),
   

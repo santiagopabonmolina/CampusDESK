@@ -1,43 +1,54 @@
 :root {
-  /* Fondo general */
-  --bg-page: #4a3358;
-  --bg-page-gradient: linear-gradient(135deg, #4a3358 0%, #6b4a7d 100%);
+  /* Fondo general - Deep dark violet con iluminación ambiental */
+  --bg-page: #100b18;
+  --bg-page-gradient: radial-gradient(circle at 50% 0%, #2b173e 0%, #100b18 70%);
   
   /* Layout */
-  --bg-sidebar: #050505;
-  --bg-main: linear-gradient(135deg, #120a18 0%, #2a1635 100%);
-  --bg-card: rgba(10, 8, 14, 0.85);
+  --bg-sidebar: #09060f;
+  --bg-main: linear-gradient(135deg, #110a1b 0%, #1e112e 100%);
+  --bg-card: rgba(22, 14, 34, 0.75);
+  --bg-card-hover: rgba(30, 20, 48, 0.85);
+  --bg-glass-subtle: rgba(255, 255, 255, 0.03);
   
-  /* Acentos y brillos */
+  /* Acentos y brillos modernos */
   --accent: #9b30ff;
-  --accent-hover: #a855f7;
-  --accent-gradient: linear-gradient(90deg, #9b30ff 0%, #c026d3 100%);
-  --accent-glow: 0 0 20px rgba(155, 48, 255, 0.4);
+  --accent-primary: #9b30ff;
+  --accent-hover: #b046ff;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #c026d3 50%, #ec4899 100%);
+  --accent-glow: 0 0 25px rgba(155, 48, 255, 0.45);
+  --accent-glow-subtle: 0 4px 20px rgba(155, 48, 255, 0.2);
+  
+  /* Sombras Glass */
+  --card-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.65);
+  --card-shadow-hover: 0 18px 45px -8px rgba(139, 92, 246, 0.25);
   
   /* Textos */
-  --text-primary: #ffffff;
+  --text-primary: #fbfbfb;
   --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   
   /* Bordes */
   --border: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(155, 48, 255, 0.5);
+  --border-hover: rgba(168, 85, 247, 0.38);
+  --border-focus: rgba(168, 85, 247, 0.65);
   
   /* Estados (Tickets) */
-  --color-opened: #3b82f6;      /* Azul */
-  --color-assigned: #8b5cf6;    /* Violeta */
-  --color-in_process: #f59e0b;  /* Ambar */
-  --color-resolved: #10b981;    /* Verde */
-  --color-closed: #6b7280;      /* Gris */
+  --color-opened: #38bdf8;      /* Azul cian moderno */
+  --color-assigned: #a78bfa;    /* Violeta claro */
+  --color-in_process: #fbbf24;  /* Ámbar radiante */
+  --color-resolved: #34d399;    /* Esmeralda */
+  --color-closed: #94a3b8;      /* Pizarra fría */
   
   /* Prioridades */
-  --color-low: #10b981;         /* Verde */
-  --color-medium: #f59e0b;      /* Ambar */
-  --color-high: #f97316;        /* Naranja */
-  --color-critic: #ef4444;      /* Rojo */
+  --color-low: #34d399;         /* Verde */
+  --color-medium: #fbbf24;      /* Ámbar */
+  --color-high: #fb923c;        /* Naranja */
+  --color-critic: #f87171;      /* Rojo coral */
   
   /* Tipografía */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --radius-sm: 8px;
-  --radius-md: 12px;
+  --radius-md: 14px;
   --radius-lg: 24px;
+  --radius-full: 9999px;
 }

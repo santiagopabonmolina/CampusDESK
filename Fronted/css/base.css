@@ -7,32 +7,35 @@
 body {
   font-family: var(--font-family);
   background: var(--bg-page-gradient);
+  background-color: var(--bg-page);
   color: var(--text-primary);
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2); 
+  background: rgba(0, 0, 0, 0.25); 
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1); 
+  background: rgba(255, 255, 255, 0.12); 
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2); 
+  background: rgba(168, 85, 247, 0.4); 
 }
 
 a {
   color: var(--text-primary);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 ul {
@@ -45,6 +48,7 @@ button {
   background: none;
   font-family: inherit;
   color: inherit;
+  outline: none;
 }
 
 input, textarea, select {
@@ -58,6 +62,8 @@ input, textarea, select {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 /* Main Content Area */
@@ -65,11 +71,11 @@ input, textarea, select {
   flex: 1;
   background: var(--bg-main);
   border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  margin-top: 16px;
-  margin-bottom: 16px;
-  margin-right: 16px;
+  margin-top: 14px;
+  margin-bottom: 14px;
+  margin-right: 14px;
   border: 1px solid var(--border);
-  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -88,11 +94,14 @@ input, textarea, select {
   align-items: center;
   padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--border);
+  background: rgba(14, 9, 23, 0.4);
+  backdrop-filter: blur(12px);
 }
 
 .header-title h2 {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   line-height: 1.3;
 }
 
@@ -100,32 +109,42 @@ input, textarea, select {
   color: var(--text-secondary);
 }
 
-/* Orbe decorativo con animación flotante */
+/* Orbes decorativos ambientales */
 @keyframes orbFloat {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-25px, 25px) scale(1.1); }
+  50% { transform: translate(-30px, 30px) scale(1.12); }
+}
+
+@keyframes orbFloatAlt {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -25px) scale(1.08); }
 }
 
 .purple-orb {
   position: fixed;
-  width: 450px;
-  height: 450px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(155, 48, 255, 0.18) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(50px);
-  z-index: -1;
+  filter: blur(80px);
+  z-index: 0;
   pointer-events: none;
+  opacity: 0.65;
 }
 
 .orb-1 { 
-  top: -100px; 
+  width: 550px;
+  height: 550px;
+  top: -120px; 
   right: -100px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.22) 0%, rgba(139, 92, 246, 0.05) 50%, rgba(0,0,0,0) 75%);
   animation: orbFloat 14s ease-in-out infinite alternate;
 }
+
 .orb-2 { 
-  bottom: -100px; 
-  left: -100px;
-  animation: orbFloat 18s ease-in-out infinite alternate-reverse;
+  width: 500px;
+  height: 500px;
+  bottom: -120px; 
+  left: -80px;
+  background: radial-gradient(circle, rgba(192, 38, 211, 0.18) 0%, rgba(99, 102, 241, 0.06) 50%, rgba(0,0,0,0) 75%);
+  animation: orbFloatAlt 18s ease-in-out infinite alternate-reverse;
 }
 
 /* Responsive */
@@ -136,6 +155,6 @@ input, textarea, select {
   .main-content {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     margin: 0;
-    margin-top: 60px; /* Space for mobile header */
+    margin-top: 60px;
   }
 }

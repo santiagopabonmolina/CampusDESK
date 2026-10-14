@@ -9,6 +9,38 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/pages.css">
+    <script>
+        // Funciones inmediatas de alternancia de pestañas
+        function switchToLogin() {
+            var tabL = document.getElementById('tab-login');
+            var tabR = document.getElementById('tab-register');
+            var formL = document.getElementById('login-form');
+            var formR = document.getElementById('register-form');
+            var verify = document.getElementById('verify-section');
+            var bar = document.getElementById('auth-tabs-bar');
+            if (tabL) tabL.className = 'auth-tab active';
+            if (tabR) tabR.className = 'auth-tab';
+            if (bar) bar.classList.remove('hidden');
+            if (formL) formL.classList.remove('hidden');
+            if (formR) formR.classList.add('hidden');
+            if (verify) verify.classList.add('hidden');
+        }
+
+        function switchToRegister() {
+            var tabL = document.getElementById('tab-login');
+            var tabR = document.getElementById('tab-register');
+            var formL = document.getElementById('login-form');
+            var formR = document.getElementById('register-form');
+            var verify = document.getElementById('verify-section');
+            var bar = document.getElementById('auth-tabs-bar');
+            if (tabR) tabR.className = 'auth-tab active';
+            if (tabL) tabL.className = 'auth-tab';
+            if (bar) bar.classList.remove('hidden');
+            if (formR) formR.classList.remove('hidden');
+            if (formL) formL.classList.add('hidden');
+            if (verify) verify.classList.add('hidden');
+        }
+    </script>
 </head>
 <body>
     <div class="purple-orb orb-1"></div>
@@ -16,6 +48,11 @@
     
     <div class="auth-page">
         <div class="glass-card auth-container">
+            <a href="landing.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Volver a la presentación
+            </a>
+
             <div class="auth-header">
                 <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
                     <div class="brand-icon" style="width: 48px; height: 48px;">
@@ -27,12 +64,12 @@
                     </div>
                 </div>
                 <h1>CampusDESK</h1>
-                <p class="text-muted">Gestión de incidencias tecnológicas</p>
+                <p class="text-muted">Gestión de incidencias y soporte técnico</p>
             </div>
 
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="tab-login">Iniciar Sesión</button>
-                <button class="auth-tab" id="tab-register">Registrarse</button>
+            <div class="auth-tabs" id="auth-tabs-bar">
+                <button type="button" class="auth-tab active" id="tab-login" onclick="switchToLogin()">Iniciar Sesión</button>
+                <button type="button" class="auth-tab" id="tab-register" onclick="switchToRegister()">Registrarse</button>
             </div>
 
             <!-- Login Form -->
@@ -50,6 +87,7 @@
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-login">
                     Acceder
                 </button>
+                <div id="login-general-error" class="form-error text-center" style="margin-top: 10px;"></div>
             </form>
 
             <!-- Register Form -->
@@ -78,9 +116,57 @@
                     <small class="text-muted" style="display:block; margin-top:4px; font-size:0.75rem;">Mínimo 6 caracteres</small>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="btn-register">
-                    Crear Cuenta
+                    Registrarse
                 </button>
+                <div id="reg-general-error" class="form-error text-center" style="margin-top: 10px;"></div>
             </form>
+
+            <!-- Verification Code Form -->
+            <div id="verify-section" class="verify-box hidden">
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="width: 48px; height: 48px; margin: 0 auto 12px; background: rgba(155, 48, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #c084fc;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.3rem; margin-bottom: 6px;">Verifica tu Correo</h2>
+                    <p class="text-muted" style="font-size: 0.88rem; line-height: 1.4;">
+                        Ingresa el código de 6 dígitos que enviamos a:<br>
+                        <strong id="verify-email-display" style="color: #ffffff; word-break: break-all;"></strong>
+                    </p>
+                </div>
+
+                <form id="verify-form">
+                    <div class="code-inputs" id="code-inputs-container">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                        <input type="text" inputmode="numeric" maxlength="1" class="code-digit" autocomplete="off">
+                    </div>
+                    <span class="form-error text-center" id="verify-code-error" style="margin-bottom: 1rem;"></span>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" id="btn-verify-submit">
+                        Verificar Cuenta
+                    </button>
+                </form>
+
+                <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem;">
+                    <div>
+                        <span class="text-muted">¿No recibiste el correo?</span>
+                        <button type="button" class="btn-link" id="btn-resend-code">Reenviar código</button>
+                        <span id="resend-timer" class="text-muted" style="display: none;">(espera <span id="timer-count">45</span>s)</span>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-link" id="btn-back-login-from-verify" onclick="switchToLogin()">
+                            ← Volver al inicio de sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

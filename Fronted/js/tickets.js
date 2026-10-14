@@ -36,6 +36,19 @@ if (filterState) filterState.addEventListener('change', loadTickets);
 if (filterPriority) filterPriority.addEventListener('change', loadTickets);
 if (filterCategory) filterCategory.addEventListener('change', loadTickets);
 
+function resetFilters() {
+    if (filterState) filterState.value = '';
+    if (filterPriority) filterPriority.value = '';
+    if (filterCategory) filterCategory.value = '';
+    loadTickets();
+}
+
+const btnResetFilters = document.getElementById('btn-reset-filters');
+if (btnResetFilters) btnResetFilters.addEventListener('click', resetFilters);
+
+const btnClearHeader = document.getElementById('btn-clear-filters-header');
+if (btnClearHeader) btnClearHeader.addEventListener('click', resetFilters);
+
 // Load Tickets
 export async function loadTickets() {
     const tbody = document.getElementById('tickets-tbody');
@@ -67,15 +80,15 @@ export async function loadTickets() {
                 const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
                 
                 tr.innerHTML = `
-                    <td style="font-weight: 500;">#${ticket.id}</td>
+                    <td style="font-weight: 600; color: #c084fc;">#${ticket.id}</td>
                     <td>
-                        <div>${escapeHTML(ticket.title)}</div>
+                        <div style="font-weight: 500;">${escapeHTML(ticket.title)}</div>
                         <small class="text-muted">${escapeHTML(ticket.requesterName || 'N/A')}</small>
                     </td>
-                    <td>${catLabels[ticket.category] || ticket.category}</td>
+                    <td><span style="font-size: 0.88rem; color: #cbd5e1;">${catLabels[ticket.category] || ticket.category}</span></td>
                     <td>${getPriorityBadge(ticket.priority)}</td>
                     <td>${getStateBadge(ticket.state)}</td>
-                    <td>${formatDate(ticket.createDate)}</td>
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${formatDate(ticket.createDate)}</td>
                 `;
                 if (tbody) tbody.appendChild(tr);
             });
