@@ -17,13 +17,15 @@ if (hasRole(CONFIG.ROLES.ADMIN)) {
     if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
-async function loadDashboard() {
+export async function loadDashboard() {
     try {
         let stats = { totalTickets: 0, opened: 0, assigned: 0, inProcess: 0, resolved: 0, closed: 0 };
 
-        if (hasRole(CONFIG.ROLES.ADMIN)) {
+        try {
+            // El endpoint /api/dashboard/stats y /api/reports/summary filtra automáticamente según el rol del usuario
             stats = await API.getSummary();
-        } else {
+        } catch (e) {
+            // Fallback directo a tickets filtrados
             const tickets = await API.getTickets();
             if (Array.isArray(tickets)) {
                 stats.totalTickets = tickets.length;
@@ -37,16 +39,20 @@ async function loadDashboard() {
             }
         }
 
-        // Update UI
+        // Actualizar UI: 5 indicadores desglosados individualmente (sin agrupar)
         const statTotal = document.getElementById('stat-total');
         const statOpened = document.getElementById('stat-opened');
-        const statInProcess = document.getElementById('stat-inprocess');
+        const statAssigned = document.getElementById('stat-assigned');
+        const statInProcess = document.getElementById('stat-in-process');
         const statResolved = document.getElementById('stat-resolved');
+        const statClosed = document.getElementById('stat-closed');
 
         if (statTotal) statTotal.textContent = stats.totalTickets ?? 0;
         if (statOpened) statOpened.textContent = stats.opened ?? 0;
-        if (statInProcess) statInProcess.textContent = (stats.inProcess ?? 0) + (stats.assigned ?? 0);
+        if (statAssigned) statAssigned.textContent = stats.assigned ?? 0;
+        if (statInProcess) statInProcess.textContent = stats.inProcess ?? 0;
         if (statResolved) statResolved.textContent = stats.resolved ?? 0;
+        if (statClosed) statClosed.textContent = stats.closed ?? 0;
 
         renderChart(stats);
 
@@ -70,18 +76,18 @@ function renderChart(stats) {
     const bars = [
         { label: 'Abierta', value: stats.opened || 0, color: 'var(--color-opened)' },
         { label: 'Asignada', value: stats.assigned || 0, color: 'var(--color-assigned)' },
-        { label: 'Proceso', value: stats.inProcess || 0, color: 'var(--color-in_process)' },
+        { label: 'En Proceso', value: stats.inProcess || 0, color: 'var(--color-in_process)' },
         { label: 'Resuelta', value: stats.resolved || 0, color: 'var(--color-resolved)' },
         { label: 'Cerrada', value: stats.closed || 0, color: 'var(--color-closed)' }
     ];
 
     chart.innerHTML = bars.map(b => {
-        const height = (b.value / max) * 200; // max 200px height
+        const height = Math.max((b.value / max) * 180, 8);
         return `
-            <div class="bar-wrap">
-                <span style="font-size: 0.8rem; font-weight: 600; margin-bottom: 4px;">${b.value}</span>
-                <div class="bar" style="height: ${height}px; background: ${b.color};"></div>
-                <span class="bar-label">${b.label}</span>
+            <div class=\"bar-wrap\">
+                <span style=\"font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #f8fafc;\">${b.value}</span>
+                <div class=\"bar\" style=\"height: ${height}px; background: ${b.color}; min-width: 36px; border-radius: 6px 6px 0 0;\"></div>
+                <span class=\"bar-label\" style=\"margin-top: 6px; font-size: 0.8rem;\">${b.label}</span>
             </div>
         `;
     }).join('');

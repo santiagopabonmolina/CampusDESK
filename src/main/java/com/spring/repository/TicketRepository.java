@@ -30,4 +30,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     // Contadores para el Dashboard
     long countByState(TicketState state);
     long countByPriority(TicketPriority priority);
+
+    long countByRequesterId(Long requesterId);
+    long countByRequesterIdAndState(Long requesterId, TicketState state);
+
+    long countByTechnicianAssignedId(Long technicianId);
+    long countByTechnicianAssignedIdAndState(Long technicianId, TicketState state);
 }

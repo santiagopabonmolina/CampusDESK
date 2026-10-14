@@ -1,70 +1,90 @@
 import { API } from './api.js';
 import { CONFIG } from './config.js';
-import { hasRole, getCurrentUser, isLoggedIn } from './auth.js';
-import { showToast, initAppShell, formatDate, getStateBadge, getPriorityBadge, escapeHTML } from './ui.js';
+import { getCurrentUser, hasRole, isLoggedIn } from './auth.js';
+import { showToast, formatDate, getStateBadge, getPriorityBadge, escapeHTML, initAppShell } from './ui.js';
 
+// Init
 initAppShell();
 
 if (!isLoggedIn()) {
     window.location.href = 'index.html';
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+const ticketId = urlParams.get('id');
+
+if (!ticketId) {
+    showToast('ID de ticket inválido', 'error');
+    setTimeout(() => window.location.href = 'tickets.html', 1500);
+}
+
+const user = getCurrentUser();
+
 if (hasRole(CONFIG.ROLES.ADMIN)) {
     const adminMenu = document.getElementById('admin-menu');
     if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-const ticketId = urlParams.get('id');
-const user = getCurrentUser();
-let currentTicket = null;
-
-if (!ticketId) {
-    window.location.href = 'tickets.html';
-}
-
-async function loadTicketData() {
+// Load Ticket Details
+export async function loadTicketData() {
     try {
-        currentTicket = await API.getTicketById(ticketId);
-        renderTicket(currentTicket);
+        const t = await API.getTicketById(ticketId);
+        
+        // Render Title & Headers
+        const headerId = document.getElementById('header-ticket-id');
+        const titleEl = document.getElementById('ticket-title');
+        const descEl = document.getElementById('ticket-desc');
+        
+        if (headerId) headerId.textContent = `Ticket #${t.id}`;
+        if (titleEl) titleEl.textContent = t.title;
+        if (descEl) descEl.textContent = t.description;
+
+        // Meta Badges
+        const prioBadge = document.getElementById('ticket-priority-badge');
+        const catBadge = document.getElementById('ticket-category-badge');
+        if (prioBadge) prioBadge.innerHTML = getPriorityBadge(t.priority);
+        if (catBadge) {
+            const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
+            catBadge.textContent = catLabels[t.category] || t.category;
+        }
+
+        // Stepper
+        updateStepper(t.state);
+
+        // Sidebar Info
+        const reqName = document.getElementById('ticket-requester');
+        const reqEmail = document.getElementById('ticket-requester-email');
+        const techName = document.getElementById('ticket-technician');
+        const createDate = document.getElementById('ticket-create-date');
+        const resDateGroup = document.getElementById('group-resolution-date');
+        const resDate = document.getElementById('ticket-resolution-date');
+
+        if (reqName) reqName.textContent = t.requesterName || 'N/A';
+        if (reqEmail) reqEmail.textContent = t.requesterEmail || '';
+        if (techName) techName.textContent = t.technicianName || 'Sin asignar';
+        if (createDate) createDate.textContent = formatDate(t.createDate);
+
+        if (resDateGroup && resDate) {
+            if (t.resolutionDate) {
+                resDateGroup.classList.remove('hidden');
+                resDate.textContent = formatDate(t.resolutionDate);
+            } else {
+                resDateGroup.classList.add('hidden');
+            }
+        }
+
+        renderActions(t);
         loadComments();
         loadHistory();
-        
-        const loader = document.getElementById('loading-indicator');
+
+        const loading = document.getElementById('loading-indicator');
         const content = document.getElementById('ticket-content');
-        if (loader) loader.classList.add('hidden');
+        if (loading) loading.classList.add('hidden');
         if (content) content.classList.remove('hidden');
+
     } catch (error) {
-        showToast(error.message, 'error');
-        setTimeout(() => window.location.href = 'tickets.html', 2000);
+        showToast(error.message || 'Error al cargar detalles del ticket', 'error');
     }
-}
-
-function renderTicket(t) {
-    document.getElementById('header-ticket-id').textContent = `Ticket #${t.id}`;
-    document.getElementById('ticket-title').textContent = t.title;
-    document.getElementById('ticket-desc').textContent = t.description;
-    
-    document.getElementById('ticket-priority-badge').innerHTML = getPriorityBadge(t.priority);
-    const catLabels = { 'HARDWARE':'Hardware', 'SOFTWARE':'Software', 'NETWORK':'Redes', 'ACCESS':'Accesos', 'OTHER':'Otros' };
-    document.getElementById('ticket-category-badge').textContent = catLabels[t.category] || t.category;
-
-    document.getElementById('ticket-requester').textContent = t.requesterName || 'N/A';
-    document.getElementById('ticket-requester-email').textContent = t.requesterEmail || '';
-    document.getElementById('ticket-technician').textContent = t.technicianName || 'Sin asignar';
-    document.getElementById('ticket-created').textContent = formatDate(t.createDate);
-
-    if (t.resolutionDate) {
-        document.getElementById('group-resolved').classList.remove('hidden');
-        document.getElementById('ticket-resolved').textContent = formatDate(t.resolutionDate);
-    }
-    if (t.closeDate) {
-        document.getElementById('group-closed').classList.remove('hidden');
-        document.getElementById('ticket-closed').textContent = formatDate(t.closeDate);
-    }
-
-    updateStepper(t.state);
-    renderActions(t);
 }
 
 function updateStepper(currentState) {
@@ -102,8 +122,8 @@ function renderActions(t) {
         }
     }
 
-    // ADMIN: Asignar / Reasignar
-    if (isAdmin && t.state !== 'CLOSED' && t.state !== 'RESOLVED') {
+    // ADMIN: Asignar / Reasignar técnico
+    if (isAdmin && t.state !== 'CLOSED') {
         const btnAsignar = document.createElement('button');
         btnAsignar.className = 'btn btn-secondary';
         btnAsignar.innerHTML = t.technicianId ? 'Reasignar Técnico' : 'Asignar Técnico';
@@ -111,33 +131,54 @@ function renderActions(t) {
         container.appendChild(btnAsignar);
     }
 
-    // TECH: Cambiar estados (ASIGNADA -> EN_PROCESO -> RESUELTA)
-    if (isTech && isMyAssigned) {
-        if (t.state === 'ASSIGNED') {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-primary';
-            btn.textContent = 'Iniciar Trabajo (En Proceso)';
-            btn.onclick = () => changeStatus('IN_PROCESS');
-            container.appendChild(btn);
-        }
-        if (t.state === 'IN_PROCESS') {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-primary';
-            btn.style.background = 'var(--color-resolved)';
-            btn.textContent = 'Marcar como Resuelta';
-            btn.onclick = () => changeStatus('RESOLVED');
-            container.appendChild(btn);
-        }
+    // TECH / ADMIN: Iniciar Trabajo (ASIGNADA -> EN_PROCESO)
+    if (((isTech && isMyAssigned) || isAdmin) && t.state === 'ASSIGNED') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.textContent = 'Iniciar Trabajo (En Proceso)';
+        btn.onclick = () => changeStatus('IN_PROCESS');
+        container.appendChild(btn);
     }
 
-    // USER: Confirmar cierre
-    if (isUser && isMyTicket && t.state === 'RESOLVED') {
+    // TECH / ADMIN: Resolver (EN_PROCESO -> RESUELTA)
+    if (((isTech && isMyAssigned) || isAdmin) && t.state === 'IN_PROCESS') {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        btn.style.background = 'var(--color-resolved)';
+        btn.textContent = 'Marcar como Resuelta';
+        btn.onclick = () => changeStatus('RESOLVED');
+        container.appendChild(btn);
+    }
+
+    // USER / ADMIN: Confirmar Cierre (RESUELTA -> CERRADA)
+    if (((isUser && isMyTicket) || isAdmin) && t.state === 'RESOLVED') {
         const btn = document.createElement('button');
         btn.className = 'btn btn-primary';
         btn.style.background = 'var(--color-closed)';
         btn.textContent = 'Confirmar Cierre';
         btn.onclick = () => changeStatus('CLOSED');
         container.appendChild(btn);
+    }
+
+    // ADMIN: Eliminar incidencia
+    if (isAdmin) {
+        const btnDelete = document.createElement('button');
+        btnDelete.className = 'btn btn-secondary';
+        btnDelete.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        btnDelete.style.color = '#ef4444';
+        btnDelete.textContent = 'Eliminar Ticket';
+        btnDelete.onclick = async () => {
+            if (confirm(`¿Confirma que desea eliminar el Ticket #${t.id}? Esta operación es irreversible.`)) {
+                try {
+                    await API.deleteTicket(ticketId);
+                    showToast('Ticket eliminado correctamente', 'success');
+                    setTimeout(() => window.location.href = 'tickets.html', 800);
+                } catch (err) {
+                    showToast(err.message, 'error');
+                }
+            }
+        };
+        container.appendChild(btnDelete);
     }
 }
 

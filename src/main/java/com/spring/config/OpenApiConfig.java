@@ -26,7 +26,7 @@ public class OpenApiConfig {
                         .description("### Plataforma Integral de Gestión de Incidencias Tecnológicas\n\n"
                                 + "API REST desarrollada para la empresa ficticia **TechNova Solutions**.\n\n"
                                 + "**Características del Sistema:**\n"
-                                + "* 🔐 **Seguridad**: Autenticación mediante JWT y contraseñas cifradas con BCrypt.\n"
+                                + "* 🔑 **Seguridad**: Autenticación mediante JWT y contraseñas cifradas con BCrypt.\n"
                                 + "* 👥 **Control de Acceso (RBAC)**: Roles `ADMIN`, `TECHNICIAN`, `USER` con aislamiento de datos.\n"
                                 + "* 🔄 **Ciclo de Vida Controlado**: `ABIERTA` ➔ `ASIGNADA` ➔ `EN_PROCESO` ➔ `RESUELTA` ➔ `CERRADA`.\n"
                                 + "* 📜 **Auditoría e Historial**: Registro consistente de todas las transiciones.\n"
@@ -43,7 +43,7 @@ public class OpenApiConfig {
                                 .name("Apache License 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Servidor Local de Desarrollo (Port 8080)")
+                        new Server().url("http://localhost:8050").description("Servidor Local de Desarrollo (Port 8050)")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()

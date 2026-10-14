@@ -99,10 +99,13 @@ export const API = {
   getAllUsers: () => fetchApi('/users'),
   updateUserRoles: (userId, roles) => fetchApi(`/users/${userId}/roles`, { method: 'PUT', body: roles }),
   
-  // Tickets (Filtros por estado, prioridad y categoría)
+  // Tickets (Filtros por estado, prioridad y categoría directos al backend)
   getTickets: (state = null, priority = null, category = null) => {
     const params = new URLSearchParams();
-    if (state) params.append('state', state);
+    if (state) {
+      params.append('state', state);
+      params.append('status', state);
+    }
     if (priority) params.append('priority', priority);
     if (category) params.append('category', category);
     const qs = params.toString();
@@ -112,7 +115,7 @@ export const API = {
   createTicket: (data) => fetchApi('/tickets', { method: 'POST', body: data }),
   updateTicket: (id, data) => fetchApi(`/tickets/${id}`, { method: 'PUT', body: data }),
   assignTechnician: (id, technicianId) => fetchApi(`/tickets/${id}/assign?technicianId=${technicianId}`, { method: 'PATCH' }),
-  changeStatus: (id, status) => fetchApi(`/tickets/${id}/status?status=${status}`, { method: 'PATCH' }),
+  changeStatus: (id, status) => fetchApi(`/tickets/${id}/status?status=${status}&state=${status}`, { method: 'PATCH' }),
   deleteTicket: (id) => fetchApi(`/tickets/${id}`, { method: 'DELETE' }),
   
   // Comments
@@ -122,6 +125,7 @@ export const API = {
   // History
   getHistory: (ticketId) => fetchApi(`/tickets/${ticketId}/history`),
   
-  // Dashboard
-  getSummary: () => fetchApi('/reports/summary')
+  // Dashboard & Métricas
+  getSummary: () => fetchApi('/reports/summary'),
+  getStats: () => fetchApi('/dashboard/stats')
 };

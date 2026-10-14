@@ -47,25 +47,25 @@ CREATE TABLE IF NOT EXISTS ticket (
     CONSTRAINT fk_ticket_technician FOREIGN KEY (technician_id) REFERENCES users (id)
 );
 
--- 5. Tabla de Comentarios de Seguimiento
+-- 5. Tabla de Comentarios en Tickets
 CREATE TABLE IF NOT EXISTS comment (
     id BIGSERIAL PRIMARY KEY,
     content TEXT NOT NULL,
+    author_id BIGINT NOT NULL,
     ticket_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    create_date TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT fk_comment_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE,
-    CONSTRAINT fk_comment_user FOREIGN KEY (user_id) REFERENCES users (id)
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_comment_author FOREIGN KEY (author_id) REFERENCES users (id),
+    CONSTRAINT fk_comment_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE
 );
 
--- 6. Tabla de Historial y Auditoría de Estados del Ticket
+-- 6. Tabla de Historial y Auditoría de Cambios de Estado
 CREATE TABLE IF NOT EXISTS ticket_history (
     id BIGSERIAL PRIMARY KEY,
     ticket_id BIGINT NOT NULL,
-    previous_state VARCHAR(30),
-    new_state VARCHAR(30) NOT NULL,
+    previous_status VARCHAR(30),
+    new_status VARCHAR(30) NOT NULL,
     changed_by BIGINT NOT NULL,
-    change_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    changed_at TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_history_ticket FOREIGN KEY (ticket_id) REFERENCES ticket (id) ON DELETE CASCADE,
     CONSTRAINT fk_history_changed_by FOREIGN KEY (changed_by) REFERENCES users (id)
 );
