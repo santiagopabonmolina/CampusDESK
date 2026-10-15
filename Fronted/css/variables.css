@@ -1,0 +1,74 @@
+:root {
+  /* Fondo general - Deep dark violet con iluminación ambiental */
+  --bg-page: #0d0814;
+  --bg-page-gradient: radial-gradient(circle at 50% 0%, #251336 0%, #0d0814 75%);
+  
+  /* Layout y Glassmorphism */
+  --bg-sidebar: #090510;
+  --bg-main: linear-gradient(145deg, #120a1d 0%, #1b0e2b 100%);
+  --bg-card: rgba(23, 14, 38, 0.72);
+  --bg-card-hover: rgba(35, 20, 58, 0.85);
+  --bg-glass-subtle: rgba(255, 255, 255, 0.035);
+  --bg-input: rgba(12, 7, 20, 0.65);
+  --bg-input-focus: rgba(18, 10, 32, 0.85);
+  
+  /* Acentos y brillos morados modernos */
+  --accent: #9b30ff;
+  --accent-primary: #9b30ff;
+  --accent-hover: #b046ff;
+  --accent-light: #c084fc;
+  --accent-dark: #6b21a8;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #ec4899 100%);
+  --accent-gradient-subtle: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.15) 100%);
+  --accent-glow: 0 0 25px rgba(155, 48, 255, 0.45);
+  --accent-glow-subtle: 0 4px 20px rgba(155, 48, 255, 0.25);
+  --accent-glow-strong: 0 0 35px rgba(168, 85, 247, 0.65);
+  
+  /* Sombras Glass */
+  --card-shadow: 0 14px 38px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --card-shadow-hover: 0 20px 48px -10px rgba(0, 0, 0, 0.75), 0 0 28px rgba(155, 48, 255, 0.25), 0 0 0 1px rgba(168, 85, 247, 0.35);
+  --modal-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 35px rgba(155, 48, 255, 0.2);
+  
+  /* Textos */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #090510;
+  
+  /* Bordes */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-hover: rgba(168, 85, 247, 0.45);
+  --border-focus: rgba(168, 85, 247, 0.75);
+  
+  /* Estados (Tickets) */
+  --color-opened: #38bdf8;      /* Azul cian moderno */
+  --color-assigned: #a78bfa;    /* Violeta claro */
+  --color-in_process: #fbbf24;  /* Ámbar radiante */
+  --color-resolved: #34d399;    /* Esmeralda */
+  --color-closed: #94a3b8;      /* Pizarra fría */
+  
+  /* Prioridades */
+  --color-low: #34d399;         /* Verde */
+  --color-medium: #fbbf24;      /* Ámbar */
+  --color-high: #fb923c;        /* Naranja */
+  --color-critic: #f87171;      /* Rojo coral */
+  
+  /* Roles */
+  --role-admin: #c084fc;        /* Violeta Admin */
+  --role-technician: #38bdf8;   /* Azul Técnico */
+  --role-user: #34d399;         /* Esmeralda Usuario */
+  
+  /* Tipografía y bordes */
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  
+  /* Animaciones y Transiciones */
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

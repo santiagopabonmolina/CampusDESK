@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: dev_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: campusDESK
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: DevTeamSecurePass2026!
+    ports:
+      - "5438:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/docker-entrypoint-initdb.d:ro
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dev_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: team@devlocal.com
+      PGADMIN_DEFAULT_PASSWORD: PgAdminTeamPass2026!
+    ports:
+      - "5055:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:

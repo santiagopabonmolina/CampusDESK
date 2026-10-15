@@ -36,7 +36,6 @@ public class TicketHistory {
     @JoinColumn(name = "ticket_id", nullable = false, updatable = false)
     private Ticket ticket;
 
-    // Null only for the initial record created together with the Ticket.
     @Enumerated(EnumType.STRING)
     @Column(name = "previous_status", length = 30, updatable = false)
     private TicketState previousStatus;
@@ -53,7 +52,6 @@ public class TicketHistory {
     private LocalDateTime changedAt;
 
     protected TicketHistory() {
-        // Required by JPA
     }
 
     public TicketHistory(Ticket ticket, TicketState previousStatus, TicketState newStatus, User changedBy) {
@@ -63,6 +61,9 @@ public class TicketHistory {
         this.changedBy = changedBy;
     }
 
+    /**
+     * Sets timestamp before persist.
+     */
     @PrePersist
     void onCreate() {
         if (this.changedAt == null) {
@@ -70,26 +71,44 @@ public class TicketHistory {
         }
     }
 
+    /**
+     * Gets record unique identifier.
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * Gets associated ticket entity.
+     */
     public Ticket getTicket() {
         return ticket;
     }
 
+    /**
+     * Gets previous ticket status.
+     */
     public TicketState getPreviousStatus() {
         return previousStatus;
     }
 
+    /**
+     * Gets new ticket status.
+     */
     public TicketState getNewStatus() {
         return newStatus;
     }
 
+    /**
+     * Gets change author user.
+     */
     public User getChangedBy() {
         return changedBy;
     }
 
+    /**
+     * Gets change timestamp date.
+     */
     public LocalDateTime getChangedAt() {
         return changedAt;
     }

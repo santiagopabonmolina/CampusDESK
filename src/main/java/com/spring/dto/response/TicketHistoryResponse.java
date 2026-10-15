@@ -15,6 +15,9 @@ public record TicketHistoryResponse(
         LocalDateTime changedAt
 ) {
 
+    /**
+     * Maps entry to response.
+     */
     public static TicketHistoryResponse from(TicketHistory entry) {
         return new TicketHistoryResponse(
                 entry.getId(),

@@ -12,9 +12,18 @@ import java.util.Optional;
  */
 public interface TicketHistoryRepository extends Repository<TicketHistory, Long> {
 
+    /**
+     * Saves ticket history record.
+     */
     TicketHistory save(TicketHistory entry);
 
+    /**
+     * Finds ticket history records.
+     */
     List<TicketHistory> findByTicketIdOrderByChangedAtAscIdAsc(Long ticketId);
 
+    /**
+     * Finds latest ticket history.
+     */
     Optional<TicketHistory> findFirstByTicketIdOrderByChangedAtDescIdDesc(Long ticketId);
 }

@@ -12,20 +12,68 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    // Tickets creados por un usuario solicitante
+    /**
+     * Finds tickets by requester.
+     */
     List<Ticket> findByRequesterId(Long requesterId);
 
-    // Tickets asignados a un técnico
+    /**
+     * Finds requester tickets state.
+     */
+    List<Ticket> findByRequesterIdAndState(Long requesterId, TicketState state);
+
+    /**
+     * Finds technician assigned tickets.
+     */
     List<Ticket> findByTechnicianAssignedId(Long technicianId);
 
-    // Filtrar por estado (OPENED, ASSIGNED, IN_PROCESS, etc.)
+    /**
+     * Finds technician tickets state.
+     */
+    List<Ticket> findByTechnicianAssignedIdAndState(Long technicianId, TicketState state);
+
+    /**
+     * Finds tickets by state.
+     */
     List<Ticket> findByState(TicketState state);
 
-    // Filtrar por prioridad o categoría
+    /**
+     * Finds tickets by priority.
+     */
     List<Ticket> findByPriority(TicketPriority priority);
+
+    /**
+     * Finds tickets by category.
+     */
     List<Ticket> findByCategory(TicketCategory category);
 
-    // Contadores para el Dashboard
+    /**
+     * Counts tickets by state.
+     */
     long countByState(TicketState state);
+
+    /**
+     * Counts tickets by priority.
+     */
     long countByPriority(TicketPriority priority);
+
+    /**
+     * Counts tickets by requester.
+     */
+    long countByRequesterId(Long requesterId);
+
+    /**
+     * Counts requester tickets state.
+     */
+    long countByRequesterIdAndState(Long requesterId, TicketState state);
+
+    /**
+     * Counts technician assigned tickets.
+     */
+    long countByTechnicianAssignedId(Long technicianId);
+
+    /**
+     * Counts technician tickets state.
+     */
+    long countByTechnicianAssignedIdAndState(Long technicianId, TicketState state);
 }

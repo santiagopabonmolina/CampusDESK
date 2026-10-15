@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusDESK - Administración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+    <div class="purple-orb orb-1"></div>
+    <div class="purple-orb orb-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="brand-text">CampusDESK</div>
+            </div>
+
+            <a href="tickets.html?action=new" class="btn-new-ticket">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Nuevo Ticket
+            </a>
+
+            <div class="nav-section">
+                <div class="nav-label">General</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="dashboard.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tickets.html" class="nav-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Tickets
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-label">Administración</div>
+                <ul class="nav-menu">
+                    <li>
+                        <a href="admin.html" class="nav-item active">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            Gestión de Personal
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="user-card">
+                <div class="user-info">
+                    <div class="avatar" id="sidebar-user-avatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="sidebar-user-name">Usuario</span>
+                        <span class="user-role" id="sidebar-user-role">Role</span>
+                    </div>
+                </div>
+                <button class="btn-logout" id="btn-logout">Cerrar sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-title">
+                    <button type="button" class="btn-mobile-nav" aria-label="Abrir menú de navegación">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <h2>Directorio de Personal</h2>
+                </div>
+            </header>
+
+            <div class="content-scroll">
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
+                    <div class="tickets-table-container">
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Correo Electrónico</th>
+                                    <th style="text-align: right; padding-right: 1.5rem;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <!-- JS injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="loading-indicator" class="text-center" style="padding: 3rem;">
+                        <span class="spinner" style="width: 32px; height: 32px;"></span>
+                    </div>
+
+                    <div id="empty-state" class="empty-state hidden">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3>No se encontraron usuarios</h3>
+                        <p class="text-muted">No se encontraron usuarios registrados en la plataforma.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Gestión de Roles -->
+    <div class="modal-overlay" id="modal-roles">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Gestionar Roles de Usuario</h3>
+                <button type="button" class="btn-close" id="btn-close-roles" aria-label="Cerrar modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1.25rem;">
+                    <p style="font-weight: 600; font-size: 1.05rem;" id="modal-user-name">-</p>
+                    <p class="text-muted" style="font-size: 0.85rem;" id="modal-user-email">-</p>
+                </div>
+                
+                <label class="form-label mb-2">Roles Asignados:</label>
+                <div class="roles-checklist" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.25rem;">
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-user" value="USER">
+                        <div class="role-option-info">
+                            <div class="role-title">USER <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399; margin-left: 6px;">Solicitante</span></div>
+                            <small class="text-muted">Crear y dar seguimiento a sus solicitudes de soporte</small>
+                        </div>
+                    </label>
+                    
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-tech" value="TECHNICIAN">
+                        <div class="role-option-info">
+                            <div class="role-title" style="color: #38bdf8;">TECHNICIAN <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; margin-left: 6px;">Técnico</span></div>
+                            <small class="text-muted">Atender tickets asignados, avanzar estados y comentar</small>
+                        </div>
+                    </label>
+                    
+                    <label class="role-option-card">
+                        <input type="checkbox" id="role-chk-admin" value="ADMIN">
+                        <div class="role-option-info">
+                            <div class="role-title" style="color: #c084fc;">ADMIN <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; margin-left: 6px;">Administrador</span></div>
+                            <small class="text-muted">Control total: asignar técnicos, gestionar personal y métricas</small>
+                        </div>
+                    </label>
+                </div>
+                <div id="roles-error-msg" class="text-danger hidden" style="font-size: 0.85rem; color: #f87171; margin-bottom: 0.5rem;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-roles">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-save-roles">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

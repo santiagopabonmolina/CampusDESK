@@ -66,6 +66,9 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TicketHistory> history = new ArrayList<>();
 
+    /**
+     * Sets defaults before persist.
+     */
     @PrePersist
     protected void onCreate() {
         this.createDate = LocalDateTime.now();
