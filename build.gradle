@@ -1,38 +1,71 @@
+// Declares Gradle build plugins configuring Java and Spring Boot ecosystems
 plugins {
+	// Applies standard Gradle Java plugin providing compilation and testing tasks
 	id 'java'
+	// Applies Spring Boot Gradle plugin for executable packaging and dependency management
 	id 'org.springframework.boot' version '4.1.1'
+	// Applies Spring Dependency Management plugin aligning library versions with Boot BOM
 	id 'io.spring.dependency-management' version '1.1.7'
+// Closes plugins configuration block
 }
 
+// Defines root package organization namespace for published project artifacts
 group = 'com'
+// Defines current project build artifact version following semantic versioning
 version = '0.0.1-SNAPSHOT'
 
+// Configures JVM target runtime environment settings for this project
 java {
+	// Configures Java toolchain ensuring build reproducibility across environments
 	toolchain {
+		// Enforces Java 21 LTS as required compiler and runtime version
 		languageVersion = JavaLanguageVersion.of(21)
+	// Closes toolchain configuration block
 	}
+// Closes java configuration block
 }
 
+// Configures binary artifact repository locations for resolving dependencies
 repositories {
+	// Resolves open-source third-party dependencies from Maven Central repository
 	mavenCentral()
+// Closes repositories configuration block
 }
 
+// Declares compile, runtime, and testing dependencies required by CampusDESK
 dependencies {
+	// Pulls Spring Data JPA starter with Hibernate ORM and HikariCP connection pool
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// Pulls Spring Web starter including embedded Apache Tomcat and Spring MVC
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Pulls Spring Security starter providing authentication, authorization, and filters
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// Pulls Spring Validation starter integrating Jakarta Validation and Hibernate Validator
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Pulls Springdoc OpenAPI starter generating interactive Swagger UI documentation
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0'
+	// Pulls Lombok compile-time annotation processor reducing boilerplate Java code
 	compileOnly 'org.projectlombok:lombok'
+	// Pulls official PostgreSQL JDBC driver at runtime for database connectivity
 	runtimeOnly 'org.postgresql:postgresql'
+	// Registers Lombok annotation processor for compile-time code generation
 	annotationProcessor 'org.projectlombok:lombok'
+	// Pulls Spring Boot Test starter for integration testing with JPA
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+	// Pulls Spring Boot Test starter for testing MVC controllers with MockMvc
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	// Enables Lombok annotations during test source code compilation
 	testCompileOnly 'org.projectlombok:lombok'
+	// Pulls JUnit Platform launcher enabling test task execution from Gradle
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// Registers Lombok annotation processor during test source compilation
 	testAnnotationProcessor 'org.projectlombok:lombok'
+// Closes dependencies configuration block
 }
 
+// Configures automated test execution task options for project verification
 tasks.named('test') {
+	// Instructs Gradle test runner to execute tests using JUnit Platform
 	useJUnitPlatform()
+// Closes test task configuration block
 }
