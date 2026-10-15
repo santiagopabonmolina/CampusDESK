@@ -1,4 +1,4 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 import { CONFIG } from './config.js';
 import { hasRole, getCurrentUser, isLoggedIn } from './auth.js';
 import { showToast, setupModal, formatDate, getStateBadge, getPriorityBadge, setButtonLoading, escapeHTML, initAppShell } from './ui.js';
@@ -36,6 +36,9 @@ if (filterState) filterState.addEventListener('change', loadTickets);
 if (filterPriority) filterPriority.addEventListener('change', loadTickets);
 if (filterCategory) filterCategory.addEventListener('change', loadTickets);
 
+/**
+ * Resets ticket filter options.
+ */
 function resetFilters() {
     if (filterState) filterState.value = '';
     if (filterPriority) filterPriority.value = '';
@@ -49,6 +52,9 @@ if (btnResetFilters) btnResetFilters.addEventListener('click', resetFilters);
 const btnClearHeader = document.getElementById('btn-clear-filters-header');
 if (btnClearHeader) btnClearHeader.addEventListener('click', resetFilters);
 
+/**
+ * Renders loading skeleton rows.
+ */
 function renderSkeletonRows(tbody, count = 5) {
     if (!tbody) return;
     let html = '';
@@ -71,7 +77,9 @@ function renderSkeletonRows(tbody, count = 5) {
     tbody.innerHTML = html;
 }
 
-// Load Tickets
+/**
+ * Loads filtered ticket records.
+ */
 export async function loadTickets() {
     const tbody = document.getElementById('tickets-tbody');
     const loading = document.getElementById('loading-indicator');

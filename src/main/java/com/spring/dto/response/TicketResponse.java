@@ -22,12 +22,10 @@ public class TicketResponse {
     private TicketPriority priority;
     private TicketState state;
 
-    // Datos aplanados del solicitante
     private Long requesterId;
     private String requesterName;
     private String requesterEmail;
 
-    // Datos aplanados del técnico (si aplica)
     private Long technicianId;
     private String technicianName;
 
@@ -35,7 +33,9 @@ public class TicketResponse {
     private LocalDateTime resolutionDate;
     private LocalDateTime closeDate;
 
-    // Mapeo seguro Entity -> DTO
+    /**
+     * Maps entity to response.
+     */
     public static TicketResponse fromEntity(Ticket ticket) {
         if (ticket == null) return null;
 

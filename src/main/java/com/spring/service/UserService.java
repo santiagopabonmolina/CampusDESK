@@ -22,14 +22,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    /**
+     * Retrieves active technician users.
+     */
     public List<User> getAvailableTechnicians() {
         return userRepository.findByRoleNameAndActiveTrue(RoleName.TECHNICIAN);
     }
 
+    /**
+     * Retrieves all registered users.
+     */
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Updates user assigned roles.
+     */
     @Transactional
     public User updateUserRoles(Long userId, Set<RoleName> roleNames) {
         if (roleNames == null || roleNames.isEmpty()) {

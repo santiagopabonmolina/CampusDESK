@@ -27,6 +27,9 @@ public class TicketHistoryService {
     private final TicketHistoryRepository ticketHistoryRepository;
     private final TicketRepository ticketRepository;
 
+    /**
+     * Initializes history service instance.
+     */
     public TicketHistoryService(TicketHistoryRepository ticketHistoryRepository,
                                 TicketRepository ticketRepository) {
         this.ticketHistoryRepository = ticketHistoryRepository;
@@ -34,9 +37,7 @@ public class TicketHistoryService {
     }
 
     /**
-     * Records a status change. To be called by the Ticket service in the SAME transaction
-     * that updates the Ticket status. MANDATORY fails fast if no transaction is active,
-     * guaranteeing that status update and history entry are committed together.
+     * Records ticket state transition.
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public TicketHistoryResponse recordChange(Ticket ticket,
@@ -51,8 +52,6 @@ public class TicketHistoryService {
             throw new IllegalArgumentException("Previous and new status must be different");
         }
 
-        // Avoid duplicated entries when the same transition is registered twice in a row.
-        // Skipped for new Tickets that do not have an id yet.
         if (ticket.getId() != null) {
             boolean duplicated = ticketHistoryRepository
                     .findFirstByTicketIdOrderByChangedAtDescIdDesc(ticket.getId())
@@ -68,7 +67,9 @@ public class TicketHistoryService {
         return TicketHistoryResponse.from(saved);
     }
 
-    /** Returns the Ticket history in chronological order, enforcing Ticket visibility rules. */
+    /**
+     * Retrieves ticket audit log.
+     */
     @Transactional(readOnly = true)
     public List<TicketHistoryResponse> getHistoryByTicket(Long ticketId, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(ticketId)
@@ -84,6 +85,9 @@ public class TicketHistoryService {
                 .toList();
     }
 
+    /**
+     * Checks history viewing permissions.
+     */
     private boolean canViewHistory(Ticket ticket, Authentication authentication) {
         if (hasAuthority(authentication, ROLE_ADMIN)) {
             return true;
@@ -98,6 +102,9 @@ public class TicketHistoryService {
         return requester != null && email.equalsIgnoreCase(requester.getEmail());
     }
 
+    /**
+     * Checks user granted authority.
+     */
     private boolean hasAuthority(Authentication authentication, String authority) {
         for (GrantedAuthority granted : authentication.getAuthorities()) {
             if (authority.equals(granted.getAuthority())) {

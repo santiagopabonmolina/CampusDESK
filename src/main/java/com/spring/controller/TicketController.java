@@ -33,6 +33,9 @@ public class TicketController {
     private final TicketService ticketService;
     private final CommentService commentService;
 
+    /**
+     * Creates a new ticket.
+     */
     @Operation(summary = "Crear nuevo ticket", description = "Registra una nueva incidencia con estado inicial ABIERTA (OPENED) y prioridad/categoría especificadas.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Ticket creado exitosamente"),
@@ -46,6 +49,9 @@ public class TicketController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Lists all accessible tickets.
+     */
     @Operation(summary = "Listar tickets autorizados", description = "Lista tickets con aislamiento de roles: ADMIN ve todos, TECHNICIAN ve sus asignados, USER ve solo sus solicitudes creadas. Permite filtrar por estado/status, prioridad y categoría.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de incidencias devuelto con éxito"),
@@ -66,6 +72,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getAllTickets(filterState, priority, category, authentication));
     }
 
+    /**
+     * Retrieves ticket by identifier.
+     */
     @Operation(summary = "Consultar detalle de un ticket", description = "Obtiene información completa de la incidencia. Valida que el usuario tenga permisos sobre el recurso.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Detalle del ticket obtenido"),
@@ -80,6 +89,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getTicketById(id, authentication));
     }
 
+    /**
+     * Updates open ticket details.
+     */
     @Operation(summary = "Modificar solicitud abierta", description = "Permite actualizar título, descripción, prioridad o categoría. Solo permitido mientras el ticket esté en estado ABIERTA y sin asignar.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Ticket actualizado"),
@@ -94,6 +106,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.updateTicket(id, request, authentication));
     }
 
+    /**
+     * Assigns technician to ticket.
+     */
     @Operation(summary = "Asignar o reasignar técnico", description = "Exclusivo de ADMIN. Asigna un técnico y cambia el estado a ASIGNADA.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Técnico asignado exitosamente"),
@@ -109,6 +124,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.assignTechnician(id, technicianId, authentication));
     }
 
+    /**
+     * Updates ticket lifecycle state.
+     */
     @Operation(summary = "Transición de estado del ciclo de vida", description = "Valida reglas de negocio estrictas: ABIERTA ➔ ASIGNADA ➔ EN_PROCESO ➔ RESUELTA ➔ CERRADA.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Estado actualizado con éxito"),
@@ -125,6 +143,9 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.updateState(id, targetState, authentication));
     }
 
+    /**
+     * Deletes ticket from database.
+     */
     @Operation(summary = "Eliminar ticket", description = "Exclusivo de ADMIN. Elimina una incidencia y sus registros asociados.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Ticket eliminado"),
@@ -138,6 +159,9 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Retrieves comments for ticket.
+     */
     @Operation(summary = "Consultar comentarios de un ticket", description = "Retorna la conversación cronológica asociada a la incidencia.")
     @GetMapping("/{id}/comments")
     public ResponseEntity<List<CommentResponse>> getCommentsByTicketId(
@@ -145,6 +169,9 @@ public class TicketController {
         return ResponseEntity.ok(commentService.getCommentsByTicketId(id));
     }
 
+    /**
+     * Adds comment to ticket.
+     */
     @Operation(summary = "Agregar comentario a ticket", description = "Registra una nota o respuesta. Rechaza comentarios si el ticket está CERRADO.")
     @PostMapping("/{id}/comments")
     public ResponseEntity<CommentResponse> createComment(

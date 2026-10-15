@@ -21,6 +21,9 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
+    /**
+     * Returns dashboard metrics summary.
+     */
     @Operation(summary = "Obtener indicadores generales", description = "Calcula conteos de tickets totales, abiertos, asignados, en proceso, resueltos y cerrados con filtro automático por rol.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Métricas calculadas con éxito"),

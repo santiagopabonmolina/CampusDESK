@@ -2,10 +2,16 @@ import { CONFIG } from './config.js';
 
 export { CONFIG };
 
+/**
+ * Retrieves stored session token.
+ */
 export function getToken() {
   return sessionStorage.getItem('token');
 }
 
+/**
+ * Retrieves current session user.
+ */
 export function getCurrentUser() {
   const user = sessionStorage.getItem('user');
   try {
@@ -15,12 +21,14 @@ export function getCurrentUser() {
   }
 }
 
+/**
+ * Checks if user authenticated.
+ */
 export function isLoggedIn() {
   const token = getToken();
   const user = getCurrentUser();
   if (!token || !user) return false;
   
-  // Basic expiration check (assuming JWT payload)
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && payload.exp * 1000 < Date.now()) {
@@ -33,15 +41,24 @@ export function isLoggedIn() {
   }
 }
 
+/**
+ * Retrieves current user role.
+ */
 export function getUserRole() {
   const user = getCurrentUser();
   return user ? user.role : null;
 }
 
+/**
+ * Checks specific user role.
+ */
 export function hasRole(roleName) {
   return getUserRole() === roleName;
 }
 
+/**
+ * Stores user session data.
+ */
 export function setSession(data) {
   sessionStorage.setItem('token', data.token);
   sessionStorage.setItem('user', JSON.stringify({
@@ -53,6 +70,9 @@ export function setSession(data) {
   }));
 }
 
+/**
+ * Clears user session storage.
+ */
 export function logout(redirect = true) {
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('user');
@@ -61,12 +81,18 @@ export function logout(redirect = true) {
   }
 }
 
+/**
+ * Verifies user authentication state.
+ */
 export function checkAuth() {
   if (!isLoggedIn()) {
     logout(true);
   }
 }
 
+/**
+ * Enforces administrator access permissions.
+ */
 export function checkAdminAccess() {
   checkAuth();
   if (!hasRole(CONFIG.ROLES.ADMIN)) {
@@ -74,7 +100,6 @@ export function checkAdminAccess() {
   }
 }
 
-// Initial check for all protected pages (ignoring public pages: index.html, landing.html)
 const path = window.location.pathname.toLowerCase();
 const isPublicPage = path.endsWith('index.html') || 
                      path.endsWith('landing.html') || 

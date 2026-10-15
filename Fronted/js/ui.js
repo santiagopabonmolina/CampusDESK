@@ -1,3 +1,6 @@
+/**
+ * Displays temporary toast notification.
+ */
 export function showToast(message, type = 'info') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -30,18 +33,19 @@ export function showToast(message, type = 'info') {
 
   container.appendChild(toast);
 
-  // Trigger entrance animation
   requestAnimationFrame(() => {
     toast.classList.add('show');
   });
 
-  // Auto remove
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 400);
   }, 4000);
 }
 
+/**
+ * Escapes special HTML characters.
+ */
 export function escapeHTML(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/[&<>'"]/g, 
@@ -55,6 +59,9 @@ export function escapeHTML(str) {
   );
 }
 
+/**
+ * Formats raw date string.
+ */
 export function formatDate(dateStr) {
   if (!dateStr) return 'N/A';
   const date = new Date(dateStr);
@@ -67,6 +74,9 @@ export function formatDate(dateStr) {
   });
 }
 
+/**
+ * Generates state badge HTML.
+ */
 export function getStateBadge(state) {
   const labels = {
     'OPENED': 'Abierta',
@@ -78,6 +88,9 @@ export function getStateBadge(state) {
   return `<span class="badge badge-state-${state}">${labels[state] || state}</span>`;
 }
 
+/**
+ * Generates priority badge HTML.
+ */
 export function getPriorityBadge(priority) {
   const labels = {
     'LOW': 'Baja',
@@ -88,6 +101,9 @@ export function getPriorityBadge(priority) {
   return `<span class="badge badge-priority-${priority}">${labels[priority] || priority}</span>`;
 }
 
+/**
+ * Animates numeric counter element.
+ */
 export function animateCounter(element, target, duration = 800) {
   if (!element) return;
   const targetNum = parseInt(target, 10);
@@ -96,7 +112,6 @@ export function animateCounter(element, target, duration = 800) {
     return;
   }
 
-  // Si prefiere reducción de movimiento, actualiza directo
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     element.textContent = targetNum;
     return;
@@ -108,7 +123,6 @@ export function animateCounter(element, target, duration = 800) {
   function updateCount(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    // Ease out quartic
     const easeOut = 1 - Math.pow(1 - progress, 4);
     const current = Math.floor(startNum + (targetNum - startNum) * easeOut);
     element.textContent = current;
@@ -123,6 +137,9 @@ export function animateCounter(element, target, duration = 800) {
   requestAnimationFrame(updateCount);
 }
 
+/**
+ * Renders user in sidebar.
+ */
 export function renderSidebarUser() {
   const userStr = sessionStorage.getItem('user');
   if (!userStr) return;
@@ -149,7 +166,9 @@ export function renderSidebarUser() {
   }
 }
 
-// Botón de ripple
+/**
+ * Initializes button ripple effect.
+ */
 function initRipples() {
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn, .btn-new-ticket, .auth-tab');
@@ -173,12 +192,13 @@ function initRipples() {
   });
 }
 
-// Inicialización de navegación móvil y backdrop
+/**
+ * Initializes responsive mobile navigation.
+ */
 function initMobileNavigation() {
   const sidebar = document.querySelector('.sidebar');
   if (!sidebar) return;
 
-  // Insertar backdrop si no existe
   let backdrop = document.querySelector('.sidebar-backdrop');
   if (!backdrop) {
     backdrop = document.createElement('div');
@@ -186,7 +206,6 @@ function initMobileNavigation() {
     document.body.appendChild(backdrop);
   }
 
-  // Conectar botones hamburguesa
   const mobileBtns = document.querySelectorAll('.btn-mobile-nav');
   mobileBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -195,13 +214,11 @@ function initMobileNavigation() {
     });
   });
 
-  // Cerrar al tocar backdrop
   backdrop.addEventListener('click', () => {
     sidebar.classList.remove('open');
     backdrop.classList.remove('active');
   });
 
-  // Cerrar al navegar en enlaces de nav
   sidebar.querySelectorAll('.nav-item, .btn-new-ticket').forEach(link => {
     link.addEventListener('click', () => {
       if (window.innerWidth <= 860) {
@@ -212,6 +229,9 @@ function initMobileNavigation() {
   });
 }
 
+/**
+ * Initializes application layout shell.
+ */
 export function initAppShell() {
   renderSidebarUser();
   initMobileNavigation();
@@ -227,13 +247,15 @@ export function initAppShell() {
   }
 }
 
-// Auto-run when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initAppShell);
 } else {
   initAppShell();
 }
 
+/**
+ * Sets button loading state.
+ */
 export function setButtonLoading(btn, isLoading, originalText) {
   if (isLoading) {
     btn.disabled = true;
@@ -244,6 +266,9 @@ export function setButtonLoading(btn, isLoading, originalText) {
   }
 }
 
+/**
+ * Initializes interactive modal dialog.
+ */
 export function setupModal(modalId, triggerIds, closeIds) {
   initAppShell();
   if (!modalId) return { open: () => {}, close: () => {} };
@@ -268,14 +293,12 @@ export function setupModal(modalId, triggerIds, closeIds) {
     });
   }
 
-  // Cerrar al hacer clic en el overlay exterior
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       closeModal();
     }
   });
 
-  // Cerrar al pulsar Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.classList.contains('active')) {
       closeModal();

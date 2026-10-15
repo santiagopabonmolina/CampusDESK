@@ -18,6 +18,9 @@ public class CorsConfig implements WebMvcConfigurer {
     @Value("${cors.allowed-origins:http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501,http://localhost:63342,http://127.0.0.1:63342,http://localhost:8050,http://127.0.0.1:8050,http://localhost:8080,http://127.0.0.1:8080}")
     private String allowedOrigins;
 
+    /**
+     * Parses configured CORS origins.
+     */
     private List<String> getAllowedOriginsList() {
         return Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
@@ -25,6 +28,9 @@ public class CorsConfig implements WebMvcConfigurer {
                 .toList();
     }
 
+    /**
+     * Configures web CORS mappings.
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         List<String> origins = getAllowedOriginsList();
@@ -36,12 +42,14 @@ public class CorsConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 
+    /**
+     * Provides CORS configuration source.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> origins = getAllowedOriginsList();
 
-        // Permitir exclusivamente los orígenes necesarios del frontend (sin comodín global '*')
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));

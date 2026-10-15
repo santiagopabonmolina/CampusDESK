@@ -42,6 +42,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * Registers a new user.
+     */
     @Operation(summary = "Registrar nuevo usuario", description = "Crea una cuenta en la plataforma. Por política de seguridad empresarial, todo registro público recibe automáticamente el rol USER.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
@@ -73,6 +76,9 @@ public class AuthController {
                 .body(Map.of("message", "Usuario registrado exitosamente"));
     }
 
+    /**
+     * Authenticates user login credentials.
+     */
     @Operation(summary = "Iniciar sesión", description = "Autentica credenciales en PostgreSQL contra hash BCrypt y genera el token de acceso JWT con los roles del usuario.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Autenticación exitosa, retorna token JWT y datos de sesión"),

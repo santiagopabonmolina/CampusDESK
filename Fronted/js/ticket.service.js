@@ -1,8 +1,7 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 
 /**
- * Servicio de tickets para consumo directo del frontend.
- * Soporta filtros por status, priority y category comunicando directamente con el backend.
+ * Retrieves filtered tickets list.
  */
 export async function listTickets(filters = {}) {
     const status = filters.status || filters.state || null;
@@ -12,11 +11,38 @@ export async function listTickets(filters = {}) {
 }
 
 export const TicketService = {
+    /**
+     * Lists all filtered tickets.
+     */
     listTickets,
+
+    /**
+     * Retrieves ticket by identifier.
+     */
     getById: (id) => API.getTicketById(id),
+
+    /**
+     * Creates new ticket record.
+     */
     create: (data) => API.createTicket(data),
+
+    /**
+     * Updates open ticket details.
+     */
     update: (id, data) => API.updateTicket(id, data),
+
+    /**
+     * Assigns technician to ticket.
+     */
     assign: (id, techId) => API.assignTechnician(id, techId),
+
+    /**
+     * Updates ticket lifecycle status.
+     */
     changeStatus: (id, status) => API.changeStatus(id, status),
+
+    /**
+     * Deletes ticket from system.
+     */
     delete: (id) => API.deleteTicket(id)
 };

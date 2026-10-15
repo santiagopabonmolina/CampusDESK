@@ -24,6 +24,9 @@ public class UserController {
 
     private final UserService userService;
 
+    /**
+     * Retrieves available technician users.
+     */
     @Operation(summary = "Listar técnicos disponibles", description = "Retorna la lista de usuarios activos que cuentan con el rol TECHNICIAN para asignación de incidencias.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de técnicos obtenido con éxito"),
@@ -34,6 +37,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getAvailableTechnicians());
     }
 
+    /**
+     * Retrieves all registered users.
+     */
     @Operation(summary = "Listar todos los usuarios (Solo ADMIN)", description = "Permite al administrador consultar el directorio completo de usuarios registrados en TechNova Solutions.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de usuarios"),
@@ -45,6 +51,9 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    /**
+     * Updates assigned user roles.
+     */
     @Operation(summary = "Actualizar roles de un usuario (Solo ADMIN)", description = "Permite a un administrador asignar y desasignar roles (ADMIN, TECHNICIAN, USER) a cualquier colaborador en la base de datos.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Roles actualizados exitosamente en PostgreSQL"),

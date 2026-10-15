@@ -1,4 +1,4 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 import { CONFIG } from './config.js';
 import { hasRole, isLoggedIn } from './auth.js';
 import { showToast, initAppShell, animateCounter } from './ui.js';
@@ -17,6 +17,9 @@ if (hasRole(CONFIG.ROLES.ADMIN)) {
     if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
+/**
+ * Loads technician dashboard data.
+ */
 export async function loadDashboard() {
     try {
         let stats = { totalTickets: 0, opened: 0, assigned: 0, inProcess: 0, resolved: 0, closed: 0 };
@@ -65,6 +68,9 @@ export async function loadDashboard() {
     }
 }
 
+/**
+ * Renders technician chart bars.
+ */
 function renderChart(stats) {
     const chart = document.getElementById('states-chart');
     if (!chart) return;

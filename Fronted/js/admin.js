@@ -1,4 +1,4 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 import { checkAdminAccess } from './auth.js';
 import { showToast, initAppShell, escapeHTML, setButtonLoading } from './ui.js';
 
@@ -22,6 +22,9 @@ const chkTech = document.getElementById('role-chk-tech');
 const chkAdmin = document.getElementById('role-chk-admin');
 const rolesErrorMsg = document.getElementById('roles-error-msg');
 
+/**
+ * Closes role management modal.
+ */
 function closeModal() {
     if (modalRoles) modalRoles.classList.remove('active');
     selectedUser = null;
@@ -31,6 +34,9 @@ function closeModal() {
 if (btnCloseRoles) btnCloseRoles.onclick = closeModal;
 if (btnCancelRoles) btnCancelRoles.onclick = closeModal;
 
+/**
+ * Opens user role modal.
+ */
 function openRoleModal(user) {
     selectedUser = user;
     if (modalUserName) modalUserName.textContent = `${user.firstName} ${user.lastName} (#${user.id})`;
@@ -80,6 +86,9 @@ if (btnSaveRoles) {
     };
 }
 
+/**
+ * Generates role badge markup.
+ */
 function getRoleBadge(roleName) {
     if (roleName === 'ADMIN') {
         return `<span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); margin-right: 4px;">ADMIN</span>`;
@@ -90,6 +99,9 @@ function getRoleBadge(roleName) {
     return `<span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); margin-right: 4px;">USER</span>`;
 }
 
+/**
+ * Loads all system users.
+ */
 async function loadUsers() {
     const tbody = document.getElementById('users-tbody');
     const loading = document.getElementById('loading-indicator');

@@ -8,5 +8,9 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
+
+    /**
+     * Finds ticket comments chronologically.
+     */
     List<Comment> findByTicketIdOrderByCreatedAtAsc(Long ticketId);
 }

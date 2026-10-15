@@ -2,12 +2,10 @@ import { API } from './api.js';
 import { setSession, isLoggedIn } from './auth.js';
 import { showToast, setButtonLoading } from './ui.js';
 
-// Redirect if already logged in
 if (isLoggedIn()) {
     window.location.href = 'dashboard.html';
 }
 
-// Elements
 const tabLogin = document.getElementById('tab-login');
 const tabRegister = document.getElementById('tab-register');
 const authTabsBar = document.getElementById('auth-tabs-bar');
@@ -16,7 +14,9 @@ const registerForm = document.getElementById('register-form');
 const regGeneralError = document.getElementById('reg-general-error');
 const loginGeneralError = document.getElementById('login-general-error');
 
-// Tab switching
+/**
+ * Switches to login tab.
+ */
 export function switchToLogin() {
     if (tabLogin) {
         tabLogin.className = 'auth-tab active';
@@ -32,6 +32,9 @@ export function switchToLogin() {
     document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
 }
 
+/**
+ * Switches to registration tab.
+ */
 export function switchToRegister() {
     if (tabRegister) {
         tabRegister.className = 'auth-tab active';
@@ -53,13 +56,14 @@ window.switchToRegister = switchToRegister;
 if (tabLogin) tabLogin.addEventListener('click', switchToLogin);
 if (tabRegister) tabRegister.addEventListener('click', switchToRegister);
 
-// Check query param (mode=register)
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('mode') === 'register') {
     switchToRegister();
 }
 
-// Toggle password visibility helper
+/**
+ * Configures password visibility toggle.
+ */
 function setupPasswordToggle(btnId, inputId) {
     const btn = document.getElementById(btnId);
     const input = document.getElementById(inputId);
@@ -87,7 +91,6 @@ function setupPasswordToggle(btnId, inputId) {
 setupPasswordToggle('btn-toggle-login-pwd', 'login-password');
 setupPasswordToggle('btn-toggle-reg-pwd', 'reg-password');
 
-// Password Strength Meter
 const regPasswordInput = document.getElementById('reg-password');
 const strengthContainer = document.getElementById('strength-container');
 const strengthBar = document.getElementById('strength-bar');
@@ -126,7 +129,6 @@ if (regPasswordInput && strengthContainer && strengthBar && strengthText) {
     });
 }
 
-// Login Submit
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -154,7 +156,6 @@ if (loginForm) {
     });
 }
 
-// Register Submit
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();

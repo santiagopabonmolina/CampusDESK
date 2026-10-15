@@ -22,6 +22,9 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    /**
+     * Creates a ticket comment.
+     */
     @Operation(summary = "Registrar comentario general", description = "Crea un comentario para un ticket activo.")
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(@Valid @RequestBody CommentRequest request,
@@ -30,6 +33,9 @@ public class CommentController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Retrieves ticket comments list.
+     */
     @Operation(summary = "Listar comentarios por ID de ticket", description = "Obtiene los comentarios de un ticket.")
     @GetMapping("/ticket/{ticketId}")
     public ResponseEntity<List<CommentResponse>> getCommentsByTicket(@PathVariable Long ticketId) {

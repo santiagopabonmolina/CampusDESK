@@ -18,6 +18,9 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
 
+    /**
+     * Creates and persists role.
+     */
     @Transactional
     public RoleResponse createRole(RoleRequest request) {
         RoleName roleName = RoleName.valueOf(request.getName().toUpperCase());
@@ -35,6 +38,9 @@ public class RoleService {
         return mapToResponse(savedRole);
     }
 
+    /**
+     * Retrieves all persisted roles.
+     */
     @Transactional(readOnly = true)
     public List<RoleResponse> getAllRoles() {
         return roleRepository.findAll().stream()
@@ -42,6 +48,9 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Maps role to response.
+     */
     private RoleResponse mapToResponse(Role role) {
         return RoleResponse.builder()
                 .id(role.getId())

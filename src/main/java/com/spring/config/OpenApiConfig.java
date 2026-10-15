@@ -16,6 +16,9 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Configures Swagger OpenAPI documentation.
+     */
     @Bean
     public OpenAPI campusDeskOpenAPI() {
         final String securitySchemeName = "BearerAuth";
@@ -32,7 +35,7 @@ public class OpenApiConfig {
                                 + "* 📜 **Auditoría e Historial**: Registro consistente de todas las transiciones.\n"
                                 + "* 💬 **Comentarios**: Diálogo cronológico en tickets activos.\n"
                                 + "* 📊 **Dashboard**: Métricas en tiempo real sincronizadas con PostgreSQL.\n\n"
-                                + "--- \n"
+                                + "---\n"
                                 + "*Para probar endpoints protegidos, primero haga login en `/api/auth/login`, copie el token y use el botón verde **Authorize** arriba a la derecha.*")
                         .version("1.0.0")
                         .contact(new Contact()

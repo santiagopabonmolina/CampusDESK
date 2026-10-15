@@ -12,17 +12,25 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    // buscar por correo
+
+    /**
+     * Finds user by email.
+     */
     Optional<User> findByEmail(String email);
 
-    //verificar si ya existe
+    /**
+     * Checks email existence status.
+     */
     boolean existsByEmail(String email);
 
-    //listar usuarios activos
+    /**
+     * Finds all active users.
+     */
     List<User> findByActiveTrue();
 
-    // Listar usuarios por rol (ej: listar técnicos disponibles)
+    /**
+     * Finds active users role.
+     */
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName AND u.active = true")
     List<User> findByRoleNameAndActiveTrue(@Param("roleName") RoleName roleName);
 }
-

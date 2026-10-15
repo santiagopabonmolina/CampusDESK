@@ -25,10 +25,16 @@ public class TicketHistoryController {
 
     private final TicketHistoryService ticketHistoryService;
 
+    /**
+     * Initializes ticket history controller.
+     */
     public TicketHistoryController(TicketHistoryService ticketHistoryService) {
         this.ticketHistoryService = ticketHistoryService;
     }
 
+    /**
+     * Retrieves ticket audit history.
+     */
     @Operation(summary = "Consultar historial de un ticket", description = "Retorna en orden cronológico todos los cambios de estado sufridos por el ticket, indicando estado previo, nuevo estado, autor del cambio y timestamp.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Historial obtenido exitosamente"),

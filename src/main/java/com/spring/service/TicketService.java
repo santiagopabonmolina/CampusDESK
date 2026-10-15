@@ -30,6 +30,9 @@ public class TicketService {
     private final UserRepository userRepository;
     private final TicketHistoryService ticketHistoryService;
 
+    /**
+     * Creates and persists ticket.
+     */
     @Transactional
     public TicketResponse createTicket(TicketRequest request) {
         User requester = userRepository.findById(request.getRequesterId())
@@ -49,6 +52,9 @@ public class TicketService {
         return TicketResponse.fromEntity(savedTicket);
     }
 
+    /**
+     * Retrieves filtered ticket list.
+     */
     @Transactional(readOnly = true)
     public List<TicketResponse> getAllTickets(TicketState state, TicketPriority priority,
                                               TicketCategory category, Authentication authentication) {
@@ -68,14 +74,12 @@ public class TicketService {
                 if (tech == null) return List.of();
                 tickets = ticketRepository.findByTechnicianAssignedId(tech.getId());
             } else {
-                // USER: Solo sus propias solicitudes
                 User user = userRepository.findByEmail(email).orElse(null);
                 if (user == null) return List.of();
                 tickets = ticketRepository.findByRequesterId(user.getId());
             }
         }
 
-        // Aplicar filtros en memoria (respetando permisos ya aplicados)
         if (state != null) {
             tickets = tickets.stream().filter(t -> t.getState() == state).collect(Collectors.toList());
         }
@@ -89,6 +93,9 @@ public class TicketService {
         return tickets.stream().map(TicketResponse::fromEntity).collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves ticket by id.
+     */
     @Transactional(readOnly = true)
     public TicketResponse getTicketById(Long id, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(id)
@@ -101,6 +108,9 @@ public class TicketService {
         return TicketResponse.fromEntity(ticket);
     }
 
+    /**
+     * Finds ticket by identifier.
+     */
     @Transactional(readOnly = true)
     public TicketResponse getTicketById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
@@ -108,6 +118,9 @@ public class TicketService {
         return TicketResponse.fromEntity(ticket);
     }
 
+    /**
+     * Updates open ticket entity.
+     */
     @Transactional
     public TicketResponse updateTicket(Long id, TicketRequest request, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(id)
@@ -132,11 +145,17 @@ public class TicketService {
         return TicketResponse.fromEntity(ticketRepository.save(ticket));
     }
 
+    /**
+     * Updates ticket information overload.
+     */
     @Transactional
     public TicketResponse updateTicket(Long id, TicketRequest request) {
         return updateTicket(id, request, null);
     }
 
+    /**
+     * Assigns technician to ticket.
+     */
     @Transactional
     public TicketResponse assignTechnician(Long id, Long technicianId, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(id)
@@ -145,7 +164,6 @@ public class TicketService {
         User technician = userRepository.findById(technicianId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Técnico no encontrado"));
 
-        // Validar que el usuario tenga rol TECHNICIAN
         boolean isTechnician = technician.getRoles().stream()
                 .anyMatch(role -> role.getName() == RoleName.TECHNICIAN);
         if (!isTechnician) {
@@ -157,7 +175,6 @@ public class TicketService {
         ticket.setTechnicianAssigned(technician);
         ticket.setState(TicketState.ASSIGNED);
 
-        // Registrar al admin que hizo la asignación como responsable del cambio
         User admin = null;
         if (authentication != null) {
             admin = userRepository.findByEmail(authentication.getName()).orElse(null);
@@ -168,11 +185,17 @@ public class TicketService {
         return TicketResponse.fromEntity(ticketRepository.save(ticket));
     }
 
+    /**
+     * Assigns ticket technician overload.
+     */
     @Transactional
     public TicketResponse assignTechnician(Long id, Long technicianId) {
         return assignTechnician(id, technicianId, null);
     }
 
+    /**
+     * Transitions ticket lifecycle state.
+     */
     @Transactional
     public TicketResponse updateState(Long id, TicketState newState, Authentication authentication) {
         Ticket ticket = ticketRepository.findById(id)
@@ -184,12 +207,10 @@ public class TicketService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ticket ya está CERRADO");
         }
 
-        // CP-10: Resolver un ticket sin pasar por EN_PROCESO -> HTTP 409
         if (newState == TicketState.RESOLVED && previousState != TicketState.IN_PROCESS) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Un ticket solo puede marcarse RESUELTA si previamente estuvo EN_PROCESO");
         }
 
-        // CP-12: Cerrar un ticket RESUELTA como solicitante
         if (newState == TicketState.CLOSED) {
             if (previousState != TicketState.RESOLVED) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Un ticket solo puede cerrarse si previamente está en estado RESUELTA");
@@ -202,7 +223,6 @@ public class TicketService {
             }
         }
 
-        // CP-09: Un técnico no puede modificar tickets ajenos
         if (newState == TicketState.IN_PROCESS) {
             if (previousState != TicketState.ASSIGNED) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Un ticket solo puede pasar a EN_PROCESO desde ASIGNADA");
@@ -241,28 +261,43 @@ public class TicketService {
         return TicketResponse.fromEntity(ticketRepository.save(ticket));
     }
 
+    /**
+     * Updates ticket state overload.
+     */
     @Transactional
     public TicketResponse updateState(Long id, TicketState newState) {
         return updateState(id, newState, null);
     }
 
+    /**
+     * Finds tickets by requester.
+     */
     @Transactional(readOnly = true)
     public List<TicketResponse> getTicketsByRequester(Long requesterId) {
         return ticketRepository.findByRequesterId(requesterId).stream()
                 .map(TicketResponse::fromEntity).collect(Collectors.toList());
     }
 
+    /**
+     * Finds tickets by technician.
+     */
     @Transactional(readOnly = true)
     public List<TicketResponse> getTicketsByTechnician(Long technicianId) {
         return ticketRepository.findByTechnicianAssignedId(technicianId).stream()
                 .map(TicketResponse::fromEntity).collect(Collectors.toList());
     }
 
+    /**
+     * Deletes ticket by identifier.
+     */
     @Transactional
     public void deleteTicket(Long id) {
         ticketRepository.deleteById(id);
     }
 
+    /**
+     * Checks ticket access permissions.
+     */
     private boolean canAccessTicket(Ticket ticket, Authentication authentication) {
         if (hasRole(authentication, "ROLE_ADMIN")) return true;
         String email = authentication.getName();
@@ -274,6 +309,9 @@ public class TicketService {
                 email.equalsIgnoreCase(ticket.getRequester().getEmail());
     }
 
+    /**
+     * Checks user role authority.
+     */
     private boolean hasRole(Authentication authentication, String role) {
         for (GrantedAuthority ga : authentication.getAuthorities()) {
             if (role.equals(ga.getAuthority())) {

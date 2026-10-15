@@ -2,6 +2,9 @@ import { CONFIG } from './config.js';
 import { showToast } from './ui.js';
 import { logout } from './auth.js';
 
+/**
+ * Performs HTTP API request.
+ */
 export async function fetchApi(endpoint, options = {}) {
   const url = `${CONFIG.API_BASE_URL}${endpoint}`;
   
@@ -27,7 +30,6 @@ export async function fetchApi(endpoint, options = {}) {
   try {
     const response = await fetch(url, config);
     
-    // Parse response
     let data = null;
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -82,24 +84,40 @@ export async function fetchApi(endpoint, options = {}) {
   }
 }
 
-// ---------------------------
-// Endpoints API
-// ---------------------------
-
 export const API = {
-  // Auth
+  /**
+   * Authenticates user with credentials.
+   */
   login: (data) => fetchApi('/auth/login', { method: 'POST', body: data }),
+
+  /**
+   * Registers new user account.
+   */
   register: (data) => fetchApi('/auth/register', { method: 'POST', body: data }),
 
-  // Portal Público & Landing
+  /**
+   * Retrieves public system statistics.
+   */
   getPublicStats: () => fetchApi('/public/stats'),
   
-  // Users
+  /**
+   * Retrieves available technician users.
+   */
   getTechnicians: () => fetchApi('/users/technicians'),
+
+  /**
+   * Retrieves all system users.
+   */
   getAllUsers: () => fetchApi('/users'),
+
+  /**
+   * Updates user role assignments.
+   */
   updateUserRoles: (userId, roles) => fetchApi(`/users/${userId}/roles`, { method: 'PUT', body: roles }),
   
-  // Tickets (Filtros por estado, prioridad y categoría directos al backend)
+  /**
+   * Retrieves filtered tickets list.
+   */
   getTickets: (state = null, priority = null, category = null) => {
     const params = new URLSearchParams();
     if (state) {
@@ -111,21 +129,59 @@ export const API = {
     const qs = params.toString();
     return fetchApi(qs ? `/tickets?${qs}` : '/tickets');
   },
+
+  /**
+   * Retrieves ticket by identifier.
+   */
   getTicketById: (id) => fetchApi(`/tickets/${id}`),
+
+  /**
+   * Creates new ticket record.
+   */
   createTicket: (data) => fetchApi('/tickets', { method: 'POST', body: data }),
+
+  /**
+   * Updates open ticket details.
+   */
   updateTicket: (id, data) => fetchApi(`/tickets/${id}`, { method: 'PUT', body: data }),
+
+  /**
+   * Assigns technician to ticket.
+   */
   assignTechnician: (id, technicianId) => fetchApi(`/tickets/${id}/assign?technicianId=${technicianId}`, { method: 'PATCH' }),
+
+  /**
+   * Updates ticket lifecycle status.
+   */
   changeStatus: (id, status) => fetchApi(`/tickets/${id}/status?status=${status}&state=${status}`, { method: 'PATCH' }),
+
+  /**
+   * Deletes ticket from system.
+   */
   deleteTicket: (id) => fetchApi(`/tickets/${id}`, { method: 'DELETE' }),
   
-  // Comments
+  /**
+   * Retrieves ticket comments list.
+   */
   getComments: (ticketId) => fetchApi(`/tickets/${ticketId}/comments`),
+
+  /**
+   * Adds comment to ticket.
+   */
   addComment: (data) => fetchApi(`/tickets/${data.ticketId}/comments`, { method: 'POST', body: data }),
   
-  // History
+  /**
+   * Retrieves ticket audit timeline.
+   */
   getHistory: (ticketId) => fetchApi(`/tickets/${ticketId}/history`),
   
-  // Dashboard & Métricas
+  /**
+   * Retrieves dashboard summary metrics.
+   */
   getSummary: () => fetchApi('/reports/summary'),
+
+  /**
+   * Retrieves dashboard statistics data.
+   */
   getStats: () => fetchApi('/dashboard/stats')
 };

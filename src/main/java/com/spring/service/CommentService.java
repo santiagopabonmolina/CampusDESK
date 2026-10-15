@@ -29,11 +29,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     /**
-     * Crea un comentario validando permisos:
-     * - ADMIN puede comentar en cualquier ticket activo
-     * - TECHNICIAN solo puede comentar en tickets que tiene asignados
-     * - USER solo puede comentar en sus propios tickets
-     * - Nadie puede comentar en tickets CERRADOS
+     * Creates authenticated ticket comment.
      */
     @Transactional
     public CommentResponse createComment(CommentRequest request, Authentication authentication) {
@@ -44,7 +40,6 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se permite agregar comentarios a un ticket cerrado");
         }
 
-        // Validar permisos de comentario según rol
         if (authentication != null) {
             String email = authentication.getName();
             boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
@@ -53,14 +48,12 @@ public class CommentService {
                 boolean isTechnician = hasRole(authentication, "ROLE_TECHNICIAN");
 
                 if (isTechnician) {
-                    // Técnico solo puede comentar en sus tickets asignados
                     if (ticket.getTechnicianAssigned() == null ||
                             !email.equalsIgnoreCase(ticket.getTechnicianAssigned().getEmail())) {
                         throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                                 "Solo puedes comentar en tickets que tienes asignados");
                     }
                 } else {
-                    // USER solo puede comentar en sus propios tickets
                     if (ticket.getRequester() == null ||
                             !email.equalsIgnoreCase(ticket.getRequester().getEmail())) {
                         throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -85,13 +78,16 @@ public class CommentService {
     }
 
     /**
-     * Sobrecarga para compatibilidad con CommentController (sin autenticación).
+     * Creates ticket comment overload.
      */
     @Transactional
     public CommentResponse createComment(CommentRequest request) {
         return createComment(request, null);
     }
 
+    /**
+     * Retrieves ticket comment list.
+     */
     @Transactional(readOnly = true)
     public List<CommentResponse> getCommentsByTicketId(Long ticketId) {
         List<Comment> comments = commentRepository.findByTicketIdOrderByCreatedAtAsc(ticketId);
@@ -100,6 +96,9 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Maps comment to response.
+     */
     private CommentResponse mapToResponse(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())
@@ -111,6 +110,9 @@ public class CommentService {
                 .build();
     }
 
+    /**
+     * Checks granted authority role.
+     */
     private boolean hasRole(Authentication authentication, String role) {
         for (GrantedAuthority ga : authentication.getAuthorities()) {
             if (role.equals(ga.getAuthority())) {

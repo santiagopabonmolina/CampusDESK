@@ -1,4 +1,4 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 import { CONFIG } from './config.js';
 import { getCurrentUser, hasRole, isLoggedIn } from './auth.js';
 import { showToast, formatDate, getStateBadge, getPriorityBadge, escapeHTML, initAppShell } from './ui.js';
@@ -25,7 +25,9 @@ if (hasRole(CONFIG.ROLES.ADMIN)) {
     if (adminMenu) adminMenu.classList.remove('hidden');
 }
 
-// Load Ticket Details
+/**
+ * Loads ticket detail information.
+ */
 export async function loadTicketData() {
     try {
         const t = await API.getTicketById(ticketId);
@@ -98,6 +100,9 @@ export async function loadTicketData() {
     }
 }
 
+/**
+ * Updates state stepper indicators.
+ */
 function updateStepper(currentState) {
     const states = ['OPENED', 'ASSIGNED', 'IN_PROCESS', 'RESOLVED', 'CLOSED'];
     const currentIndex = states.indexOf(currentState);
@@ -120,6 +125,9 @@ function updateStepper(currentState) {
     });
 }
 
+/**
+ * Renders ticket action buttons.
+ */
 function renderActions(t) {
     const container = document.getElementById('actions-container');
     const commentForm = document.getElementById('form-comment');
@@ -200,6 +208,9 @@ function renderActions(t) {
     }
 }
 
+/**
+ * Updates ticket lifecycle status.
+ */
 async function changeStatus(newStatus) {
     try {
         await API.changeStatus(ticketId, newStatus);
@@ -217,6 +228,9 @@ const btnCancelAssign = document.getElementById('btn-cancel-assign');
 if (btnCloseAssign && modalAssign) btnCloseAssign.onclick = () => modalAssign.classList.remove('active');
 if (btnCancelAssign && modalAssign) btnCancelAssign.onclick = () => modalAssign.classList.remove('active');
 
+/**
+ * Opens technician assignment modal.
+ */
 async function openAssignModal() {
     if (!modalAssign) return;
     modalAssign.classList.add('active');
@@ -255,6 +269,9 @@ if (btnConfirmAssign) {
 }
 
 // --- Comentarios ---
+/**
+ * Loads ticket comments conversation.
+ */
 async function loadComments() {
     try {
         const comments = await API.getComments(ticketId);
@@ -276,7 +293,6 @@ async function loadComments() {
             const displayName = c.authorName || `Usuario ID: ${c.authorId}`;
             const initial = displayName.charAt(0).toUpperCase();
 
-            // Identificar rol para estilo visual de burbuja y avatar
             let roleClass = 'role-user';
             let roleTag = 'Usuario';
             let tagClass = 'user';
@@ -342,6 +358,9 @@ if (formComment) {
 }
 
 // --- Historial ---
+/**
+ * Loads ticket audit timeline.
+ */
 async function loadHistory() {
     try {
         const history = await API.getHistory(ticketId);

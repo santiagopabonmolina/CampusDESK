@@ -18,11 +18,17 @@ public class DashboardService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Retrieves default dashboard metrics.
+     */
     @Transactional(readOnly = true)
     public DashboardResponse getDashboardSummary() {
         return getDashboardSummary(null);
     }
 
+    /**
+     * Calculates role dashboard summary.
+     */
     @Transactional(readOnly = true)
     public DashboardResponse getDashboardSummary(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -55,7 +61,6 @@ public class DashboardService {
                     .closed(ticketRepository.countByTechnicianAssignedIdAndState(techId, TicketState.CLOSED))
                     .build();
         } else {
-            // Rol USER: filtrar conteos por sus propios tickets solicitados
             Long requesterId = user.getId();
             return DashboardResponse.builder()
                     .totalTickets(ticketRepository.countByRequesterId(requesterId))
@@ -68,6 +73,9 @@ public class DashboardService {
         }
     }
 
+    /**
+     * Calculates global ticket counts.
+     */
     private DashboardResponse getGlobalCounts() {
         return DashboardResponse.builder()
                 .totalTickets(ticketRepository.count())

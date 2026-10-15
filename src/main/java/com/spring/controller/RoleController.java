@@ -21,6 +21,9 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    /**
+     * Creates a new role.
+     */
     @Operation(summary = "Crear nuevo rol", description = "Crea un nuevo rol en la base de datos.")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -29,6 +32,9 @@ public class RoleController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Retrieves all system roles.
+     */
     @Operation(summary = "Listar roles", description = "Retorna todos los roles configurados.")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")

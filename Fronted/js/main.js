@@ -1,13 +1,14 @@
-import { API } from './api.js';
+﻿import { API } from './api.js';
 import { setSession, isLoggedIn } from './auth.js';
 import { showToast, setButtonLoading } from './ui.js';
 
-// Redirect if already logged in
 if (isLoggedIn()) {
     window.location.href = 'dashboard.html';
 }
 
-// Tab navigation
+/**
+ * Switches to login form.
+ */
 export function switchToLogin() {
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
@@ -20,6 +21,9 @@ export function switchToLogin() {
     document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
 }
 
+/**
+ * Switches to register form.
+ */
 export function switchToRegister() {
     const tabLogin = document.getElementById('tab-login');
     const tabRegister = document.getElementById('tab-register');
@@ -35,7 +39,6 @@ export function switchToRegister() {
 window.switchToLogin = switchToLogin;
 window.switchToRegister = switchToRegister;
 
-// Bind submit handlers
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -55,7 +58,6 @@ if (loginForm) {
                 setTimeout(() => window.location.href = 'dashboard.html', 1000);
             }
         } catch (error) {
-            // Manejo de error real contra el servidor (sin modo offline/demo)
             const errEl = document.getElementById('login-general-error');
             if (errEl) errEl.textContent = error.message;
             showToast(error.message, 'error');
@@ -94,7 +96,6 @@ if (registerForm) {
             const loginPass = document.getElementById('login-password');
             if (loginPass) loginPass.focus();
         } catch (error) {
-            // Manejo de error real contra el servidor (sin modo offline/demo)
             const errEl = document.getElementById('reg-general-error');
             if (errEl) errEl.textContent = error.message;
             showToast(error.message, 'error');

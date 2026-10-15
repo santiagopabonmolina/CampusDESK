@@ -30,7 +30,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    // WRITE_ONLY evita la fuga de datos en respuestas JSON (contraseña nunca expuesta)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false, length = 255)
     private String password;
@@ -51,6 +50,9 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    /**
+     * Sets defaults before persist.
+     */
     @PrePersist
     protected void onCreate() {
         this.registerDate = LocalDateTime.now();
