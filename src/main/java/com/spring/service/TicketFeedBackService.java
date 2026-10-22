@@ -1,8 +1,7 @@
 package com.spring.service;
 
-import com.spring.dto.request.TicketFeedBackRepository;
+import com.spring.dto.request.TicketFeedBackRequest;
 import com.spring.dto.response.TicketFeedBackResponse;
-import com.spring.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TicketFeedBackService {
 
-    private final TicketFeedBackRepository ticketFeedBackRepository;
+    private final TicketFeedBackRequest ticketFeedBackRequest;
 
     @Transactional(readOnly = true)
     // Overloaded method calculating global dashboard summary when no principal exists

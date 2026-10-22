@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class TicketFeedBackRepository {
+public class TicketFeedBackRequest {
 
     @NotNull(message = "La puntuacion es obligatorio")
     @Min(1)
