@@ -72,7 +72,7 @@ public class TicketHistory {
     private TicketState previousStatus;
 
     @Column(name = "TimeStatus", nullable = false, length = 30, updatable = false)
-    private TicketState newStatus;
+    private TicketState PrStatus;
 
     // Maps new ticket state enum value as string in database
     @Enumerated(EnumType.STRING)
