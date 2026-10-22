@@ -93,15 +93,6 @@ public class Ticket {
     // Stores the date and time when this ticket was first opened
     private LocalDateTime createDate;
 
-    // Maps resolution timestamp column populated when ticket reaches resolved status
-    @Column(name = "resolution_date")
-    // Stores the date and time when the technician marked ticket resolved
-    private LocalDateTime resolutionDate;
-
-    // Maps closing timestamp column populated when ticket reaches closed status
-    @Column(name = "close_date")
-    // Stores the date and time when the ticket was formally closed
-    private LocalDateTime closeDate;
 
     // Instructs Lombok builder to retain initialized ArrayList for comments collection
     @Builder.Default
