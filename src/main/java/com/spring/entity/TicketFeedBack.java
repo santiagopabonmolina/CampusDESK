@@ -19,7 +19,7 @@ public class TicketFeedBack {
     private int puntiation;
 
     @Column(length = 500)
-    private String title;
+    private String comment;
 
     @Column(name = "create_date", updatable = false)
     private LocalDateTime createDate;
