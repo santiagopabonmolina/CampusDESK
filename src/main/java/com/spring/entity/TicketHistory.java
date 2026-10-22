@@ -71,6 +71,9 @@ public class TicketHistory {
     // Holds the status value prior to this state transition occurring
     private TicketState previousStatus;
 
+    @Column(name = "TimeStatus", nullable = false, length = 30, updatable = false)
+    private TicketState newStatus;
+
     // Maps new ticket state enum value as string in database
     @Enumerated(EnumType.STRING)
     // Configures required read-only column storing the updated ticket status value
