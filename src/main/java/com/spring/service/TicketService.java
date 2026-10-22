@@ -6,6 +6,7 @@ import com.spring.dto.request.TicketRequest;
 // Imports TicketResponse DTO transferring ticket entity information to presentation
 import com.spring.dto.response.TicketResponse;
 // Imports Ticket JPA entity representing support tickets in database
+import com.spring.entity.Tag;
 import com.spring.entity.Ticket;
 // Imports User JPA entity representing user account records
 import com.spring.entity.User;
@@ -18,6 +19,7 @@ import com.spring.entity.enums.TicketPriority;
 // Imports TicketState enum representing ticket workflow progression stages
 import com.spring.entity.enums.TicketState;
 // Imports TicketRepository interface providing ticket database query operations
+import com.spring.repository.TagRepository;
 import com.spring.repository.TicketRepository;
 // Imports UserRepository interface providing user lookup and query operations
 import com.spring.repository.UserRepository;
@@ -531,5 +533,84 @@ public class TicketService {
         return false;
     // Closes hasRole helper method
     }
+
+    private final TagRepository tagRepository;
+      */
+    @Transactional
+    public TicketResponse addTagsToTicket(Long ticketId, List<String> tagNames, Authentication authentication) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket no encontrado con id: " + ticketId));
+
+        // Validación de permisos: ADMIN o el TECHNICIAN asignado
+        boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
+        boolean isAssignedTech = ticket.getTechnicianAssigned() != null &&
+                ticket.getTechnicianAssigned().getEmail().equalsIgnoreCase(authentication.getName());
+
+        if (!isAdmin && !isAssignedTech) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Solo un administrador o el técnico asignado pueden agregar etiquetas a este ticket");
+        }
+
+        if (tagNames == null || tagNames.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La lista de etiquetas no puede estar vacía");
+        }
+
+        for (String rawName : tagNames) {
+            if (rawName == null || rawName.trim().isEmpty()) continue;
+
+            // 1. Normalización estricta en mayúsculas sin espacios redundantes
+            String normalized = rawName.trim().toUpperCase();
+
+            // 2. Si la etiqueta no existe, se crea automáticamente; si existe, se vincula
+            Tag tag = tagRepository.findByNombreIgnoreCase(normalized)
+                    .orElseGet(() -> tagRepository.save(Tag.builder().nombre(normalized).build()));
+
+            ticket.getTags().add(tag);
+        }
+
+        Ticket saved = ticketRepository.save(ticket);
+        return TicketResponse.fromEntity(saved);
+    }
+
+    /**
+     * Retorna tickets asociados a una etiqueta respetando la visibilidad por rol.
+     */
+    @Transactional(readOnly = true)
+    public List<TicketResponse> getTicketsByTag(String nombre, Authentication authentication) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El parámetro 'nombre' de la etiqueta es obligatorio");
+        }
+
+        String normalized = nombre.trim().toUpperCase();
+        List<Ticket> matchingTickets = ticketRepository.findByTagNombreIgnoreCase(normalized);
+
+        // Si no hay autenticación, retorna todo (o restringe según configuración)
+        if (authentication == null) {
+            return matchingTickets.stream().map(TicketResponse::fromEntity).collect(Collectors.toList());
+        }
+
+        String email = authentication.getName();
+        boolean isAdmin = hasRole(authentication, "ROLE_ADMIN");
+        boolean isTechnician = hasRole(authentication, "ROLE_TECHNICIAN");
+
+        // Filtrado por visibilidad de rol:
+        // ADMIN: ve todos
+        // TECHNICIAN: solo si está asignado a él
+        // USER: solo si es el creador (requester)
+        return matchingTickets.stream()
+                .filter(ticket -> {
+                    if (isAdmin) return true;
+                    if (isTechnician) {
+                        return ticket.getTechnicianAssigned() != null &&
+                                ticket.getTechnicianAssigned().getEmail().equalsIgnoreCase(email);
+                    }
+                    return ticket.getRequester() != null &&
+                            ticket.getRequester().getEmail().equalsIgnoreCase(email);
+                })
+                .map(TicketResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+
 // Closes TicketService class definition
 }

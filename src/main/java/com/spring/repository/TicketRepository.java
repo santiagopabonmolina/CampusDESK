@@ -12,6 +12,8 @@ import com.spring.entity.enums.TicketState;
 // Imports JpaRepository providing CRUD, sorting, and pagination database operations
 import org.springframework.data.jpa.repository.JpaRepository;
 // Imports Spring stereotype repository annotation enabling Spring Data bean detection
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 // Imports Java utility List collection interface for returning query result lists
@@ -99,5 +101,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
      */
     // Computes count of tickets assigned to a technician matching a state
     long countByTechnicianAssignedIdAndState(Long technicianId, TicketState state);
+
+    @Query("SELECT DISTINCT t FROM Ticket t JOIN t.tags tag WHERE UPPER(tag.nombre) = UPPER(:nombre)")
+    List<Ticket> findByTagNombreIgnoreCase(@Param("nombre") String nombre);
+
+
 // Closes the TicketRepository interface definition
 }

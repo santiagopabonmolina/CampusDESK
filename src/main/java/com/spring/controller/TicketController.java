@@ -297,5 +297,29 @@ public class TicketController {
         return new ResponseEntity<>(commentService.createComment(request, authentication), HttpStatus.CREATED);
     // Closes createComment handler method
     }
+
+    @Operation(summary = "Asociar etiquetas a un ticket", description = "Asocia una lista de tags al ticket. Solo ADMIN o el técnico asignado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Etiquetas asociadas exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Lista de etiquetas inválida"),
+            @ApiResponse(responseCode = "403", description = "No autorizado para etiquetar este ticket"),
+            @ApiResponse(responseCode = "404", description = "Ticket no encontrado")
+    })
+    @PostMapping("/{id}/tags")
+    public ResponseEntity<TicketResponse> addTags(
+            @PathVariable Long id,
+            @RequestBody List<String> tags,
+            Authentication authentication) {
+        return ResponseEntity.ok(ticketService.addTagsToTicket(id, tags, authentication));
+    }
+
+    @Operation(summary = "Consultar tickets por etiqueta", description = "Lista los tickets con la etiqueta indicada, respetando la visibilidad del rol.")
+    @GetMapping("/por-tag")
+    public ResponseEntity<List<TicketResponse>> getTicketsByTag(
+            @RequestParam("nombre") String nombre,
+            Authentication authentication) {
+        return ResponseEntity.ok(ticketService.getTicketsByTag(nombre, authentication));
+
+    }
 // Closes TicketController class definition
 }
