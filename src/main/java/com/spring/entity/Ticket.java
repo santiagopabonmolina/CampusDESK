@@ -17,7 +17,9 @@ import java.time.LocalDateTime;
 // Imports ArrayList class to initialize collection fields with empty lists
 import java.util.ArrayList;
 // Imports List interface representing an ordered collection of objects
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // Marks this class as a persistent entity within Spring Data JPA
 @Entity
@@ -117,6 +119,16 @@ public class Ticket {
     // Holds the collection of audit history transitions recorded for this ticket
     private List<TicketHistory> history = new ArrayList<>();
 
+    @Builder.Default
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "ticket_tag",
+            joinColumns = @JoinColumn(name = "ticket_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+//
+
     /**
      * Sets defaults before persist.
      */
@@ -134,5 +146,6 @@ public class Ticket {
         }
     // Closes onCreate callback method
     }
+
 // Closes Ticket class definition
 }
